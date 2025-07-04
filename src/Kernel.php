@@ -21,7 +21,7 @@ class Kernel
     private function loadEnvironmentVariables(): void
     {
         if (file_exists(__DIR__ . '/../.env')) {
-            $dotenv = Dotenv::createImmutable(__DIR__ . '../../');
+            $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
             $dotenv->load();
         }
     }
