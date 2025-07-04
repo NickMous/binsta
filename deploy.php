@@ -123,7 +123,7 @@ task('local:set-sentry-env', function () {
     set('sentry', [
         'organization' => 'nickmous',
         'projects' => [
-            'binsta-' . $host . '-frontend',
+//            'binsta-' . $host . '-frontend',
             'binsta-' . $host . '-backend',
         ],
         'token' => get('sentry_auth_token'),
