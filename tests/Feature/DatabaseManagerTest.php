@@ -1,6 +1,6 @@
 <?php
 
-use Nickmous\MyOwnFramework\Managers\DatabaseManager;
+use NickMous\MyOwnFramework\Managers\DatabaseManager;
 
 covers(DatabaseManager::class);
 

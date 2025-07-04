@@ -1,7 +1,7 @@
 <?php
 
-use Nickmous\MyOwnFramework\Controllers\BaseController;
-use Nickmous\MyOwnFramework\Managers\DatabaseManager;
+use NickMous\MyOwnFramework\Base\BaseController;
+use NickMous\MyOwnFramework\Managers\DatabaseManager;
 
 covers(BaseController::class);
 

@@ -1,9 +1,9 @@
 <?php
 
-namespace Nickmous\MyOwnFramework;
+namespace NickMous\MyOwnFramework;
 
 use Dotenv\Dotenv;
-use Nickmous\MyOwnFramework\Managers\DatabaseManager;
+use NickMous\MyOwnFramework\Managers\DatabaseManager;
 use Spatie\Ignition\Ignition;
 
 use function Sentry\init;

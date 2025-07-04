@@ -1,6 +1,6 @@
 <?php
 
-namespace Nickmous\MyOwnFramework\Twig;
+namespace NickMous\MyOwnFramework\Twig;
 
 use InvalidArgumentException;
 use Twig\Extension\AbstractExtension;
