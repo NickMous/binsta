@@ -34,7 +34,7 @@ jobs:
         image: mariadb:10.11
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: binsta_test
+          MYSQL_DATABASE: test
           MYSQL_USER: db
           MYSQL_PASSWORD: db
         ports:
@@ -61,7 +61,7 @@ jobs:
         image: mariadb:10.11
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: binsta_test
+          MYSQL_DATABASE: test
           MYSQL_USER: db
           MYSQL_PASSWORD: db
         ports:
@@ -91,7 +91,7 @@ jobs:
         image: mariadb:10.11
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: binsta_test
+          MYSQL_DATABASE: test
           MYSQL_USER: db
           MYSQL_PASSWORD: db
         ports:

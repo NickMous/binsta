@@ -8,7 +8,7 @@ use Spatie\Ignition\Ignition;
 
 class Kernel
 {
-    public function __construct()
+    public function init(): void
     {
         // Initialize the framework components
         $this->loadEnvironmentVariables();
@@ -21,7 +21,7 @@ class Kernel
     private function loadEnvironmentVariables(): void
     {
         if (file_exists(__DIR__ . '/../.env')) {
-            $dotenv = Dotenv::createImmutable(__DIR__ . '/01-binsta/');
+            $dotenv = Dotenv::createImmutable(__DIR__ . '../../');
             $dotenv->load();
         }
     }
@@ -45,7 +45,7 @@ class Kernel
         DatabaseManager::instantiate();
     }
 
-    private function initializeSession(): void
+    public function initializeSession(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
