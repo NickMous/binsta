@@ -56,6 +56,10 @@ class Kernel
 
     public function initializeSentry(): void
     {
+        if (empty($_ENV['SENTRY_DSN'])) {
+            return; // Sentry DSN is not set, skip initialization
+        }
+
         init([
             'dsn' => $_ENV['SENTRY_DSN'],
             'traces_sample_rate' => 1.0,
