@@ -10,7 +10,7 @@ require 'recipe/deploy/check_remote.php';
 require 'recipe/deploy/cleanup.php';
 
 set('repository', 'git@github.com:NickMous/binsta.git');
-set('dotenv-local', __DIR__.'/.env');
+set('dotenv-local', __DIR__ . '/.env');
 //set('bin/bun', function () {
 //    return run('which bun');
 //});
@@ -25,11 +25,11 @@ add('writable_dirs', []);
 
 // Hosts
 foreach (range(1, 2) as $i) {
-    host('binsta0'.$i)
+    host('binsta0' . $i)
         ->setHostname('83.87.185.201')
         ->setRemoteUser('deployer')
         ->setPort(1124)
-        ->setDeployPath('/var/www/binsta/0'.$i);
+        ->setDeployPath('/var/www/binsta/0' . $i);
 }
 
 host('production')
@@ -122,8 +122,8 @@ task('local:set-sentry-env', function () {
     set('sentry', [
         'organization' => 'nickmous',
         'projects' => [
-            $host.'-frontend',
-            $host.'-backend',
+            'binsta-' . $host . '-frontend',
+            'binsta-' . $host . '-backend',
         ],
         'token' => get('sentry_auth_token'),
         'sentry_server' => 'https://sentry.nickmous.com',
