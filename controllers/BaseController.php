@@ -1,6 +1,6 @@
 <?php
 
-namespace Nickmous\MyOwnFramework\Controllers;
+namespace NickMous\MyOwnFramework\Controllers;
 
 use RedBeanPHP\OODBBean;
 use RedBeanPHP\R;

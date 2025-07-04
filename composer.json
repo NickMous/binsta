@@ -11,9 +11,9 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Nickmous\\MyOwnFramework\\": "src/",
+            "NickMous\\MyOwnFramework\\": "src/",
             "NickMous\\MyOwnFramework\\Tests\\": "tests/",
-            "Nickmous\\MyOwnFramework\\Controllers\\": "controllers/"
+            "NickMous\\MyOwnFramework\\Controllers\\": "controllers/"
         },
         "files": [
           "helpers.php"

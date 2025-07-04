@@ -1,6 +1,6 @@
 <?php
 
-namespace Nickmous\MyOwnFramework\Managers;
+namespace NickMous\MyOwnFramework\Managers;
 
 use RedBeanPHP\R;
 use RuntimeException;
