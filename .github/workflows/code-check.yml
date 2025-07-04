@@ -29,6 +29,8 @@ jobs:
 
     needs: code-check
     runs-on: ubuntu-latest
+    env:
+      DB_HOST: localhost
     services:
       mariadb:
         image: mariadb:10.11
