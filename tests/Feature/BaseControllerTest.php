@@ -5,7 +5,7 @@ use NickMous\MyOwnFramework\Managers\DatabaseManager;
 
 covers(BaseController::class);
 
-it('retrieves a bean by ID', function () {
+it('retrieves a bean by ID', function (): void {
     DatabaseManager::instantiate();
 
     $bean = \RedBeanPHP\R::dispense('testbean');
