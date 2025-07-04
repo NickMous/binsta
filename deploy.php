@@ -6,6 +6,7 @@ use Deployer\Exception\Exception;
 
 require 'contrib/npm.php';
 require 'contrib/sentry.php';
+require 'recipe/common.php';
 require 'recipe/deploy/check_remote.php';
 require 'recipe/deploy/cleanup.php';
 
