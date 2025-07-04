@@ -17,16 +17,4 @@ class BaseController
 
         return $bean;
     }
-
-    public function isUserLoggedIn(): bool
-    {
-        return isset($_SESSION['user_id']) && $_SESSION['user_id'] > 0;
-    }
-
-    public function checkUserLoggedIn(): void
-    {
-        if (!$this->isUserLoggedIn()) {
-            redirect(path('user.login'));
-        }
-    }
 }

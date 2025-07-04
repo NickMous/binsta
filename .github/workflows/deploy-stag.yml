@@ -1,0 +1,40 @@
+name: Deploy Staging
+
+on:
+    workflow_dispatch:
+        inputs:
+            environment:
+                description: 'Environment to deploy'
+                required: true
+                default: 'binsta02'
+                type: choice
+                options:
+                    - binsta02
+
+concurrency: "deploy-${{ inputs.environment }}-staging"
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        environment: "staging-${{ inputs.environment }}"
+
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v2
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                php-version: '8.4'
+
+            - name: Install dependencies
+              run: composer install
+
+            - name: Put sentry api auth token in .env
+              run: echo "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}" >> .env
+
+            - name: Deploy
+              uses: deployphp/action@v1
+              with:
+                dep: deploy ${{ inputs.environment }}
+                private-key: ${{ secrets.PRIVATE_KEY }}

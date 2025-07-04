@@ -1,0 +1,16 @@
+parameters:
+    level: 6
+    paths:
+        - controllers/
+        - public/
+        - src/
+        - tests/
+    excludePaths:
+        - tests/Pest.php
+
+    dynamicConstantNames:
+        - 'R::*'
+
+    ignoreErrors:
+        - '#Access to an undefined property RedBeanPHP\\OODBBean::\$#'
+        - '#Access to an undefined property iterable<RedBeanPHP\\OODBBean>&RedBeanPHP\\OODBBean::\$#'

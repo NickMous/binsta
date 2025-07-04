@@ -3,6 +3,7 @@
 namespace Nickmous\MyOwnFramework\Managers;
 
 use RedBeanPHP\R;
+use RuntimeException;
 
 class DatabaseManager
 {
@@ -16,7 +17,7 @@ class DatabaseManager
         $databasePassword = $_ENV['DB_PASSWORD'];
 
         if (!$databaseType || !$databaseName || !$databaseHost || !$databaseUser || !$databasePassword) {
-            die("Database configuration is not set in environment variables.\n");
+            throw new RuntimeException('Database configuration is not set in environment variables.');
         }
 
         R::setup(
