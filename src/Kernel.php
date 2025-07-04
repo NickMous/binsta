@@ -5,6 +5,7 @@ namespace Nickmous\MyOwnFramework;
 use Dotenv\Dotenv;
 use Nickmous\MyOwnFramework\Managers\DatabaseManager;
 use Spatie\Ignition\Ignition;
+
 use function Sentry\init;
 
 class Kernel

@@ -4,12 +4,12 @@ use Nickmous\MyOwnFramework\Managers\DatabaseManager;
 
 covers(DatabaseManager::class);
 
-it('instantiates the connection', function () {
+it('instantiates the connection', function (): void {
     DatabaseManager::instantiate();
     expect(\RedBeanPHP\R::hasDatabase('default'))->toBeTrue();
 });
 
-it('throws an error when database configuration is missing', function () {
+it('throws an error when database configuration is missing', function (): void {
     $_ENV['DB_CONNECTION'] = '';
     $_ENV['DB_DATABASE'] = '';
     $_ENV['DB_HOST'] = '';
@@ -17,7 +17,7 @@ it('throws an error when database configuration is missing', function () {
     $_ENV['DB_USERNAME'] = '';
     $_ENV['DB_PASSWORD'] = '';
 
-    expect(function () {
+    expect(function (): void {
         DatabaseManager::instantiate();
     })->toThrow(RuntimeException::class, 'Database configuration is not set in environment variables.');
 });
