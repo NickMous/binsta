@@ -4,7 +4,8 @@ namespace NickMous\Binsta;
 
 use Dotenv\Dotenv;
 use NickMous\Binsta\Managers\DatabaseManager;
-use Spatie\Ignition\Ignition;
+use Whoops\Handler\PrettyPageHandler;
+use Whoops\Run;
 
 use function Sentry\init;
 
@@ -15,7 +16,7 @@ class Kernel
         // Initialize the framework components
         $this->registerAutoloaders();
         $this->initializeSentry();
-        $this->initializeIgnition();
+        $this->initializeWhoops();
         $this->loadEnvironmentVariables();
         $this->initializeDatabase();
         $this->initializeSession();
@@ -34,13 +35,11 @@ class Kernel
         require_once __DIR__ . '/../vendor/autoload.php';
     }
 
-    private function initializeIgnition(): void
+    private function initializeWhoops(): void
     {
-        if (class_exists(Ignition::class)) {
-            Ignition::make()
-                ->applicationPath(__DIR__ . '/01-binsta/')
-                ->register();
-        }
+        $whoops = new Run();
+        $whoops->pushHandler(new PrettyPageHandler());
+        $whoops->register();
     }
 
     private function initializeDatabase(): void
