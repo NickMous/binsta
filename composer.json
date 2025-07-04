@@ -34,7 +34,8 @@
         "phpstan/phpstan": "^2.1",
         "squizlabs/php_codesniffer": "^3.13",
         "rector/rector": "^2.1",
-        "pestphp/pest-plugin-type-coverage": "^3.5"
+        "pestphp/pest-plugin-type-coverage": "^3.5",
+        "deployer/deployer": "^7.5"
     },
     "config": {
         "allow-plugins": {

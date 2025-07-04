@@ -127,6 +127,7 @@
       <path value="$PROJECT_DIR$/vendor/tomasvotruba/type-coverage" />
       <path value="$PROJECT_DIR$/vendor/pestphp/pest-plugin-type-coverage" />
       <path value="$PROJECT_DIR$/vendor/nette/utils" />
+      <path value="$PROJECT_DIR$/vendor/deployer/deployer" />
     </include_path>
   </component>
   <component name="PhpInterpreters">
