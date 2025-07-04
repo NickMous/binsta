@@ -1,5 +1,5 @@
 {
-    "name": "nickmous/my-own-framework",
+    "name": "nickmous/binsta",
     "description": "ignore this",
     "type": "project",
     "require": {
@@ -13,9 +13,9 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "NickMous\\MyOwnFramework\\": "src/",
-            "NickMous\\MyOwnFramework\\Tests\\": "tests/",
-            "Nickmous\\MyOwnFramework\\Controllers\\": "controllers/"
+            "NickMous\\Binsta\\": "src/",
+            "NickMous\\Binsta\\Tests\\": "tests/",
+            "Nickmous\\Binsta\\Controllers\\": "controllers/"
         },
         "files": [
           "helpers.php"

@@ -1,6 +1,6 @@
 <?php
 
-namespace NickMous\MyOwnFramework\Managers;
+namespace NickMous\Binsta\Managers;
 
 use RedBeanPHP\R;
 use RuntimeException;

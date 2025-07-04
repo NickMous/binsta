@@ -1,7 +1,7 @@
 <?php
 
 use JetBrains\PhpStorm\NoReturn;
-use Nickmous\MyOwnFramework\Twig\TwigExtension;
+use Nickmous\Binsta\Twig\TwigExtension;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;

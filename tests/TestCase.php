@@ -1,6 +1,6 @@
 <?php
 
-namespace NickMous\MyOwnFramework\Tests;
+namespace NickMous\Binsta\Tests;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
 

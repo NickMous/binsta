@@ -1,6 +1,6 @@
 <?php
 
-use NickMous\MyOwnFramework\Kernel;
+use NickMous\Binsta\Kernel;
 
 test('Session is being initialized', function (): void {
     new Kernel()->initializeSession();

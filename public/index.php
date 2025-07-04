@@ -1,6 +1,6 @@
 <?php
 
-use NickMous\MyOwnFramework\Kernel;
+use NickMous\Binsta\Kernel;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -22,7 +22,7 @@ if (!empty($_GET['params'])) {
 
 $requiresId = in_array($method, ['show', 'edit', 'editPost', 'delete', 'deletePost'], true);
 
-$controllerClass = 'Nickmous\\MyOwnFramework\\Controllers\\' . ucfirst($controller) . 'Controller';
+$controllerClass = 'Nickmous\\Binsta\\Controllers\\' . ucfirst($controller) . 'Controller';
 $args = $requiresId ? [(int)($_GET['id'] ?? null)] : [];
 
 if (method_exists($controllerClass, $method)) {
