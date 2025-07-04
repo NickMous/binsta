@@ -1,6 +1,6 @@
 <?php
 
-namespace Nickmous\MyOwnFramework\Controllers;
+namespace NickMous\MyOwnFramework\Controllers;
 
 use RedBeanPHP\OODBBean;
 use RedBeanPHP\R;
@@ -16,17 +16,5 @@ class BaseController
         }
 
         return $bean;
-    }
-
-    public function isUserLoggedIn(): bool
-    {
-        return isset($_SESSION['user_id']) && $_SESSION['user_id'] > 0;
-    }
-
-    public function checkUserLoggedIn(): void
-    {
-        if (!$this->isUserLoggedIn()) {
-            redirect(path('user.login'));
-        }
     }
 }

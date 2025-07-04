@@ -1,10 +1,10 @@
 <?php
 
-use Nickmous\MyOwnFramework\Kernel;
+use NickMous\MyOwnFramework\Kernel;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-new Kernel();
+new Kernel()->init();
 
 $controller = 'recipe';
 $method = 'index';

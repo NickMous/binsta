@@ -1,0 +1,34 @@
+name: Deploy Production
+
+on:
+    push:
+        branches:
+            - main
+
+concurrency: production
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        environment: production
+
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v2
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.4'
+
+            - name: Install dependencies
+              run: composer install
+
+            - name: Put sentry api auth token in .env
+              run: echo "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}" >> .env
+
+            - name: Deploy
+              uses: deployphp/action@v1
+              with:
+                  dep: deploy production
+                  private-key: ${{ secrets.PRIVATE_KEY }}
