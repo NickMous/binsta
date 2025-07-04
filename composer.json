@@ -12,7 +12,7 @@
     "autoload": {
         "psr-4": {
             "Nickmous\\MyOwnFramework\\": "src/",
-            "Nickmous\\MyOwnFramework\\Tests\\": "tests/",
+            "NickMous\\MyOwnFramework\\Tests\\": "tests/",
             "Nickmous\\MyOwnFramework\\Controllers\\": "controllers/"
         },
         "files": [
@@ -30,7 +30,10 @@
         "pestphp/pest": "^3.7",
         "mockery/mockery": "^1.6",
         "guzzlehttp/guzzle": "^7.9",
-        "spatie/ignition": "^1.15"
+        "spatie/ignition": "^1.15",
+        "phpstan/phpstan": "^2.1",
+        "squizlabs/php_codesniffer": "^3.13",
+        "rector/rector": "^2.1"
     },
     "config": {
         "allow-plugins": {
@@ -38,6 +41,14 @@
         }
     },
     "scripts": {
-        "test": "pest"
+        "test": "pest",
+        "lint": [
+            "phpcs",
+            "phpstan"
+        ],
+        "fix": [
+            "phpcbf",
+            "rector process"
+        ]
     }
 }

@@ -24,11 +24,23 @@ class TwigExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @param string       $routeName
+     * @param array<mixed> $parameters
+     * @return string
+     */
     public function path(string $routeName, array $parameters = []): string
     {
         return path($routeName, $parameters);
     }
 
+    /**
+     * Check if the current route matches the given route name and parameters.
+     *
+     * @param string $routeName The name of the route to check.
+     * @param array<mixed>|null $parameters Optional parameters for the route.
+     * @return bool True if the current route matches, false otherwise.
+     */
     public function isOn(string $routeName, ?array $parameters = []): bool
     {
         $currentUrl = $_SERVER['REQUEST_URI'];
