@@ -1,0 +1,43 @@
+{
+    "name": "nickmous/my-own-framework",
+    "description": "ignore this",
+    "type": "project",
+    "require": {
+        "php": ">=8.4",
+        "twig/twig": "^3.19",
+        "gabordemooij/redbean": "^5.7",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Nickmous\\MyOwnFramework\\": "src/",
+            "Nickmous\\MyOwnFramework\\Tests\\": "tests/",
+            "Nickmous\\MyOwnFramework\\Controllers\\": "controllers/"
+        },
+        "files": [
+          "helpers.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Sander den Hollander",
+            "email": "sanderdenhollander12@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "roave/security-advisories": "dev-latest",
+        "pestphp/pest": "^3.7",
+        "mockery/mockery": "^1.6",
+        "guzzlehttp/guzzle": "^7.9",
+        "spatie/ignition": "^1.15"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "test": "pest"
+    }
+}
