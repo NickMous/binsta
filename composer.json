@@ -47,7 +47,7 @@
         }
     },
     "scripts": {
-        "test": "pest",
+        "test": "XDEBUG_MODE=develop pest",
         "lint": [
             "phpcs",
             "phpstan"

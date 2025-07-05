@@ -7,7 +7,7 @@ use NickMous\Binsta\Internals\Exceptions\Route\NoObjectException;
 use NickMous\Binsta\Internals\Routes\AbstractRoute;
 use NickMous\Binsta\Internals\Services\ControllerService;
 
-covers(ControllerService::class);
+covers(ControllerService::class, AbstractRoute::class);
 
 it('loads all available routes on initialization', function (AbstractRoute $route) {
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/valid-routes.php');
@@ -72,5 +72,5 @@ it('applies given headers to the response', function () {
 
     expect($output)->toBeString()
         ->and($output)->toContain('This is the response for the route: /with-headers')
-        ->and(xdebug_get_headers()[0])->toContain('Content-type: text/plain');
+        ->and(xdebug_get_headers()[0])->toStartWith('Content-type: text/plain');
 });
