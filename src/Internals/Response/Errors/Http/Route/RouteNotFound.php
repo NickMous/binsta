@@ -6,9 +6,10 @@ use NickMous\Binsta\Internals\Response\Errors\Error;
 
 class RouteNotFound extends Error
 {
+    public string $message = 'Route not found';
     public function __construct(string $routeName)
     {
-        $message = "Route not found: {$routeName}";
-        parent::__construct($message, 404);
+        $this->message = "Route not found: {$routeName}";
+        parent::__construct("Error", 404);
     }
 }

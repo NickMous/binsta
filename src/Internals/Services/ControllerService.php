@@ -80,8 +80,8 @@ class ControllerService
             }
         }
 
-        if (!empty($response->content)) {
-            echo $response->content;
+        if (!empty($response->componentName)) {
+            echo $response->componentName;
         }
     }
 }
