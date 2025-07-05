@@ -6,7 +6,8 @@ use NickMous\Binsta\Kernel;
 require __DIR__ . '/../vendor/autoload.php';
 
 new Kernel()->init();
-new ControllerService()->callRoute('/' . $_GET['internal_dnt_params']);
+new ControllerService(__DIR__ . '/../routes/web.php')
+    ->callRoute('/' . $_GET['internal_dnt_params']);
 
 //$controller = 'recipe';
 //$method = 'index';

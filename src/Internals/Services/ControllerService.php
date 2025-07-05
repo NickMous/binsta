@@ -2,10 +2,10 @@
 
 namespace NickMous\Binsta\Internals\Services;
 
+use NickMous\Binsta\Internals\Exceptions\InvalidRouteFileGiven;
 use NickMous\Binsta\Internals\Exceptions\Response\InvalidResponseException;
 use NickMous\Binsta\Internals\Exceptions\Route\InvalidRouteClassException;
 use NickMous\Binsta\Internals\Exceptions\Route\NoObjectException;
-use NickMous\Binsta\Internals\Response\Errors\Error;
 use NickMous\Binsta\Internals\Response\Errors\Http\Route\RouteNotFound;
 use NickMous\Binsta\Internals\Response\Response;
 use NickMous\Binsta\Internals\Routes\AbstractRoute;
@@ -21,18 +21,26 @@ class ControllerService
      * @throws NoObjectException
      * @throws InvalidRouteClassException
      */
-    public function __construct()
+    public function __construct(string $routeFilePath)
     {
-        $this->getRoutes();
+        $this->loadRoutes($routeFilePath);
     }
 
     /**
      * @throws NoObjectException
-     * @throws InvalidRouteClassException
+     * @throws InvalidRouteClassException|InvalidRouteFileGiven
      */
-    private function getRoutes(): void
+    private function loadRoutes(string $routeFilePath): void
     {
-        $routes = include __DIR__ . '/../../../routes/web.php';
+        if (empty($routeFilePath) || !file_exists($routeFilePath)) {
+            throw new InvalidRouteFileGiven($routeFilePath);
+        }
+
+        $routes = include $routeFilePath;
+
+        if (!is_array($routes) || empty($routes)) {
+            throw new InvalidRouteFileGiven("The given route file is empty: {$routeFilePath}");
+        }
 
         foreach ($routes as $route) {
             if (!is_object($route)) {
@@ -52,13 +60,12 @@ class ControllerService
      */
     public function callRoute(string $route): void
     {
-        if (!isset($this->routes[$route])) {
+        if (!isset($this->routes[$route]) || !($this->routes[$route] instanceof AbstractRoute)) {
             $this->handleResponse(new RouteNotFound($route));
+            return;
         }
 
         $routeObject = $this->routes[$route];
-
-        assert($routeObject instanceof AbstractRoute);
         $response = $routeObject->handle();
         $this->handleResponse($response);
     }
@@ -68,8 +75,8 @@ class ControllerService
         http_response_code($response->statusCode);
 
         if (!headers_sent()) {
-            foreach ($response->headers as $header) {
-                header($header);
+            foreach ($response->headers as $headerKey => $headerData) {
+                header("{$headerKey}: {$headerData}");
             }
         }
 

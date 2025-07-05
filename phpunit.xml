@@ -15,11 +15,12 @@
     <source>
         <include>
             <directory suffix=".php">./src</directory>
-            <directory suffix=".php">./controllers</directory>
         </include>
         <exclude>
             <file>./src/Kernel.php</file>
             <file>./src/Twig/TwigExtension.php</file>
+            <directory>./src/Internals/Exceptions</directory>
+            <directory>./src/Internals/Response</directory>
         </exclude>
     </source>
     <php>
