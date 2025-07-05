@@ -13,13 +13,13 @@ class Response
      */
     public function __construct(
         public string $componentName = "" {
-            set {
-                // convert from PascalCase to kebab-case. Keep in mind that it could also have 3, // 4 or more words, like "HelloWorldComponent" or "HelloWorldComponentName".
-                $this->componentName = strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', $value));
-            }
+        set {
+        // convert from PascalCase to kebab-case. Keep in mind that it could also have 3, // 4 or more words, like "HelloWorldComponent" or "HelloWorldComponentName".
+        $this->componentName = strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', $value));
+        }
         },
-        public int    $statusCode = 200,
-        public array  $headers = []
+        public int $statusCode = 200,
+        public array $headers = []
     ) {
     }
 }

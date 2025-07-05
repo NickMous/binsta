@@ -4,9 +4,8 @@ namespace NickMous\Binsta\Internals\Services;
 
 class VueService
 {
-    public function render(string $component, array $props = []): string
+    public function render(string $component): string
     {
-        $propsJson = json_encode($props, JSON_THROW_ON_ERROR);
         $viteResources = vite('main.ts');
         return <<<HTML
         <!doctype html>
@@ -20,7 +19,7 @@ class VueService
         </head>
         <body>
         <div id="app">
-            <{$component} :props='{$propsJson}'></{$component}>
+            <{$component}></{$component}>
         </div>
         </body>
         </html>

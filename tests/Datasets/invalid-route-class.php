@@ -3,6 +3,9 @@
 return [
     new class
     {
+        /**
+         * @return array<string, mixed>
+         */
         public function returnData(): array
         {
             return [

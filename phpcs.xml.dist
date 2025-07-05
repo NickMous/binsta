@@ -3,7 +3,6 @@
     <description>The coding standard for PHP_CodeSniffer itself.</description>
 
     <file>src</file>
-    <file>controllers</file>
     <file>tests</file>
     <file>public</file>
 
