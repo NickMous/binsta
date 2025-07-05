@@ -1,52 +1,9 @@
 <?php
 
-use JetBrains\PhpStorm\NoReturn;
 use Nickmous\Binsta\Twig\TwigExtension;
 use Twig\Environment;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
-use Twig\TemplateWrapper;
-
-if (!function_exists('displayPage')) {
-    /**
-     * @throws SyntaxError
-     * @throws RuntimeError
-     * @throws LoaderError
-     */
-    function displayPage(string|TemplateWrapper $template, array $with = []): void
-    {
-        $twig = twig();
-        $template = $twig->load($template);
-        $template->display($with);
-    }
-}
-
-if (!function_exists('error')) {
-    /**
-     * @param int $errorNumber
-     * @param string $errorMessage
-     * @throws LoaderError
-     * @throws RuntimeError
-     * @throws SyntaxError
-     */
-    #[NoReturn] function error(int $errorNumber, string $errorMessage): void
-    {
-        http_response_code($errorNumber);
-        $twig = twig();
-        $template = $twig->load('error.twig');
-        $template->display(['errorNumber' => $errorNumber, 'errorMessage' => $errorMessage]);
-
-        if (getenv('APP_ENV') === 'testing') {
-            // In testing environment, we don't want to exit the script
-            return;
-        }
-
-        exit;
-    }
-}
 
 if (!function_exists('twig')) {
     /**
@@ -70,24 +27,6 @@ if (!function_exists('twig')) {
         }
 
         return $twig;
-    }
-}
-
-if (!function_exists('redirect')) {
-    /**
-     * Redirects to a given URL.
-     *
-     * @param string $url The URL to redirect to.
-     * @throws Exception If the URL is empty.
-     */
-    #[NoReturn] function redirect(string $url): void
-    {
-        if (empty($url)) {
-            throw new Exception('Redirect URL cannot be empty');
-        }
-
-        header('Location: ' . $url);
-        exit;
     }
 }
 
