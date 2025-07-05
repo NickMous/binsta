@@ -7,7 +7,7 @@ class VueService
     public function render(string $component, array $props = []): string
     {
         $propsJson = json_encode($props, JSON_THROW_ON_ERROR);
-        $viteResources = vite('main.js');
+        $viteResources = vite('main.ts');
         return <<<HTML
         <!doctype html>
         <html lang="en">

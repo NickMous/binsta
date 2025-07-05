@@ -81,7 +81,7 @@ class ControllerService
         }
 
         if (!empty($response->componentName)) {
-            echo $response->componentName;
+            echo new VueService()->render($response->componentName);
         }
     }
 }

@@ -5,6 +5,6 @@ use NickMous\Binsta\Internals\Routes\Route;
 
 return [
     Route::get('/', function () {
-        return new Response('Hello World');
+        return new Response('HelloWorld');
     }),
 ];

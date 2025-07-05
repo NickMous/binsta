@@ -11,7 +11,7 @@ require 'recipe/deploy/cleanup.php';
 require 'recipe/laravel.php';
 
 set('repository', 'git@github.com:NickMous/binsta.git');
-set('dotenv-local', __DIR__.'/.env');
+set('dotenv-local', __DIR__ . '/.env');
 //set('bin/bun', function () {
 //    return run('which bun');
 //});

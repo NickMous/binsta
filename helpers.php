@@ -5,7 +5,8 @@ use Twig\Environment;
 use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
 
-const VITE_HOST = 'http://localhost:5133';
+const VITE_HOST = 'http://localhost:5173';
+const DOCKER_HOST = 'host.docker.internal';
 
 if (!function_exists('twig')) {
     /**
@@ -100,6 +101,25 @@ if (!function_exists('isDev')) {
         $error = curl_errno($handle);
         curl_close($handle);
 
+        // If there is an error, check if we're running in docker and if so, try to access the local Vite server with docker.host.internal
+        if ($error) {
+            // first ping docker.host.internal. Not vite yet, just the host
+            $pingResult = (bool) preg_match('/ttl=|bytes from/', shell_exec("ping -c 1 " . DOCKER_HOST . " 2>&1"));
+
+            if ($pingResult) {
+                // If ping is successful, try to access the Vite server
+                $handle = curl_init(DOCKER_HOST . '/' . $entry);
+                curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($handle, CURLOPT_NOBODY, true);
+
+                curl_exec($handle);
+                $error = curl_errno($handle);
+                curl_close($handle);
+            } else {
+                $error = true; // If ping fails, we assume the Vite server is not reachable
+            }
+        }
+
         return $exists = !$error;
     }
 }
@@ -163,7 +183,7 @@ if (!function_exists('getManifest')) {
     // Helpers to locate files
     function getManifest(): array
     {
-        $content = file_get_contents(__DIR__ . '/dist/.vite/manifest.json');
+        $content = file_get_contents(__DIR__ . '/public/dist/.vite/manifest.json');
         return json_decode($content, true);
     }
 }

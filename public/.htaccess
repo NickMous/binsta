@@ -1,6 +1,14 @@
 RewriteEngine on
 
-# Redirect all requests to the index.php file
+# Allow direct access to JS, TS, and CSS files
+RewriteCond %{REQUEST_URI} \.(js|ts|css)$ [NC]
+RewriteRule ^(.*)$ - [L]
+
+# Allow Vite client and HMR
+RewriteCond %{REQUEST_URI} ^/@vite/ [NC]
+RewriteRule ^(.*)$ - [L]
+
+# Redirect all other requests to the index.php file
 #RewriteCond %{REQUEST_FILENAME} !-f
 #RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?internal_dnt_params=$1 [L,QSA]
