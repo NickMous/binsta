@@ -8,6 +8,7 @@ use NickMous\Binsta\Internals\Exceptions\Route\InvalidRouteClassException;
 use NickMous\Binsta\Internals\Exceptions\Route\NoObjectException;
 use NickMous\Binsta\Internals\Response\Errors\Http\Route\RouteNotFound;
 use NickMous\Binsta\Internals\Response\Response;
+use NickMous\Binsta\Internals\Response\VueResponse;
 use NickMous\Binsta\Internals\Routes\AbstractRoute;
 
 class ControllerService
@@ -80,8 +81,14 @@ class ControllerService
             }
         }
 
-        if (!empty($response->componentName)) {
-            echo new VueService()->render($response->componentName);
+        if ($response instanceof VueResponse && !empty($response->componentName)) {
+            $response = new VueService()->process($response);
+        }
+
+        if (!empty($response->content)) {
+            echo $response->content;
+        } else {
+            throw new InvalidResponseException("The response content is empty.");
         }
     }
 }

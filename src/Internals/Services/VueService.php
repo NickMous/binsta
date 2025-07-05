@@ -2,12 +2,15 @@
 
 namespace NickMous\Binsta\Internals\Services;
 
+use NickMous\Binsta\Internals\Response\Response;
+use NickMous\Binsta\Internals\Response\VueResponse;
+
 class VueService
 {
-    public function render(string $component): string
+    public function process(VueResponse $vueResponse): VueResponse
     {
         $viteResources = vite('main.ts');
-        return <<<HTML
+        $content = <<<HTML
         <!doctype html>
         <html lang="en">
         <head>
@@ -19,10 +22,14 @@ class VueService
         </head>
         <body>
         <div id="app">
-            <{$component}></{$component}>
+            <{$vueResponse->componentName}></{$vueResponse->componentName}>
         </div>
         </body>
         </html>
         HTML;
+
+        $vueResponse->content = $content;
+
+        return $vueResponse;
     }
 }
