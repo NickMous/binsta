@@ -74,3 +74,19 @@ it('applies given headers to the response', function (): void {
         ->and($output)->toContain('This is the response for the route: /with-headers')
         ->and(xdebug_get_headers()[0])->toStartWith('Content-type: text/plain');
 });
+
+it('renders a vue response correctly', function (): void {
+    $controllerService = new ControllerService(__DIR__ . '/../Datasets/valid-routes.php');
+
+    ob_start();
+    $controllerService->callRoute('/vue-response');
+    $output = ob_get_clean();
+
+    expect($output)->toBeString()
+        ->and($output)->toContain('<hello-world></hello-world>');
+});
+
+it('throws an exception when the content is empty', function (): void {
+    $controllerService = new ControllerService(__DIR__ . '/../Datasets/empty-content-route.php');
+    $controllerService->callRoute('/empty-content');
+})->throws(InvalidResponseException::class, 'The response content is empty.');

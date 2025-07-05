@@ -1,7 +1,9 @@
 <?php
 
 use NickMous\Binsta\Internals\Response\Response;
+use NickMous\Binsta\Internals\Response\VueResponse;
 use NickMous\Binsta\Internals\Routes\Route;
+use NickMous\Binsta\Internals\Services\VueService;
 
 return [
     Route::get('/', function () {
@@ -18,4 +20,7 @@ return [
         $response->headers = ['Content-type' => 'text/plain'];
         return $response;
     }),
+    Route::get('/vue-response', function () {
+        return new VueResponse('HelloWorld');
+    })
 ];

@@ -2,7 +2,6 @@
 
 namespace NickMous\Binsta\Internals\Services;
 
-use NickMous\Binsta\Internals\Response\Response;
 use NickMous\Binsta\Internals\Response\VueResponse;
 
 class VueService
