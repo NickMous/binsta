@@ -2,6 +2,7 @@ import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
 import liveReload from "vite-plugin-live-reload";
 import {resolve} from "node:path";
+import fs from 'fs';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -9,7 +10,54 @@ export default defineConfig({
         vue(),
         liveReload([
             __dirname + '/src/**/*.php'
-        ])
+        ]),
+        // Plugin to write dev manifest
+        {
+            name: 'dev-manifest',
+            configureServer(server) {
+                const manifestPath = resolve(__dirname, 'public/dist/.vite/dev-manifest.json');
+                
+                const writeDevManifest = () => {
+                    const devUrl = 'http://localhost:5173';
+                    const manifest = {
+                        'main.ts': {
+                            file: 'main.ts',
+                            isEntry: true,
+                            src: 'main.ts',
+                            url: `${devUrl}/main.ts`
+                        },
+                        devServer: {
+                            url: devUrl,
+                            host: 'localhost',
+                            port: 5173
+                        }
+                    };
+                    const manifestDir = resolve(__dirname, 'public/dist/.vite');
+                    if (!fs.existsSync(manifestDir)) {
+                        fs.mkdirSync(manifestDir, { recursive: true });
+                    }
+                    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+                };
+                
+                const removeDevManifest = () => {
+                    if (fs.existsSync(manifestPath)) {
+                        fs.unlinkSync(manifestPath);
+                    }
+                };
+                
+                // Write manifest on server start
+                writeDevManifest();
+                
+                // Clean up on process exit
+                process.on('SIGINT', removeDevManifest);
+                process.on('SIGTERM', removeDevManifest);
+                process.on('exit', removeDevManifest);
+
+                server.middlewares.use((_req, _res, next) => {
+                    next();
+                });
+            }
+        }
     ],
     root: __dirname + '/src/Resources',
     base: process.env.NODE_ENV === 'development'
@@ -37,6 +85,9 @@ export default defineConfig({
                 },
             },
         }
+    },
+    define: {
+        __DEV_MANIFEST__: process.env.NODE_ENV === 'development'
     },
     server: {
         // we need a strict port to match on PHP side

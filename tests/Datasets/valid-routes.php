@@ -3,7 +3,7 @@
 use NickMous\Binsta\Internals\Response\Response;
 use NickMous\Binsta\Internals\Response\VueResponse;
 use NickMous\Binsta\Internals\Routes\Route;
-use NickMous\Binsta\Internals\Services\VueService;
+use NickMous\Binsta\Internals\Services\ViteService;
 
 return [
     Route::get('/', function () {

@@ -1,10 +1,10 @@
 <?php
 
 use NickMous\Binsta\Internals\Response\VueResponse;
-use NickMous\Binsta\Internals\Services\VueService;
+use NickMous\Binsta\Internals\Services\ViteService;
 
 it('generates the html boilerplate correctly', function () {
-    $vueService = new VueService();
+    $vueService = new ViteService();
     $vueResponse = $vueService->process(new VueResponse("HelloWorld"));
 
     expect($vueResponse)->toBeInstanceOf(VueResponse::class)

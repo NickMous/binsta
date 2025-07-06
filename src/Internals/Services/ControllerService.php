@@ -82,7 +82,7 @@ class ControllerService
         }
 
         if ($response instanceof VueResponse && !empty($response->componentName)) {
-            $response = new VueService()->process($response);
+            $response = new ViteService()->process($response);
         }
 
         if (!empty($response->content)) {
