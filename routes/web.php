@@ -5,6 +5,6 @@ use NickMous\Binsta\Internals\Routes\Route;
 
 return [
     Route::get('/', function () {
-        return new VueResponse('HelloWorld');
+        return new VueResponse('HomePage');
     }),
 ];

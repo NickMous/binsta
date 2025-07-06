@@ -1,13 +1,13 @@
 import { createApp, type Component } from 'vue'
 import './style.css'
 
-const components: Record<string, Component> = {}
-const modules = import.meta.glob('./components/*.vue', { eager: true }) as Record<string, { default: Component }>
+const pages: Record<string, Component> = {}
+const modules = import.meta.glob('./pages/*.vue', { eager: true }) as Record<string, { default: Component }>
 for (const path in modules) {
-    const match = path.match(/\.\/components\/(.*)\.vue$/)
+    const match = path.match(/\.\/pages\/(.*)\.vue$/)
     if (match) {
         const componentName = match[1]
-        components[componentName] = modules[path].default
+        pages[componentName] = modules[path].default
     }
 }
 
@@ -19,5 +19,5 @@ if (!el) {
 
 createApp({
     template: el.innerHTML,
-    components
+    components: pages
 }).mount(el)
