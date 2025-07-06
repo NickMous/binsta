@@ -7,7 +7,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 new Kernel()->init();
 new ControllerService(__DIR__ . '/../routes/web.php')
-    ->callRoute('/' . $_GET['internal_dnt_params']);
+    ->callRoute('/' . ($_GET['internal_dnt_params'] ?? ''));
 
 //$controller = 'recipe';
 //$method = 'index';
