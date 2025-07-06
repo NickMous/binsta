@@ -4,7 +4,6 @@ import liveReload from "vite-plugin-live-reload";
 import {resolve} from "node:path";
 import fs from 'fs';
 import tailwindcss from "@tailwindcss/vite";
-import * as path from "node:path";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -110,7 +109,7 @@ export default defineConfig({
     resolve: {
         alias: {
             vue: 'vue/dist/vue.esm-bundler.js',
-            '@': path.resolve(__dirname, './src/Resources'),
+            '@': resolve(__dirname, './src/Resources'),
         }
     }
 })
