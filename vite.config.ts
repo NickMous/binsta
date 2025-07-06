@@ -3,11 +3,14 @@ import vue from '@vitejs/plugin-vue'
 import liveReload from "vite-plugin-live-reload";
 import {resolve} from "node:path";
 import fs from 'fs';
+import tailwindcss from "@tailwindcss/vite";
+import * as path from "node:path";
 
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [
         vue(),
+        tailwindcss(),
         liveReload([
             __dirname + '/src/**/*.php'
         ]),
@@ -106,7 +109,8 @@ export default defineConfig({
     // https://vuejs.org/guide/scaling-up/tooling.html#note-on-in-browser-template-compilation
     resolve: {
         alias: {
-            vue: 'vue/dist/vue.esm-bundler.js'
+            vue: 'vue/dist/vue.esm-bundler.js',
+            '@': path.resolve(__dirname, './src/Resources'),
         }
     }
 })
