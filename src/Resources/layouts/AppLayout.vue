@@ -23,7 +23,11 @@ const handleOpenProfile = () => {
     />
     
     <main class="container max-w-screen-2xl mx-auto px-4 py-6">
-      <slot></slot>
+      <router-view v-slot="{ Component }">
+        <transition name="page" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </main>
   </div>
 </template>

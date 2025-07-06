@@ -28,9 +28,9 @@ import UserActions from './UserActions.vue'
               <div class="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                 <div class="row-span-3">
                   <NavigationMenuLink as-child>
-                    <a
+                    <router-link
+                      to="/"
                       class="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                      href="/"
                     >
                       <div class="mb-2 mt-4 text-lg font-medium">
                         Discover
@@ -38,42 +38,44 @@ import UserActions from './UserActions.vue'
                       <p class="text-sm leading-tight text-muted-foreground">
                         Explore trending posts and connect with the community
                       </p>
-                    </a>
+                    </router-link>
                   </NavigationMenuLink>
                 </div>
                 <div class="grid gap-1">
                   <NavigationMenuLink as-child>
-                    <a 
+                    <router-link 
+                      to="/trending"
                       class="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                      href="/trending"
                     >
                       <div class="text-sm font-medium leading-none">Trending</div>
                       <p class="line-clamp-2 text-sm leading-snug text-muted-foreground">
                         See what's popular right now
                       </p>
-                    </a>
+                    </router-link>
                   </NavigationMenuLink>
                   <NavigationMenuLink as-child>
-                    <a 
+                    <router-link 
+                      to="/following"
                       class="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                      href="/following"
                     >
                       <div class="text-sm font-medium leading-none">Following</div>
                       <p class="line-clamp-2 text-sm leading-snug text-muted-foreground">
                         Posts from people you follow
                       </p>
-                    </a>
+                    </router-link>
                   </NavigationMenuLink>
                 </div>
               </div>
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuLink 
-              class="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50"
-              href="/create"
-            >
-              Create
+            <NavigationMenuLink as-child>
+              <router-link 
+                to="/create"
+                class="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50"
+              >
+                Create
+              </router-link>
             </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
