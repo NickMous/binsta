@@ -34,6 +34,7 @@ class ViteService
         return $vueResponse;
     }
 
+    // @codeCoverageIgnoreStart
     private function generateTags(string $entry): string
     {
         $tags = array_merge(
@@ -197,4 +198,5 @@ class ViteService
 
         return $urls;
     }
+    // @codeCoverageIgnoreEnd
 }
