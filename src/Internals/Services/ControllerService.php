@@ -19,12 +19,21 @@ class ControllerService
     private array $routes = [];
 
     /**
-     * @throws NoObjectException
-     * @throws InvalidRouteClassException
+     * @var array<string, string>
      */
-    public function __construct(string $routeFilePath)
+    private array $routePatterns = [];
+
+    /**
+     * @param string ...$routePatterns
+     * @throws InvalidRouteClassException
+     * @throws InvalidRouteFileGiven
+     * @throws NoObjectException
+     */
+    public function __construct(string ...$routePatterns)
     {
-        $this->loadRoutes($routeFilePath);
+        foreach ($routePatterns as $routeFilePath) {
+            $this->loadRoutes($routeFilePath);
+        }
     }
 
     /**
@@ -53,6 +62,7 @@ class ControllerService
             }
 
             $this->routes[$route->path] = $route;
+            $this->routePatterns[$route->path] = $this->convertToRegex($route->path);
         }
     }
 
@@ -61,14 +71,74 @@ class ControllerService
      */
     public function callRoute(string $route): void
     {
-        if (!isset($this->routes[$route]) || !($this->routes[$route] instanceof AbstractRoute)) {
-            $this->handleResponse(new RouteNotFound($route));
+        // First try exact match for performance
+        if (isset($this->routes[$route]) && ($this->routes[$route] instanceof AbstractRoute)) {
+            $routeObject = $this->routes[$route];
+            $response = $routeObject->handle();
+            $this->handleResponse($response);
             return;
         }
 
-        $routeObject = $this->routes[$route];
-        $response = $routeObject->handle();
-        $this->handleResponse($response);
+        // Try pattern matching
+        foreach ($this->routePatterns as $pattern => $regex) {
+            if (preg_match($regex, $route, $matches)) {
+                $routeObject = $this->routes[$pattern];
+
+                // Extract route parameters and make them available
+                $parameters = $this->extractParameters($matches);
+                $this->setRouteParameters($parameters);
+
+                $response = $routeObject->handle();
+                $this->handleResponse($response);
+                return;
+            }
+        }
+
+        // No route found
+        $this->handleResponse(new RouteNotFound($route));
+    }
+
+    /**
+     * Convert route pattern to regex
+     */
+    private function convertToRegex(string $pattern): string
+    {
+        // Replace route parameters with regex groups
+        $regex = preg_replace_callback('#{([^:}]+):([^}]+)}#', function ($matches) {
+            return '(?P<' . $matches[1] . '>' . $matches[2] . ')';
+        }, $pattern);
+
+        $regex = preg_replace('#{([^}]+)}#', '(?P<$1>[^/]+)', $regex);
+
+        // Escape literal parts but preserve regex groups
+        $parts = preg_split('/(\(\?P<[^>]+>[^)]+\))/', $regex, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $escaped = '';
+        foreach ($parts as $part) {
+            $escaped .= preg_match('/^\(\?P</', $part) ? $part : preg_quote($part, '#');
+        }
+
+        return '#^' . $escaped . '$#';
+    }
+
+    /**
+     * Extract named parameters from regex matches
+     *
+     * @param array<int|string, mixed> $matches
+     * @return array<string, string>
+     */
+    private function extractParameters(array $matches): array
+    {
+        return array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
+     * Store route parameters globally for access in closures
+     *
+     * @param array<string, string> $parameters
+     */
+    private function setRouteParameters(array $parameters): void
+    {
+        $GLOBALS['route_parameters'] = $parameters;
     }
 
     private function handleResponse(Response $response): void
