@@ -6,9 +6,9 @@ use Deployer\Exception\Exception;
 
 require 'contrib/npm.php';
 require 'contrib/sentry.php';
+require 'recipe/common.php';
 require 'recipe/deploy/check_remote.php';
 require 'recipe/deploy/cleanup.php';
-require 'recipe/laravel.php';
 
 set('repository', 'git@github.com:NickMous/binsta.git');
 set('dotenv-local', __DIR__ . '/.env');
@@ -26,11 +26,11 @@ add('writable_dirs', []);
 
 // Hosts
 foreach (range(1, 2) as $i) {
-    host('binsta0'.$i)
+    host('binsta0' . $i)
         ->setHostname('83.87.185.201')
         ->setRemoteUser('deployer')
         ->setPort(1124)
-        ->setDeployPath('/var/www/binsta/0'.$i);
+        ->setDeployPath('/var/www/binsta/0' . $i);
 }
 
 host('production')
@@ -111,7 +111,7 @@ task('local:check-sentry-env', function () {
     invoke('dotenv:load');
     $sentryAuthToken = getenv('SENTRY_AUTH_TOKEN');
     if (! $sentryAuthToken) {
-        throw new Exception('SENTRY_LARAVEL_DSN not found in .env');
+        throw new Exception('SENTRY_AUTH_TOKEN not found in .env');
     }
     set('sentry_auth_token', $sentryAuthToken);
 });
@@ -123,8 +123,8 @@ task('local:set-sentry-env', function () {
     set('sentry', [
         'organization' => 'nickmous',
         'projects' => [
-            $host.'-frontend',
-            $host.'-backend',
+//            'binsta-' . $host . '-frontend',
+            'binsta-' . $host . '-backend',
         ],
         'token' => get('sentry_auth_token'),
         'sentry_server' => 'https://sentry.nickmous.com',
@@ -139,8 +139,6 @@ task('deploy:set-version', function () {
     run("sed -i 's/SENTRY_RELEASE=.*/SENTRY_RELEASE=$commitHash/' {{deploy_path}}/shared/.env");
 });
 
-task('deploy:generate-sitemap', artisan('app:generate-sitemap'));
-
 task('deploy', [
     'deploy:prepare',
     'deploy:set-version',
@@ -148,12 +146,6 @@ task('deploy', [
     'local:copy-env',
 //    'deploy:bun:install',
 //    'deploy:bun:build',
-    'artisan:storage:link',
-    'artisan:config:cache',
-    'artisan:route:cache',
-    'artisan:view:cache',
-    'artisan:event:cache',
-    'artisan:migrate',
     'deploy:publish',
 ]);
 
@@ -165,6 +157,5 @@ after('deploy:failed', 'deploy:unlock');
 after('deploy:failed', 'local:restore-env');
 after('deploy', 'local:set-sentry-env');
 after('deploy', 'deploy:sentry');
-after('deploy', 'deploy:generate-sitemap');
 after('deploy', 'local:restore-env');
 after('deploy', 'deploy:cleanup');
