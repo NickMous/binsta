@@ -15,8 +15,7 @@
     "autoload": {
         "psr-4": {
             "NickMous\\Binsta\\": "src/",
-            "NickMous\\Binsta\\Tests\\": "tests/",
-            "Nickmous\\Binsta\\Controllers\\": "controllers/"
+            "NickMous\\Binsta\\Tests\\": "tests/"
         },
         "files": [
           "helpers.php"
