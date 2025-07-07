@@ -45,7 +45,7 @@ function handleOpenProfile() {
 
 <template>
   <header class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-    <div class="container flex h-14 max-w-screen-2xl items-center px-4">
+    <div class="w-full max-w-none flex h-14 items-center px-4">
       <!-- Mobile menu button -->
       <button
         @click="toggleMobileMenu"
