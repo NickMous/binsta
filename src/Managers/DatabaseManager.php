@@ -24,21 +24,7 @@ class DatabaseManager
         $databasePassword = $_ENV['DB_PASSWORD'];
 
         if (!$databaseType || !$databaseName || !$databaseHost || !$databaseUser || !$databasePassword) {
-            // Debug database configuration
-            error_log("Database configuration missing:");
-            error_log("DB_CONNECTION: " . ($databaseType ?? 'not set'));
-            error_log("DB_DATABASE: " . ($databaseName ?? 'not set'));
-            error_log("DB_HOST: " . ($databaseHost ?? 'not set'));
-            error_log("DB_PORT: " . ($databasePort ?? 'not set'));
-            error_log("DB_USERNAME: " . ($databaseUser ?? 'not set'));
-            error_log("DB_PASSWORD: " . ($databasePassword ?? 'not set'));
             throw new RuntimeException('Database configuration is not set in environment variables.');
-        }
-
-        // Debug successful database configuration
-        if (!empty($_ENV['CI']) || !empty($_SERVER['CI'])) {
-            error_log("Database connection string: $databaseType:host=$databaseHost;port=$databasePort;dbname=$databaseName");
-            error_log("Database user: $databaseUser");
         }
 
         R::setup(
