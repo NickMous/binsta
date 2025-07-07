@@ -104,7 +104,7 @@ class ControllerService
     private function convertToRegex(string $pattern): string
     {
         // Replace route parameters with regex groups
-        $regex = preg_replace_callback('#{([^:}]+):([^}]+)}#', function ($matches) {
+        $regex = preg_replace_callback('#{([^:}]+):([^}]+)}#', function (array $matches) {
             return '(?P<' . $matches[1] . '>' . $matches[2] . ')';
         }, $pattern);
 

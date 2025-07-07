@@ -85,9 +85,18 @@ it('applies given headers to the response', function (): void {
     $controllerService->callRoute('/with-headers');
     $output = ob_get_clean();
 
+    $headers = xdebug_get_headers();
+    $contentTypeHeader = null;
+    foreach ($headers as $header) {
+        if (str_starts_with($header, 'Content-type:')) {
+            $contentTypeHeader = $header;
+            break;
+        }
+    }
+
     expect($output)->toBeString()
         ->and($output)->toContain('This is the response for the route: /with-headers')
-        ->and(xdebug_get_headers()[0])->toStartWith('Content-type: text/plain');
+        ->and($contentTypeHeader)->toStartWith('Content-type: text/plain');
 });
 
 it('renders a vue response correctly', function (): void {

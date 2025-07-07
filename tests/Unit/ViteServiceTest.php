@@ -3,7 +3,7 @@
 use NickMous\Binsta\Internals\Response\VueResponse;
 use NickMous\Binsta\Internals\Services\ViteService;
 
-it('generates the html boilerplate correctly', function () {
+it('generates the html boilerplate correctly', function (): void {
     $vueService = new ViteService();
     $vueResponse = $vueService->process(new VueResponse("HelloWorld"));
 

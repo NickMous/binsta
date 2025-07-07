@@ -24,10 +24,84 @@ class Kernel
 
     private function loadEnvironmentVariables(): void
     {
-        if (file_exists(__DIR__ . '/../.env')) {
-            $dotenv = Dotenv::createImmutable(__DIR__ . '../../');
+        $baseDir = __DIR__ . '/..';
+
+        // Determine which environment file to load
+        $envFile = $this->determineEnvironmentFile($baseDir);
+
+        if (file_exists($envFile)) {
+            $dotenv = Dotenv::createImmutable($baseDir, basename($envFile));
             $dotenv->load();
         }
+    }
+
+    /**
+     * Determine which environment file to load based on context
+     */
+    private function determineEnvironmentFile(string $baseDir): string
+    {
+        // 1. Explicit environment variable override
+        if (!empty($_ENV['ENV_FILE'])) {
+            $envFile = "$baseDir/{$_ENV['ENV_FILE']}";
+            if (file_exists($envFile)) {
+                return $envFile;
+            }
+        }
+
+        // 2. Environment-specific detection (check context first, then file existence)
+        if ($this->isGitHubCI() && file_exists("$baseDir/.env.ci")) {
+            return "$baseDir/.env.ci";
+        }
+
+        if ($this->isDDEV() && file_exists("$baseDir/.env.ddev")) {
+            return "$baseDir/.env.ddev";
+        }
+
+        if ($this->isTesting() && file_exists("$baseDir/.env.testing")) {
+            return "$baseDir/.env.testing";
+        }
+
+        // 3. Fallback to local development files
+        if (file_exists("$baseDir/.env.local")) {
+            return "$baseDir/.env.local";
+        }
+
+        // 4. Default fallback
+        if (file_exists("$baseDir/.env")) {
+            return "$baseDir/.env";
+        }
+
+        // Return default even if it doesn't exist
+        return "$baseDir/.env";
+    }
+
+    /**
+     * Check if running in GitHub CI/CD
+     */
+    private function isGitHubCI(): bool
+    {
+        return !empty($_ENV['GITHUB_ACTIONS']) || !empty($_ENV['CI']);
+    }
+
+    /**
+     * Check if running in DDEV environment
+     */
+    private function isDDEV(): bool
+    {
+        return !empty($_ENV['DDEV_PROJECT']) ||
+               !empty($_ENV['DDEV_SITENAME']) ||
+               file_exists('/.ddev-container');
+    }
+
+    /**
+     * Check if running in testing environment
+     */
+    private function isTesting(): bool
+    {
+        return (!empty($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'testing') ||
+               !empty($_ENV['TESTING']) ||
+               defined('PEST_VERSION') ||
+               defined('PHPUNIT_COMPOSER_INSTALL');
     }
 
     private function registerAutoloaders(): void

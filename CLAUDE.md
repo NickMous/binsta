@@ -6,6 +6,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This project uses **DDEV** for local development environment management. All PHP commands should be run through DDEV.
 
+### Environment Configuration
+
+The application automatically loads the appropriate environment file based on context:
+
+**Environment File Priority** (first found is used):
+1. `$ENV_FILE` environment variable (explicit override)
+2. `.env.ci` (GitHub CI/CD environment)
+3. `.env.ddev` (DDEV environment) 
+4. `.env.testing` (Test environment)
+5. `.env.local` (Local development)
+6. `.env` (Default fallback)
+
+**Available Environment Files:**
+- `.env.ddev` - DDEV configuration (DB_HOST=db)
+- `.env.ci` - GitHub CI configuration (DB_HOST=127.0.0.1)
+- `.env.testing` - Testing configuration (DB_HOST=localhost)
+- `.env.local` - Your personal local settings (gitignored)
+
+**Manual Override:**
+```bash
+# Force a specific environment file
+ENV_FILE=.env.custom ddev composer test
+```
+
 ## Development Commands
 
 ### Frontend Development

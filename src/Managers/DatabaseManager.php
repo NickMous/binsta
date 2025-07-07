@@ -7,8 +7,15 @@ use RuntimeException;
 
 class DatabaseManager
 {
+    private static bool $initialized = false;
+
     public static function instantiate(): void
     {
+        // Prevent multiple initializations
+        if (self::$initialized) {
+            return;
+        }
+
         $databaseType = $_ENV['DB_CONNECTION'];
         $databaseName = $_ENV['DB_DATABASE'];
         $databaseHost = $_ENV['DB_HOST'];
@@ -25,5 +32,16 @@ class DatabaseManager
             $databaseUser,
             $databasePassword
         );
+
+        self::$initialized = true;
+    }
+
+    /**
+     * Reset the initialization state (useful for testing)
+     */
+    public static function reset(): void
+    {
+        self::$initialized = false;
+        R::$toolboxes = [];
     }
 }

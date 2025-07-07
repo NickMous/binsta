@@ -2,10 +2,14 @@
 
 use NickMous\Binsta\Internals\BaseController;
 use NickMous\Binsta\Managers\DatabaseManager;
+use NickMous\Binsta\Kernel;
 
 covers(BaseController::class);
 
 it('retrieves a bean by ID', function (): void {
+    // Initialize environment for database tests
+    new Kernel()->init();
+
     DatabaseManager::instantiate();
 
     $bean = \RedBeanPHP\R::dispense('testbean');
@@ -20,5 +24,5 @@ it('retrieves a bean by ID', function (): void {
 
     \RedBeanPHP\R::nuke();
     \RedBeanPHP\R::close();
-    \RedBeanPHP\R::$toolboxes = [];
+    DatabaseManager::reset();
 });
