@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 
 const hasNotifications = ref(true)
+const isLoggedIn = ref(false) // TODO: Replace with actual auth state
 </script>
 
 <template>
@@ -31,13 +32,25 @@ const hasNotifications = ref(true)
     </button>
     
     <div class="relative">
+      <!-- User Profile Button (when logged in) -->
       <button 
-        class="flex items-center space-x-2 rounded-full p-1 hover:bg-accent transition-colors"
+        v-if="isLoggedIn"
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9"
         @click="$emit('open-profile')"
       >
-        <div class="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+        <div class="h-6 w-6 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
           <span class="text-xs font-bold text-primary-foreground">U</span>
         </div>
+        <span class="sr-only">User profile</span>
+      </button>
+
+      <!-- Login Button (when not logged in) -->
+      <button 
+        v-else
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-3"
+        @click="$emit('login')"
+      >
+        Log in
       </button>
     </div>
   </nav>

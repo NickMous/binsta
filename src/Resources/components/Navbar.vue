@@ -10,6 +10,26 @@ import {
 import Logo from './Logo.vue'
 import SearchBar from './SearchBar.vue'
 import UserActions from './UserActions.vue'
+
+function handleLogin() {
+  // TODO: Implement login functionality
+  console.log('Login clicked')
+}
+
+function handleToggleTheme() {
+  // TODO: Implement theme toggle
+  console.log('Theme toggle clicked')
+}
+
+function handleOpenNotifications() {
+  // TODO: Implement notifications
+  console.log('Notifications clicked')
+}
+
+function handleOpenProfile() {
+  // TODO: Implement profile menu
+  console.log('Profile clicked')
+}
 </script>
 
 <template>
@@ -84,7 +104,12 @@ import UserActions from './UserActions.vue'
       <div class="flex flex-1 items-center justify-between space-x-2 md:justify-end">
         <SearchBar />
         <div class="mr-6">
-          <UserActions />
+          <UserActions 
+            @login="handleLogin"
+            @toggle-theme="handleToggleTheme"
+            @open-notifications="handleOpenNotifications"
+            @open-profile="handleOpenProfile"
+          />
         </div>
       </div>
     </div>
