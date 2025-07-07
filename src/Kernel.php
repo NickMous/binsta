@@ -94,9 +94,9 @@ class Kernel
      */
     private function isGitHubCI(): bool
     {
-        return !empty($_ENV['GITHUB_ACTIONS']) || 
-               !empty($_ENV['CI']) || 
-               !empty($_SERVER['GITHUB_ACTIONS']) || 
+        return !empty($_ENV['GITHUB_ACTIONS']) ||
+               !empty($_ENV['CI']) ||
+               !empty($_SERVER['GITHUB_ACTIONS']) ||
                !empty($_SERVER['CI']);
     }
 
