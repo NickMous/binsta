@@ -40,6 +40,17 @@ class Kernel
      */
     private function determineEnvironmentFile(string $baseDir): string
     {
+        // Debug information for CI troubleshooting
+        if (!empty($_ENV['CI']) || !empty($_SERVER['CI'])) {
+            error_log("CI Environment detected");
+            error_log("GITHUB_ACTIONS env: " . ($_ENV['GITHUB_ACTIONS'] ?? 'not set'));
+            error_log("CI env: " . ($_ENV['CI'] ?? 'not set'));
+            error_log("GITHUB_ACTIONS server: " . ($_SERVER['GITHUB_ACTIONS'] ?? 'not set'));
+            error_log("CI server: " . ($_SERVER['CI'] ?? 'not set'));
+            error_log("isGitHubCI(): " . ($this->isGitHubCI() ? 'true' : 'false'));
+            error_log(".env.ci exists: " . (file_exists("$baseDir/.env.ci") ? 'true' : 'false'));
+        }
+
         // 1. Explicit environment variable override
         if (!empty($_ENV['ENV_FILE'])) {
             $envFile = "$baseDir/{$_ENV['ENV_FILE']}";
@@ -50,6 +61,7 @@ class Kernel
 
         // 2. Environment-specific detection (check context first, then file existence)
         if ($this->isGitHubCI() && file_exists("$baseDir/.env.ci")) {
+            error_log("Using .env.ci file");
             return "$baseDir/.env.ci";
         }
 
@@ -68,10 +80,12 @@ class Kernel
 
         // 4. Default fallback
         if (file_exists("$baseDir/.env")) {
+            error_log("Using default .env file");
             return "$baseDir/.env";
         }
 
         // Return default even if it doesn't exist
+        error_log("No .env file found, returning default path");
         return "$baseDir/.env";
     }
 
@@ -80,7 +94,10 @@ class Kernel
      */
     private function isGitHubCI(): bool
     {
-        return !empty($_ENV['GITHUB_ACTIONS']) || !empty($_ENV['CI']);
+        return !empty($_ENV['GITHUB_ACTIONS']) || 
+               !empty($_ENV['CI']) || 
+               !empty($_SERVER['GITHUB_ACTIONS']) || 
+               !empty($_SERVER['CI']);
     }
 
     /**
