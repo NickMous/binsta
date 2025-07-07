@@ -111,6 +111,10 @@ class Kernel
 
     private function initializeWhoops(): void
     {
+        if ($this->isTesting()) {
+            return;
+        }
+
         $whoops = new Run();
         $whoops->pushHandler(new PrettyPageHandler());
         $whoops->register();
