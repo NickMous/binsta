@@ -1,8 +1,4 @@
 <script lang="ts">
-export const description
-    = 'A sidebar that collapses to icons.'
-export const iframeHeight = '800px'
-export const containerClass = 'w-full h-full'
 </script>
 
 <script setup lang="ts">
@@ -21,6 +17,9 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
+import { useBreadcrumbStore } from '@/stores/BreadcrumbStore.ts'
+
+const breadcrumbStore = useBreadcrumbStore()
 </script>
 
 <template>
@@ -33,15 +32,17 @@ import {
           <Separator orientation="vertical" class="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem class="hidden md:block">
-                <BreadcrumbLink href="#">
-                  Building Your Application
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator class="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-              </BreadcrumbItem>
+              <template v-for="(breadcrumb, index) in breadcrumbStore.getBreadcrumbs" :key="breadcrumb.path">
+                <BreadcrumbItem class="hidden md:block">
+                  <BreadcrumbLink v-if="index < breadcrumbStore.getBreadcrumbs.length - 1" :href="breadcrumb.path">
+                    {{ breadcrumb.name }}
+                  </BreadcrumbLink>
+                  <BreadcrumbPage v-else>
+                    {{ breadcrumb.name }}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator v-if="index < breadcrumbStore.getBreadcrumbs.length - 1" class="hidden md:block" />
+              </template>
             </BreadcrumbList>
           </Breadcrumb>
         </div>
