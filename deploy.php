@@ -77,13 +77,13 @@ task('local:restore-env', function () {
     }
 });
 
-//task('deploy:bun:install', function () {
-//    run('cd {{release_path}} && ~/.bun/bin/bun i');
-//});
-//
-//task('deploy:bun:build', function () {
-//    run('cd {{release_path}} && ~/.bun/bin/bun run build');
-//});
+task('deploy:bun:install', function () {
+    run('cd {{release_path}} && ~/.bun/bin/bun i');
+});
+
+task('deploy:bun:build', function () {
+    run('cd {{release_path}} && ~/.bun/bin/bun run build');
+});
 
 task('dotenv:load', function () {
     $dotenv = get('dotenv-local');
@@ -144,8 +144,8 @@ task('deploy', [
     'deploy:set-version',
     'deploy:vendors',
     'local:copy-env',
-//    'deploy:bun:install',
-//    'deploy:bun:build',
+    'deploy:bun:install',
+    'deploy:bun:build',
     'deploy:publish',
 ]);
 

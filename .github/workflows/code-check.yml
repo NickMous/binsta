@@ -22,10 +22,23 @@ jobs:
       - name: Check code problems
         run: php vendor/bin/phpstan
 
+  eslint:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      - name: Install Dependencies
+        run: bun install
+      - name: Check code style with ESLint
+        run: bun run eslint
+
   pest:
     # Create a mariadb database for the tests
 
-    needs: code-check
+    needs: [code-check, eslint]
     runs-on: ubuntu-latest
     services:
       mariadb:
