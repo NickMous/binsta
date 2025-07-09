@@ -22,7 +22,10 @@ export default typescriptEslint.config(
             },
         },
         rules: {
-            // your rules
+            // Disable multi-word component names for UI components
+            'vue/multi-word-component-names': 'off',
+            // Disable default prop requirement for optional props
+            'vue/require-default-prop': 'off',
         },
     },
     eslintConfigPrettier
