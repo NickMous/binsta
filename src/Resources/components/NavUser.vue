@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, LogIn, Sparkles} from 'lucide-vue-next'
+import {BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogIn, LogOut, Sparkles} from 'lucide-vue-next'
 
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {
@@ -71,10 +71,12 @@ const userStore = useUserStore()
             align="end"
             :side-offset="4"
         >
-          <DropdownMenuItem>
-            <LogIn/>
-            Log in
-          </DropdownMenuItem>
+          <RouterLink to="/login">
+            <DropdownMenuItem>
+              <LogIn/>
+              Log in
+            </DropdownMenuItem>
+          </RouterLink>
         </DropdownMenuContent>
         <DropdownMenuContent
             v-if="userStore.getUsername !== ''"
