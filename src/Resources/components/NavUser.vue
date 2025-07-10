@@ -1,18 +1,7 @@
 <script setup lang="ts">
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from 'lucide-vue-next'
+import {BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, LogIn, Sparkles} from 'lucide-vue-next'
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar'
+import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,91 +11,117 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from '@/components/ui/sidebar'
+import {SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,} from '@/components/ui/sidebar'
+import {useUserStore} from "@/stores/UserStore.ts";
 
-defineProps<{
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}>()
-
-const { isMobile } = useSidebar()
+const {isMobile} = useSidebar()
+const userStore = useUserStore()
 </script>
 
 <template>
   <SidebarMenu>
     <SidebarMenuItem>
       <DropdownMenu>
-        <DropdownMenuTrigger as-child>
+        <DropdownMenuTrigger
+            v-if="userStore.getUsername === ''"
+            as-child
+        >
           <SidebarMenuButton
-            size="lg"
-            class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              size="lg"
+              class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           >
             <Avatar class="h-8 w-8 rounded-lg">
-              <AvatarImage :src="user.avatar" :alt="user.name" />
+              <AvatarImage :src="userStore.getProfilePicture ?? ''" :alt="userStore.getName"/>
               <AvatarFallback class="rounded-lg">
-                CN
+                GU
               </AvatarFallback>
             </Avatar>
             <div class="grid flex-1 text-left text-sm leading-tight">
-              <span class="truncate font-medium">{{ user.name }}</span>
-              <span class="truncate text-xs">{{ user.email }}</span>
+              <span class="truncate font-medium">Guest</span>
+              <span class="truncate text-xs">Just a lurker :)</span>
             </div>
-            <ChevronsUpDown class="ml-auto size-4" />
+            <ChevronsUpDown class="ml-auto size-4"/>
+          </SidebarMenuButton>
+        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+            v-if="userStore.getUsername !== ''"
+            as-child
+        >
+          <SidebarMenuButton
+              size="lg"
+              class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+          >
+            <Avatar class="h-8 w-8 rounded-lg">
+              <AvatarImage :src="userStore.getProfilePicture ?? ''" :alt="userStore.getName"/>
+              <AvatarFallback class="rounded-lg">
+                {{ userStore.getName.charAt(0).toUpperCase() }}
+              </AvatarFallback>
+            </Avatar>
+            <div class="grid flex-1 text-left text-sm leading-tight">
+              <span class="truncate font-medium">{{ userStore.getName }}</span>
+              <span class="truncate text-xs">{{ userStore.getEmail }}</span>
+            </div>
+            <ChevronsUpDown class="ml-auto size-4"/>
           </SidebarMenuButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          class="w-[--reka-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-          :side="isMobile ? 'bottom' : 'right'"
-          align="end"
-          :side-offset="4"
+            v-if="userStore.getUsername === ''"
+            class="w-[--reka-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            :side="isMobile ? 'bottom' : 'right'"
+            align="end"
+            :side-offset="4"
+        >
+          <DropdownMenuItem>
+            <LogIn/>
+            Log in
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+        <DropdownMenuContent
+            v-if="userStore.getUsername !== ''"
+            class="w-[--reka-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            :side="isMobile ? 'bottom' : 'right'"
+            align="end"
+            :side-offset="4"
         >
           <DropdownMenuLabel class="p-0 font-normal">
             <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
               <Avatar class="h-8 w-8 rounded-lg">
-                <AvatarImage :src="user.avatar" :alt="user.name" />
+                <AvatarImage :src="userStore.getProfilePicture ?? ''" :alt="userStore.getName"/>
                 <AvatarFallback class="rounded-lg">
                   CN
                 </AvatarFallback>
               </Avatar>
               <div class="grid flex-1 text-left text-sm leading-tight">
-                <span class="truncate font-semibold">{{ user.name }}</span>
-                <span class="truncate text-xs">{{ user.email }}</span>
+                <span class="truncate font-semibold">{{ userStore.getName }}</span>
+                <span class="truncate text-xs">{{ userStore.getEmail }}</span>
               </div>
             </div>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator/>
           <DropdownMenuGroup>
             <DropdownMenuItem>
-              <Sparkles />
+              <Sparkles/>
               Upgrade to Pro
             </DropdownMenuItem>
           </DropdownMenuGroup>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator/>
           <DropdownMenuGroup>
             <DropdownMenuItem>
-              <BadgeCheck />
+              <BadgeCheck/>
               Account
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <CreditCard />
+              <CreditCard/>
               Billing
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Bell />
+              <Bell/>
               Notifications
             </DropdownMenuItem>
           </DropdownMenuGroup>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator/>
           <DropdownMenuItem>
-            <LogOut />
+            <LogOut/>
             Log out
           </DropdownMenuItem>
         </DropdownMenuContent>
