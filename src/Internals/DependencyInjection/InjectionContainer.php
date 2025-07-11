@@ -5,9 +5,11 @@ namespace NickMous\Binsta\Internals\DependencyInjection;
 use NickMous\Binsta\Internals\Exceptions\DependencyInjection\DuplicatePrioritySetException;
 use NickMous\Binsta\Internals\Exceptions\DependencyInjection\NoClassFoundException;
 use NickMous\Binsta\Internals\Exceptions\DependencyInjection\NoPrioritySetException;
+use NickMous\Binsta\Internals\Exceptions\DependencyInjection\NoTypesException;
 use NickMous\Binsta\Internals\Exceptions\DependencyInjection\TooManyPriorityClassesException;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionNamedType;
 
 class InjectionContainer
 {
@@ -24,13 +26,21 @@ class InjectionContainer
 
     public static function getInstance(): InjectionContainer
     {
-        if (null === static::$instance) {
-            static::$instance = new static();
+        if (null === self::$instance) {
+            self::$instance = new self();
         }
 
-        return static::$instance;
+        return self::$instance;
     }
 
+    /**
+     * @throws TooManyPriorityClassesException
+     * @throws ReflectionException
+     * @throws NoClassFoundException
+     * @throws DuplicatePrioritySetException
+     * @throws NoPrioritySetException
+     * @throws NoTypesException
+     */
     public function get(string $class): object
     {
         return $this->services[$class] ??= $this->resolve($class);
@@ -42,6 +52,7 @@ class InjectionContainer
      * @throws ReflectionException
      * @throws NoClassFoundException
      * @throws DuplicatePrioritySetException
+     * @throws NoTypesException
      */
     private function resolve(string $class): object
     {
@@ -107,13 +118,33 @@ class InjectionContainer
         return $this->instantiateClass($class_with_highest_priority);
     }
 
-    private function instantiateClass($class)
+    /**
+     * @param string $class
+     * @return object
+     * @throws DuplicatePrioritySetException
+     * @throws NoClassFoundException
+     * @throws NoPrioritySetException
+     * @throws NoTypesException
+     * @throws ReflectionException
+     * @throws TooManyPriorityClassesException
+     */
+    private function instantiateClass(string $class): object
     {
         $arguments = $this->getArguments($class);
         return new $class(...$arguments);
     }
 
-    private function getArguments($class)
+    /**
+     * @param string $class
+     * @return array<object>
+     * @throws DuplicatePrioritySetException
+     * @throws NoClassFoundException
+     * @throws NoPrioritySetException
+     * @throws NoTypesException
+     * @throws ReflectionException
+     * @throws TooManyPriorityClassesException
+     */
+    private function getArguments(string $class): array
     {
         $reflection_class = new ReflectionClass($class);
         $constructor = $reflection_class->getConstructor();
@@ -127,8 +158,8 @@ class InjectionContainer
         foreach ($constructor->getParameters() as $parameter) {
             $type = $parameter->getType();
 
-            if (!$type) {
-                throw new NoTypesException('Parameter ' . $parameter->getName() . ' in constructor of class ' . $class . ' has no type.');
+            if (!$type instanceof ReflectionNamedType) {
+                throw new NoTypesException($class, $parameter);
             }
 
             $arguments[] = $this->get($type->getName());
