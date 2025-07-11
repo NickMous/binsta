@@ -7,9 +7,13 @@ use NickMous\Binsta\Internals\Routes\Type\Group;
 
 class Route
 {
-    public static function get(string $path, Closure $closure): Type\Get
-    {
-        return new Type\Get($path, $closure);
+    public static function get(
+        string $path,
+        ?Closure $closure = null,
+        ?string $className = null,
+        ?string $methodName = null,
+    ): Type\Get {
+        return new Type\Get($path, $closure, $className, $methodName);
     }
 
     /**

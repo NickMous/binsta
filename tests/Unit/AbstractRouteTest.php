@@ -53,3 +53,63 @@ it('returns a group route when using the group method', function (): void {
         ->and($groupRoute->path)->toBe('/api')
         ->and($groupRoute->routes)->toHaveCount(2);
 });
+
+it('handles class method route execution', function (): void {
+    // Create a test controller class
+    $controller = new class {
+        public function testMethod(): Response
+        {
+            return new Response("Class method response");
+        }
+    };
+
+    $route = new class ('/test', null, $controller::class, 'testMethod') extends AbstractRoute {
+    };
+
+    $response = $route->handle();
+
+    expect($response)->toBeInstanceOf(Response::class);
+    expect($response->content)->toBe("Class method response");
+});
+
+it('throws exception when class name is not set for class method route', function (): void {
+    $route = new class ('/test', null, null, 'testMethod') extends AbstractRoute {
+    };
+
+    $route->handle();
+})->throws(RuntimeException::class, 'Class name or method name is not set for this route.');
+
+it('throws exception when method name is not set for class method route', function (): void {
+    $route = new class ('/test', null, 'TestClass', null) extends AbstractRoute {
+    };
+
+    $route->handle();
+})->throws(RuntimeException::class, 'Class name or method name is not set for this route.');
+
+it('throws exception when method does not exist in class', function (): void {
+    $controller = new class {
+        public function existingMethod(): Response
+        {
+            return new Response("Existing method");
+        }
+    };
+
+    $route = new class ('/test', null, $controller::class, 'nonExistentMethod') extends AbstractRoute {
+    };
+
+    $route->handle();
+})->throws(RuntimeException::class, 'Method nonExistentMethod does not exist in class');
+
+it('throws exception when class method does not return Response', function (): void {
+    $controller = new class {
+        public function invalidMethod(): string
+        {
+            return "Not a response";
+        }
+    };
+
+    $route = new class ('/test', null, $controller::class, 'invalidMethod') extends AbstractRoute {
+    };
+
+    $route->handle();
+})->throws(InvalidResponseException::class, 'Invalid response provided.');

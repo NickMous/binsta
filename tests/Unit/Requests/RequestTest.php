@@ -4,8 +4,8 @@ use NickMous\Binsta\Internals\Requests\Request;
 
 covers(Request::class);
 
-describe('Request', function () {
-    test('creates request with GET parameters', function () {
+describe('Request', function (): void {
+    test('creates request with GET parameters', function (): void {
         // Set up GET parameters
         $_GET['test'] = 'value';
         $_GET['another'] = 'param';
@@ -20,7 +20,7 @@ describe('Request', function () {
         unset($_GET['another']);
     });
 
-    test('creates request with POST parameters', function () {
+    test('creates request with POST parameters', function (): void {
         // Set up POST parameters
         $_POST['username'] = 'testuser';
         $_POST['password'] = 'testpass';
@@ -35,7 +35,7 @@ describe('Request', function () {
         unset($_POST['password']);
     });
 
-    test('creates request with both GET and POST parameters', function () {
+    test('creates request with both GET and POST parameters', function (): void {
         // Set up both GET and POST parameters
         $_GET['page'] = '1';
         $_POST['action'] = 'save';
@@ -50,7 +50,7 @@ describe('Request', function () {
         unset($_POST['action']);
     });
 
-    test('creates request with no parameters', function () {
+    test('creates request with no parameters', function (): void {
         // Ensure no parameters are set
         $originalGet = $_GET;
         $originalPost = $_POST;
@@ -67,7 +67,7 @@ describe('Request', function () {
         $_POST = $originalPost;
     });
 
-    test('POST parameters take precedence over GET parameters', function () {
+    test('POST parameters take precedence over GET parameters', function (): void {
         // Set up conflicting GET and POST parameters
         $_GET['name'] = 'get-value';
         $_POST['name'] = 'post-value';
@@ -82,7 +82,7 @@ describe('Request', function () {
         unset($_POST['name']);
     });
 
-    test('provides convenient methods for parameter access', function () {
+    test('provides convenient methods for parameter access', function (): void {
         $_GET['search'] = 'test';
         $_POST['action'] = 'submit';
 
@@ -111,7 +111,7 @@ describe('Request', function () {
         unset($_POST['action']);
     });
 
-    test('allows setting parameters dynamically', function () {
+    test('allows setting parameters dynamically', function (): void {
         $request = new Request();
 
         // Test __set magic method

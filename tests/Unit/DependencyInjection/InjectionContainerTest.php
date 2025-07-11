@@ -28,8 +28,8 @@ use NickMous\Binsta\Tests\Unit\DependencyInjection\WithPriorityAttributeClass;
 
 covers(InjectionContainer::class);
 
-describe('InjectionContainer', function () {
-    beforeEach(function () {
+describe('InjectionContainer', function (): void {
+    beforeEach(function (): void {
         // Reset singleton instance between tests
         $reflection = new ReflectionClass(InjectionContainer::class);
         $instance = $reflection->getProperty('instance');
@@ -37,23 +37,23 @@ describe('InjectionContainer', function () {
         $instance->setValue(null, null);
     });
 
-    describe('Singleton Pattern', function () {
-        test('getInstance returns the same instance', function () {
+    describe('Singleton Pattern', function (): void {
+        test('getInstance returns the same instance', function (): void {
             $container1 = InjectionContainer::getInstance();
             $container2 = InjectionContainer::getInstance();
 
             expect($container1)->toBe($container2);
         });
 
-        test('getInstance returns InjectionContainer instance', function () {
+        test('getInstance returns InjectionContainer instance', function (): void {
             $container = InjectionContainer::getInstance();
 
             expect($container)->toBeInstanceOf(InjectionContainer::class);
         });
     });
 
-    describe('Basic Dependency Resolution', function () {
-        test('resolves simple class with no dependencies', function () {
+    describe('Basic Dependency Resolution', function (): void {
+        test('resolves simple class with no dependencies', function (): void {
             $container = InjectionContainer::getInstance();
             $instance = $container->get(SimpleClass::class);
 
@@ -61,7 +61,7 @@ describe('InjectionContainer', function () {
             expect($instance->getValue())->toBe('simple');
         });
 
-        test('returns same instance on subsequent calls (singleton behavior)', function () {
+        test('returns same instance on subsequent calls (singleton behavior)', function (): void {
             $container = InjectionContainer::getInstance();
             $instance1 = $container->get(SimpleClass::class);
             $instance2 = $container->get(SimpleClass::class);
@@ -69,7 +69,7 @@ describe('InjectionContainer', function () {
             expect($instance1)->toBe($instance2);
         });
 
-        test('resolves class with dependencies', function () {
+        test('resolves class with dependencies', function (): void {
             $container = InjectionContainer::getInstance();
             $instance = $container->get(DependentClass::class);
 
@@ -78,8 +78,8 @@ describe('InjectionContainer', function () {
         });
     });
 
-    describe('Interface Resolution with Priorities', function () {
-        test('throws NoPrioritySetException when some implementations lack priorities', function () {
+    describe('Interface Resolution with Priorities', function (): void {
+        test('throws NoPrioritySetException when some implementations lack priorities', function (): void {
             // TestInterface has multiple implementations, some without priorities
             $container = InjectionContainer::getInstance();
 
@@ -87,7 +87,7 @@ describe('InjectionContainer', function () {
                 ->toThrow(NoPrioritySetException::class);
         });
 
-        test('resolves interface with highest priority implementation', function () {
+        test('resolves interface with highest priority implementation', function (): void {
             // PriorityTestInterface has only implementations with priorities
             $container = InjectionContainer::getInstance();
             $instance = $container->get(PriorityTestInterface::class);
@@ -96,7 +96,7 @@ describe('InjectionContainer', function () {
             expect($instance->getPriority())->toBe('high-priority');
         });
 
-        test('resolves interface with single implementation directly', function () {
+        test('resolves interface with single implementation directly', function (): void {
             // Line 74 coverage: when there's exactly one implementation found
             $container = InjectionContainer::getInstance();
             $instance = $container->get(SingleImplementationInterface::class);
@@ -105,7 +105,7 @@ describe('InjectionContainer', function () {
             expect($instance->getSingle())->toBe('single');
         });
 
-        test('skips non-instantiable implementations', function () {
+        test('skips non-instantiable implementations', function (): void {
             // Line 87 coverage: when a found class is not instantiable (abstract)
             $container = InjectionContainer::getInstance();
             $instance = $container->get(NonInstantiableInterface::class);
@@ -114,7 +114,7 @@ describe('InjectionContainer', function () {
             expect($instance->getType())->toBe('concrete');
         });
 
-        test('throws DuplicatePrioritySetException for multiple priority attributes on same class', function () {
+        test('throws DuplicatePrioritySetException for multiple priority attributes on same class', function (): void {
             // Line 98 coverage: when same class has multiple Priority attributes
             $container = InjectionContainer::getInstance();
 
@@ -122,7 +122,7 @@ describe('InjectionContainer', function () {
                 ->toThrow(DuplicatePrioritySetException::class);
         });
 
-        test('throws TooManyPriorityClassesException for multiple classes with same priority', function () {
+        test('throws TooManyPriorityClassesException for multiple classes with same priority', function (): void {
             // Line 109 coverage: when multiple classes have the same priority value
             $container = InjectionContainer::getInstance();
 
@@ -130,7 +130,7 @@ describe('InjectionContainer', function () {
                 ->toThrow(TooManyPriorityClassesException::class);
         });
 
-        test('skips non-Priority attributes when resolving interface', function () {
+        test('skips non-Priority attributes when resolving interface', function (): void {
             // Line 94 coverage: when an attribute is not a Priority attribute
             $container = InjectionContainer::getInstance();
             $instance = $container->get(NonPriorityAttributeInterface::class);
@@ -140,22 +140,22 @@ describe('InjectionContainer', function () {
         });
     });
 
-    describe('Exception Cases', function () {
-        test('throws ReflectionException for non-existent class', function () {
+    describe('Exception Cases', function (): void {
+        test('throws ReflectionException for non-existent class', function (): void {
             $container = InjectionContainer::getInstance();
 
             expect(fn() => $container->get('NonExistentClass'))
                 ->toThrow(ReflectionException::class);
         });
 
-        test('throws NoClassFoundException for abstract class with no implementations', function () {
+        test('throws NoClassFoundException for abstract class with no implementations', function (): void {
             $container = InjectionContainer::getInstance();
 
             expect(fn() => $container->get(AbstractClass::class))
                 ->toThrow(NoClassFoundException::class);
         });
 
-        test('resolves concrete class without priority directly', function () {
+        test('resolves concrete class without priority directly', function (): void {
             $container = InjectionContainer::getInstance();
             $instance = $container->get(NoPriorityImplementation::class);
 
@@ -163,14 +163,14 @@ describe('InjectionContainer', function () {
             expect($instance->getName())->toBe('no-priority');
         });
 
-        test('throws NoTypesException for constructor parameter without type', function () {
+        test('throws NoTypesException for constructor parameter without type', function (): void {
             $container = InjectionContainer::getInstance();
 
             expect(fn() => $container->get(UntypedParameterClass::class))
                 ->toThrow(NoTypesException::class);
         });
 
-        test('throws NoTypesException for union type parameter', function () {
+        test('throws NoTypesException for union type parameter', function (): void {
             $container = InjectionContainer::getInstance();
 
             expect(fn() => $container->get(UnionTypeParameterClass::class))
@@ -178,8 +178,8 @@ describe('InjectionContainer', function () {
         });
     });
 
-    describe('Constructor Injection', function () {
-        test('injects dependencies into constructor', function () {
+    describe('Constructor Injection', function (): void {
+        test('injects dependencies into constructor', function (): void {
             $container = InjectionContainer::getInstance();
             $dependent = $container->get(DependentClass::class);
 
@@ -187,7 +187,7 @@ describe('InjectionContainer', function () {
             expect($dependent->getSimple()->getValue())->toBe('simple');
         });
 
-        test('handles classes with no constructor', function () {
+        test('handles classes with no constructor', function (): void {
             $container = InjectionContainer::getInstance();
             $instance = $container->get(SimpleClass::class);
 
