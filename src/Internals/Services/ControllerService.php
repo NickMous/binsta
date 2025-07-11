@@ -10,16 +10,17 @@ use NickMous\Binsta\Internals\Response\Errors\Http\Route\RouteNotFound;
 use NickMous\Binsta\Internals\Response\Response;
 use NickMous\Binsta\Internals\Response\VueResponse;
 use NickMous\Binsta\Internals\Routes\AbstractRoute;
+use NickMous\Binsta\Internals\Routes\Type\Group;
 
 class ControllerService
 {
     /**
-     * @var array<string, mixed>
+     * @var array<string, array<string, AbstractRoute>>
      */
     private array $routes = [];
 
     /**
-     * @var array<string, string>
+     * @var array<string, array<string, string>>
      */
     private array $routePatterns = [];
 
@@ -57,45 +58,77 @@ class ControllerService
                 throw new NoObjectException();
             }
 
-            if (!is_subclass_of($route, AbstractRoute::class)) {
+            if (!is_subclass_of($route, AbstractRoute::class) && !$route instanceof Group) {
                 throw new InvalidRouteClassException($route::class);
             }
 
-            $this->routes[$route->path] = $route;
-            $this->routePatterns[$route->path] = $this->convertToRegex($route->path);
+            $this->loadRoute($route);
+        }
+    }
+
+    private function loadRoute(AbstractRoute|Group $route): void
+    {
+        if ($route instanceof Group) {
+            foreach ($route->routes as $subRoute) {
+                if (!is_object($route)) {
+                    throw new NoObjectException();
+                }
+
+                if (!is_subclass_of($route, AbstractRoute::class) && !$route instanceof Group) {
+                    throw new InvalidRouteClassException($route::class);
+                }
+
+                $this->loadRoute($subRoute);
+            }
+        } elseif ($route instanceof AbstractRoute) {
+            if (!isset($this->routes[$route->method])) {
+                $this->routes[$route->method] = [];
+                $this->routePatterns[$route->method] = [];
+            }
+
+            $this->routes[$route->method][$route->path] = $route;
+            $this->routePatterns[$route->method][$route->path] = $this->convertToRegex($route->path);
         }
     }
 
     /**
      * @throws InvalidResponseException
      */
-    public function callRoute(string $route): void
+    public function callRoute(string $route, string $method): void
     {
+        // Check if method exists at all
+        if (!isset($this->routes[$method])) {
+            $this->handleResponse(new RouteNotFound($route, $method));
+            return;
+        }
+
         // First try exact match for performance
-        if (isset($this->routes[$route]) && ($this->routes[$route] instanceof AbstractRoute)) {
-            $routeObject = $this->routes[$route];
+        if (isset($this->routes[$method][$route]) && ($this->routes[$method][$route] instanceof AbstractRoute)) {
+            $routeObject = $this->routes[$method][$route];
             $response = $routeObject->handle();
             $this->handleResponse($response);
             return;
         }
 
         // Try pattern matching
-        foreach ($this->routePatterns as $pattern => $regex) {
-            if (preg_match($regex, $route, $matches)) {
-                $routeObject = $this->routes[$pattern];
+        if (isset($this->routePatterns[$method])) {
+            foreach ($this->routePatterns[$method] as $pattern => $regex) {
+                if (preg_match($regex, $route, $matches)) {
+                    $routeObject = $this->routes[$method][$pattern];
 
-                // Extract route parameters and make them available
-                $parameters = $this->extractParameters($matches);
-                $this->setRouteParameters($parameters);
+                    // Extract route parameters and make them available
+                    $parameters = $this->extractParameters($matches);
+                    $this->setRouteParameters($parameters);
 
-                $response = $routeObject->handle();
-                $this->handleResponse($response);
-                return;
+                    $response = $routeObject->handle();
+                    $this->handleResponse($response);
+                    return;
+                }
             }
         }
 
         // No route found
-        $this->handleResponse(new RouteNotFound($route));
+        $this->handleResponse(new RouteNotFound($route, $method));
     }
 
     /**

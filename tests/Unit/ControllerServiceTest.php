@@ -16,8 +16,9 @@ it('loads all available routes on initialization', function (AbstractRoute $rout
     $property->setAccessible(true);
     $routes = $property->getValue($controllerService);
     expect($routes)->toBeArray()
-        ->toHaveKey($route->path)
-        ->and($routes[$route->path])->toBeInstanceOf(AbstractRoute::class);
+        ->toHaveKey($route->method)
+        ->and($routes[$route->method])->toHaveKey($route->path)
+        ->and($routes[$route->method][$route->path])->toBeInstanceOf(AbstractRoute::class);
 })->with('valid-routes');
 
 it('loads routes from multiple files', function (): void {
@@ -31,8 +32,9 @@ it('loads routes from multiple files', function (): void {
     $routes = $property->getValue($controllerService);
 
     expect($routes)->toBeArray()
-        ->toHaveKey('/')
-        ->toHaveKey('/api/test');
+        ->toHaveKey('GET')
+        ->and($routes['GET'])->toHaveKey('/')
+        ->and($routes['GET'])->toHaveKey('/api/test');
 });
 
 it('throws an exception when the route file does not exist', function (): void {
@@ -55,7 +57,7 @@ it('calls the correct route based on the path', function (AbstractRoute $route):
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/valid-routes.php');
 
     ob_start();
-    $controllerService->callRoute($route->path);
+    $controllerService->callRoute($route->path, $route->method);
     $output = ob_get_clean();
 
     expect($output)->toBeString()
@@ -66,23 +68,23 @@ it('throws an exception when the route does not exist', function (): void {
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/valid-routes.php');
 
     ob_start();
-    $controllerService->callRoute('/non-existent-route');
+    $controllerService->callRoute('/non-existent-route', 'GET');
     $output = ob_get_clean();
 
     expect($output)->toBeString()
-        ->and($output)->toContain('Route not found: /non-existent-route');
+        ->and($output)->toContain('Route not found: GET: /non-existent-route');
 });
 
 it('throws an exception when the route handler does not return a Response', function (): void {
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/invalid-response-route.php');
-    $controllerService->callRoute('/invalid-response');
+    $controllerService->callRoute('/invalid-response', 'GET');
 })->throws(InvalidResponseException::class, 'Invalid response provided.');
 
 it('applies given headers to the response', function (): void {
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/valid-routes.php');
 
     ob_start();
-    $controllerService->callRoute('/with-headers');
+    $controllerService->callRoute('/with-headers', 'GET');
     $output = ob_get_clean();
 
     $headers = xdebug_get_headers();
@@ -103,7 +105,7 @@ it('renders a vue response correctly', function (): void {
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/valid-routes.php');
 
     ob_start();
-    $controllerService->callRoute('/vue-response');
+    $controllerService->callRoute('/vue-response', 'GET');
     $output = ob_get_clean();
 
     expect($output)->toBeString()
@@ -112,14 +114,14 @@ it('renders a vue response correctly', function (): void {
 
 it('throws an exception when the content is empty', function (): void {
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/empty-content-route.php');
-    $controllerService->callRoute('/empty-content');
+    $controllerService->callRoute('/empty-content', 'GET');
 })->throws(InvalidResponseException::class, 'The response content is empty.');
 
 it('matches routes with numeric parameters', function (): void {
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/api-routes.php');
 
     ob_start();
-    $controllerService->callRoute('/api/users/123');
+    $controllerService->callRoute('/api/users/123', 'GET');
     $output = ob_get_clean();
 
     expect($output)->toContain('User ID: 123');
@@ -129,17 +131,17 @@ it('does not match routes with invalid numeric parameters', function (): void {
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/api-routes.php');
 
     ob_start();
-    $controllerService->callRoute('/api/users/abc');
+    $controllerService->callRoute('/api/users/abc', 'GET');
     $output = ob_get_clean();
 
-    expect($output)->toContain('Route not found: /api/users/abc');
+    expect($output)->toContain('Route not found: GET: /api/users/abc');
 });
 
 it('matches routes with string pattern parameters', function (): void {
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/api-routes.php');
 
     ob_start();
-    $controllerService->callRoute('/api/posts/my-blog-post');
+    $controllerService->callRoute('/api/posts/my-blog-post', 'GET');
     $output = ob_get_clean();
 
     expect($output)->toContain('Post slug: my-blog-post');
@@ -149,17 +151,17 @@ it('does not match routes with invalid string pattern parameters', function (): 
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/api-routes.php');
 
     ob_start();
-    $controllerService->callRoute('/api/posts/My-Blog-Post');
+    $controllerService->callRoute('/api/posts/My-Blog-Post', 'GET');
     $output = ob_get_clean();
 
-    expect($output)->toContain('Route not found: /api/posts/My-Blog-Post');
+    expect($output)->toContain('Route not found: GET: /api/posts/My-Blog-Post');
 });
 
 it('matches catch-all routes', function (): void {
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/api-routes.php');
 
     ob_start();
-    $controllerService->callRoute('/api/catch/anything/goes/here');
+    $controllerService->callRoute('/api/catch/anything/goes/here', 'GET');
     $output = ob_get_clean();
 
     expect($output)->toContain('Catch-all path: anything/goes/here');
@@ -169,7 +171,7 @@ it('prioritizes exact matches over pattern matches', function (): void {
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/api-routes.php');
 
     ob_start();
-    $controllerService->callRoute('/api/test');
+    $controllerService->callRoute('/api/test', 'GET');
     $output = ob_get_clean();
 
     expect($output)->toContain('API test endpoint');
@@ -194,7 +196,7 @@ return [
     );
 
     ob_start();
-    $controllerService->callRoute('/api/test');
+    $controllerService->callRoute('/api/test', 'GET');
     $output = ob_get_clean();
 
     // Last file loaded should win (api-routes.php overwrites conflict-routes.php)
@@ -221,7 +223,7 @@ return [
     $controllerService = new ControllerService($multiParamRoutes);
 
     ob_start();
-    $controllerService->callRoute('/api/users/456/posts/my-awesome-post');
+    $controllerService->callRoute('/api/users/456/posts/my-awesome-post', 'GET');
     $output = ob_get_clean();
 
     expect($output)->toContain('User: 456, Post: my-awesome-post');

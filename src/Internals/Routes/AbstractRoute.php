@@ -10,9 +10,9 @@ use RuntimeException;
 abstract class AbstractRoute
 {
     public function __construct(
-        public string $path,
+        public string     $path,
         protected Closure $closure,
-        protected string $method,
+        public string     $method,
     ) {
     }
 
