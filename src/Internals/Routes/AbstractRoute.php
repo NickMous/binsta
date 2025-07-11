@@ -3,8 +3,10 @@
 namespace NickMous\Binsta\Internals\Routes;
 
 use Closure;
+use NickMous\Binsta\Internals\DependencyInjection\InjectionContainer;
 use NickMous\Binsta\Internals\Exceptions\Response\InvalidResponseException;
 use NickMous\Binsta\Internals\Response\Response;
+use NickMous\Binsta\Internals\Services\InjectionService;
 use RuntimeException;
 
 abstract class AbstractRoute
@@ -53,7 +55,7 @@ abstract class AbstractRoute
             throw new RuntimeException("Method {$this->methodName} does not exist in class {$this->className}.");
         }
 
-        $response = $class->{$this->methodName}();
+        $response = InjectionContainer::getInstance()->execute($this->className, $this->methodName);
 
         if ($response instanceof Response) {
             return $response;

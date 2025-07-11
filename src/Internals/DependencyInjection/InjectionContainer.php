@@ -16,9 +16,11 @@ class InjectionContainer
     private static ?InjectionContainer $instance = null;
 
     /**
-     * @var array<string, object>
+     * @var array<string, string>
      */
     private array $services = [];
+
+    private array $methods = [];
 
     private function __construct()
     {
@@ -43,7 +45,37 @@ class InjectionContainer
      */
     public function get(string $class): object
     {
+        return $this->instantiateClass($this->getCorrectClass($class));
+    }
+
+    /**
+     * @throws TooManyPriorityClassesException
+     * @throws NoClassFoundException
+     * @throws ReflectionException
+     * @throws DuplicatePrioritySetException
+     * @throws NoPrioritySetException
+     * @throws NoTypesException
+     */
+    public function getCorrectClass(string $class): string
+    {
         return $this->services[$class] ??= $this->resolve($class);
+    }
+
+    public function execute(string $class, string $method, array $args = []): mixed
+    {
+        $correctClass = $this->getCorrectClass($class);
+        $instance = $this->get($class);
+
+        if (!method_exists($instance, $method)) {
+            throw new \BadMethodCallException("Method {$method} does not exist in class {$class}");
+        }
+
+        $arguments = $this->getArguments($correctClass, $method);
+        $argumentsInstantiated = array_map(function ($arg) {
+            return $this->get($arg);
+        }, $arguments);
+
+        return $instance->{$method}(...$argumentsInstantiated);
     }
 
     /**
@@ -54,12 +86,12 @@ class InjectionContainer
      * @throws DuplicatePrioritySetException
      * @throws NoTypesException
      */
-    private function resolve(string $class): object
+    private function resolve(string $class): string
     {
         $reflection_class = new ReflectionClass($class);
 
         if ($reflection_class->isInstantiable()) {
-            return $this->instantiateClass($class);
+            return $class;
         }
 
         $found_classes = [];
@@ -71,7 +103,7 @@ class InjectionContainer
         }
 
         if (count($found_classes) === 1) {
-            return $this->instantiateClass($found_classes[0]);
+            return $found_classes[0];
         }
 
         if (count($found_classes) === 0) {
@@ -90,12 +122,12 @@ class InjectionContainer
             $priority = null;
 
             foreach ($reflection_class->getAttributes() as $attribute) {
-                if ($attribute->getName() !== 'Priority' && !str_ends_with($attribute->getName(), '\Priority')) {
+                if ($attribute->getName() !== 'NickMous\Binsta\Internals\Attributes\Priority') {
                     continue;
                 }
 
                 if ($priority !== null) {
-                    throw new DuplicatePrioritySetException($class, $priority);
+                    throw new DuplicatePrioritySetException($found_class, (string)$priority);
                 }
 
                 $priority = $attribute->getArguments()[0];
@@ -113,9 +145,8 @@ class InjectionContainer
         }
 
         ksort($what_priority);
-        $class_with_highest_priority = current($what_priority);
 
-        return $this->instantiateClass($class_with_highest_priority);
+        return current($what_priority);
     }
 
     /**
@@ -130,13 +161,28 @@ class InjectionContainer
      */
     private function instantiateClass(string $class): object
     {
-        $arguments = $this->getArguments($class);
-        return new $class(...$arguments);
+        if (!isset($this->methods[$class])) {
+            $this->methods[$class] = [];
+        }
+
+        if (isset($this->methods[$class]['__construct'])) {
+            $arguments = $this->methods[$class]['__construct'];
+        } else {
+            $arguments = $this->getArguments($class);
+            $this->methods[$class]['__construct'] = $arguments;
+        }
+
+        $argumentsInstantiated = array_map(function ($arg) {
+            return is_object($arg) ? $arg : $this->get($arg);
+        }, $arguments);
+
+        return new $class(...$argumentsInstantiated);
     }
 
     /**
      * @param string $class
-     * @return array<object>
+     * @param string $methodName
+     * @return array<string>
      * @throws DuplicatePrioritySetException
      * @throws NoClassFoundException
      * @throws NoPrioritySetException
@@ -144,14 +190,23 @@ class InjectionContainer
      * @throws ReflectionException
      * @throws TooManyPriorityClassesException
      */
-    private function getArguments(string $class): array
+    private function getArguments(string $class, string $methodName = '__construct'): array
     {
-        $reflection_class = new ReflectionClass($class);
-        $constructor = $reflection_class->getConstructor();
+        if (!isset($this->methods[$class])) {
+            $this->methods[$class] = [];
+        }
 
-        if (!$constructor) {
+        if (isset($this->methods[$class][$methodName])) {
+            return $this->methods[$class][$methodName];
+        }
+
+        $reflection_class = new ReflectionClass($class);
+        
+        if (!$reflection_class->hasMethod($methodName)) {
             return [];
         }
+        
+        $constructor = $reflection_class->getMethod($methodName);
 
         $arguments = [];
 
@@ -162,9 +217,10 @@ class InjectionContainer
                 throw new NoTypesException($class, $parameter);
             }
 
-            $arguments[] = $this->get($type->getName());
+            $arguments[] = $this->getCorrectClass($type->getName());
         }
 
+        $this->methods[$class][$methodName] = $arguments;
         return $arguments;
     }
 }
