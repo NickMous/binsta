@@ -70,17 +70,9 @@ class ControllerService
     {
         if ($route instanceof Group) {
             foreach ($route->routes as $subRoute) {
-                if (!is_object($route)) {
-                    throw new NoObjectException();
-                }
-
-                if (!is_subclass_of($route, AbstractRoute::class) && !$route instanceof Group) {
-                    throw new InvalidRouteClassException($route::class);
-                }
-
                 $this->loadRoute($subRoute);
             }
-        } elseif ($route instanceof AbstractRoute) {
+        } else {
             if (!isset($this->routes[$route->method])) {
                 $this->routes[$route->method] = [];
                 $this->routePatterns[$route->method] = [];
@@ -103,7 +95,7 @@ class ControllerService
         }
 
         // First try exact match for performance
-        if (isset($this->routes[$method][$route]) && ($this->routes[$method][$route] instanceof AbstractRoute)) {
+        if (isset($this->routes[$method][$route])) {
             $routeObject = $this->routes[$method][$route];
             $response = $routeObject->handle();
             $this->handleResponse($response);
