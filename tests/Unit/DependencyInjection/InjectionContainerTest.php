@@ -16,6 +16,8 @@ use NickMous\Binsta\Tests\Unit\DependencyInjection\TestInterface;
 use NickMous\Binsta\Tests\Unit\DependencyInjection\UnionTypeParameterClass;
 use NickMous\Binsta\Tests\Unit\DependencyInjection\UntypedParameterClass;
 
+covers(InjectionContainer::class);
+
 describe('InjectionContainer', function () {
     beforeEach(function () {
         // Reset singleton instance between tests

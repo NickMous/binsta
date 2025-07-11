@@ -5,8 +5,9 @@ use NickMous\Binsta\Internals\Response\Response;
 use NickMous\Binsta\Internals\Routes\AbstractRoute;
 use NickMous\Binsta\Internals\Routes\Route;
 use NickMous\Binsta\Internals\Routes\Type\Get;
+use NickMous\Binsta\Internals\Routes\Type\Group;
 
-covers(AbstractRoute::class, Route::class, Get::class);
+covers(AbstractRoute::class, Route::class, Get::class, Group::class);
 
 it('can execute the given closure', function (): void {
     $response = new Response("Hello, World!");
@@ -36,4 +37,19 @@ it('defines the get method without specifying the method', function (): void {
     });
 
     expect($route)->toBeInstanceOf(Get::class);
+});
+
+it('returns a group route when using the group method', function (): void {
+    $groupRoute = Route::group('/api', [
+        Route::get('/users', function () {
+            return new Response("Users list");
+        }),
+        Route::get('/posts', function () {
+            return new Response("Posts list");
+        }),
+    ]);
+
+    expect($groupRoute)->toBeInstanceOf(Group::class)
+        ->and($groupRoute->path)->toBe('/api')
+        ->and($groupRoute->routes)->toHaveCount(2);
 });
