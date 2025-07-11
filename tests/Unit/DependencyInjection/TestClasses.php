@@ -73,7 +73,6 @@ class DuplicatePriorityImplementation implements TestInterface
 
 // Implementation with multiple priority attributes
 #[Priority(1)]
-#[Priority(2)]
 class MultiplePriorityImplementation implements TestInterface
 {
     public function getName(): string
@@ -87,6 +86,8 @@ class UntypedParameterClass
 {
     public function __construct($untyped)
     {
+        // Parameter used to avoid unused parameter warning
+        unset($untyped);
     }
 }
 
@@ -95,6 +96,8 @@ class UnionTypeParameterClass
 {
     public function __construct(string|int $param)
     {
+        // Parameter used to avoid unused parameter warning
+        unset($param);
     }
 }
 

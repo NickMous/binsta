@@ -59,11 +59,66 @@ describe('Request', function () {
 
         $request = new Request();
 
-        // Should not have any properties set
-        expect(get_object_vars($request))->toBe([]);
+        // Should not have any parameters
+        expect($request->all())->toBe([]);
 
         // Restore original values
         $_GET = $originalGet;
         $_POST = $originalPost;
+    });
+
+    test('POST parameters take precedence over GET parameters', function () {
+        // Set up conflicting GET and POST parameters
+        $_GET['name'] = 'get-value';
+        $_POST['name'] = 'post-value';
+
+        $request = new Request();
+
+        expect($request->name)->toBe('post-value'); // POST should win
+        expect($request->get('name'))->toBe('post-value');
+
+        // Clean up
+        unset($_GET['name']);
+        unset($_POST['name']);
+    });
+
+    test('provides convenient methods for parameter access', function () {
+        $_GET['search'] = 'test';
+        $_POST['action'] = 'submit';
+
+        $request = new Request();
+
+        // Test get() method with default values
+        expect($request->get('search'))->toBe('test');
+        expect($request->get('missing', 'default'))->toBe('default');
+
+        // Test has() method
+        expect($request->has('search'))->toBe(true);
+        expect($request->has('missing'))->toBe(false);
+
+        // Test isset() magic method
+        expect(isset($request->search))->toBe(true);
+        expect(isset($request->missing))->toBe(false);
+
+        // Test all() method
+        expect($request->all())->toBe([
+            'search' => 'test',
+            'action' => 'submit'
+        ]);
+
+        // Clean up
+        unset($_GET['search']);
+        unset($_POST['action']);
+    });
+
+    test('allows setting parameters dynamically', function () {
+        $request = new Request();
+
+        // Test __set magic method
+        $request->dynamic = 'value';
+        expect($request->dynamic)->toBe('value')
+            ->and($request->get('dynamic'))->toBe('value')
+            ->and($request->has('dynamic'))->toBe(true)
+            ->and(isset($request->dynamic))->toBe(true);
     });
 });

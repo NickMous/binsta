@@ -17,4 +17,9 @@
 
     <rule ref="PSR12"/>
 
+    <!-- Allow multiple classes in test helper files -->
+    <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
+        <exclude-pattern>*/tests/Unit/DependencyInjection/TestClasses\.php$</exclude-pattern>
+    </rule>
+
 </ruleset>
