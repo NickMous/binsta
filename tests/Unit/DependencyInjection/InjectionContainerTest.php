@@ -27,6 +27,9 @@ use NickMous\Binsta\Tests\Unit\DependencyInjection\UntypedParameterClass;
 use NickMous\Binsta\Tests\Unit\DependencyInjection\WithPriorityAttributeClass;
 use NickMous\Binsta\Tests\Unit\DependencyInjection\MethodWithParametersClass;
 use NickMous\Binsta\Tests\Unit\DependencyInjection\FreshClass;
+use NickMous\Binsta\Tests\Unit\DependencyInjection\SingletonClass;
+use NickMous\Binsta\Tests\Unit\DependencyInjection\NonSingletonClass;
+use NickMous\Binsta\Tests\Unit\DependencyInjection\SingletonWithDependencies;
 
 covers(InjectionContainer::class);
 
@@ -68,6 +71,7 @@ describe('InjectionContainer', function (): void {
             $instance1 = $container->get(SimpleClass::class);
             $instance2 = $container->get(SimpleClass::class);
 
+            // SimpleClass is not marked as singleton, so should get new instances
             expect($instance1)->not->toBe($instance2);
             expect($instance1)->toBeInstanceOf(SimpleClass::class);
             expect($instance2)->toBeInstanceOf(SimpleClass::class);
@@ -259,6 +263,85 @@ describe('InjectionContainer', function (): void {
             $result = $container->execute(FreshClass::class, 'anotherMethod');
 
             expect($result)->toBe('another');
+        });
+    });
+
+    describe('Singleton Support', function (): void {
+        beforeEach(function (): void {
+            // Reset instantiation counters before each test
+            SingletonClass::resetInstantiationCount();
+            NonSingletonClass::resetInstantiationCount();
+            SingletonWithDependencies::resetInstantiationCount();
+        });
+
+        test('returns same instance for singleton classes', function (): void {
+            $container = InjectionContainer::getInstance();
+
+            $instance1 = $container->get(SingletonClass::class);
+            $instance2 = $container->get(SingletonClass::class);
+
+            expect($instance1)->toBe($instance2);
+            expect($instance1->getInstanceId())->toBe(1);
+            expect($instance2->getInstanceId())->toBe(1);
+            expect(SingletonClass::getInstantiationCount())->toBe(1);
+        });
+
+        test('returns different instances for non-singleton classes', function (): void {
+            $container = InjectionContainer::getInstance();
+
+            $instance1 = $container->get(NonSingletonClass::class);
+            $instance2 = $container->get(NonSingletonClass::class);
+
+            expect($instance1)->not->toBe($instance2);
+            expect($instance1->getInstanceId())->toBe(1);
+            expect($instance2->getInstanceId())->toBe(2);
+            expect(NonSingletonClass::getInstantiationCount())->toBe(2);
+        });
+
+        test('works with singleton classes that have dependencies', function (): void {
+            $container = InjectionContainer::getInstance();
+
+            $instance1 = $container->get(SingletonWithDependencies::class);
+            $instance2 = $container->get(SingletonWithDependencies::class);
+
+            expect($instance1)->toBe($instance2);
+            expect($instance1->getInstanceId())->toBe(1);
+            expect($instance2->getInstanceId())->toBe(1);
+            expect(SingletonWithDependencies::getInstantiationCount())->toBe(1);
+            expect($instance1->getSimple())->toBeInstanceOf(SimpleClass::class);
+            expect($instance2->getSimple())->toBeInstanceOf(SimpleClass::class);
+        });
+
+        test('singleton behavior works with execute method', function (): void {
+            $container = InjectionContainer::getInstance();
+
+            // Execute method on singleton class multiple times
+            $result1 = $container->execute(SingletonClass::class, 'getInstanceId');
+            $result2 = $container->execute(SingletonClass::class, 'getInstanceId');
+
+            expect($result1)->toBe(1);
+            expect($result2)->toBe(1);
+            expect(SingletonClass::getInstantiationCount())->toBe(1);
+        });
+
+        test('singleton instances are stored separately per class', function (): void {
+            $container = InjectionContainer::getInstance();
+
+            $singleton1 = $container->get(SingletonClass::class);
+            $singleton2 = $container->get(SingletonClass::class);
+            $singletonWithDeps1 = $container->get(SingletonWithDependencies::class);
+            $singletonWithDeps2 = $container->get(SingletonWithDependencies::class);
+
+            // Same class instances should be identical
+            expect($singleton1)->toBe($singleton2);
+            expect($singletonWithDeps1)->toBe($singletonWithDeps2);
+
+            // Different class instances should be different objects
+            expect($singleton1)->not->toBe($singletonWithDeps1);
+
+            // Each singleton class should be instantiated only once
+            expect(SingletonClass::getInstantiationCount())->toBe(1);
+            expect(SingletonWithDependencies::getInstantiationCount())->toBe(1);
         });
     });
 });

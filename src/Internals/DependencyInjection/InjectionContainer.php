@@ -25,6 +25,11 @@ class InjectionContainer
      */
     private array $methods = [];
 
+    /**
+     * @var array<string, object>
+     */
+    private array $instances = [];
+
     private function __construct()
     {
     }
@@ -167,6 +172,22 @@ class InjectionContainer
      */
     private function instantiateClass(string $class): object
     {
+        // Check if class is marked as singleton
+        $reflectionClass = new ReflectionClass($class);
+        $isSingleton = false;
+
+        foreach ($reflectionClass->getAttributes() as $attribute) {
+            if ($attribute->getName() === 'NickMous\Binsta\Internals\Attributes\Singleton') {
+                $isSingleton = true;
+                break;
+            }
+        }
+
+        // Return existing instance if singleton and already instantiated
+        if ($isSingleton && isset($this->instances[$class])) {
+            return $this->instances[$class];
+        }
+
         if (!isset($this->methods[$class])) {
             $this->methods[$class] = [];
         }
@@ -182,7 +203,14 @@ class InjectionContainer
             return $this->get($arg);
         }, $arguments);
 
-        return new $class(...$argumentsInstantiated);
+        $instance = new $class(...$argumentsInstantiated);
+
+        // Store instance if singleton
+        if ($isSingleton) {
+            $this->instances[$class] = $instance;
+        }
+
+        return $instance;
     }
 
     /**

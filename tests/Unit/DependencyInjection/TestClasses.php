@@ -3,6 +3,7 @@
 namespace NickMous\Binsta\Tests\Unit\DependencyInjection;
 
 use NickMous\Binsta\Internals\Attributes\Priority;
+use NickMous\Binsta\Internals\Attributes\Singleton;
 
 // Simple class with no dependencies
 class SimpleClass
@@ -280,5 +281,96 @@ class FreshClass
     public function anotherMethod(): string
     {
         return 'another';
+    }
+}
+
+// Singleton class for testing singleton behavior
+#[Singleton]
+class SingletonClass
+{
+    private static int $instantiationCount = 0;
+    public int $instanceId;
+
+    public function __construct()
+    {
+        self::$instantiationCount++;
+        $this->instanceId = self::$instantiationCount;
+    }
+
+    public function getInstanceId(): int
+    {
+        return $this->instanceId;
+    }
+
+    public static function getInstantiationCount(): int
+    {
+        return self::$instantiationCount;
+    }
+
+    public static function resetInstantiationCount(): void
+    {
+        self::$instantiationCount = 0;
+    }
+}
+
+// Non-singleton class for comparison
+class NonSingletonClass
+{
+    private static int $instantiationCount = 0;
+    public int $instanceId;
+
+    public function __construct()
+    {
+        self::$instantiationCount++;
+        $this->instanceId = self::$instantiationCount;
+    }
+
+    public function getInstanceId(): int
+    {
+        return $this->instanceId;
+    }
+
+    public static function getInstantiationCount(): int
+    {
+        return self::$instantiationCount;
+    }
+
+    public static function resetInstantiationCount(): void
+    {
+        self::$instantiationCount = 0;
+    }
+}
+
+// Singleton class with dependencies
+#[Singleton]
+class SingletonWithDependencies
+{
+    private static int $instantiationCount = 0;
+    public int $instanceId;
+
+    public function __construct(private SimpleClass $simple)
+    {
+        self::$instantiationCount++;
+        $this->instanceId = self::$instantiationCount;
+    }
+
+    public function getInstanceId(): int
+    {
+        return $this->instanceId;
+    }
+
+    public function getSimple(): SimpleClass
+    {
+        return $this->simple;
+    }
+
+    public static function getInstantiationCount(): int
+    {
+        return self::$instantiationCount;
+    }
+
+    public static function resetInstantiationCount(): void
+    {
+        self::$instantiationCount = 0;
     }
 }
