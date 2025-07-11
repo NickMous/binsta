@@ -90,7 +90,7 @@ class InjectionContainer
             $priority = null;
 
             foreach ($reflection_class->getAttributes() as $attribute) {
-                if ($attribute->getName() !== 'Priority') {
+                if ($attribute->getName() !== 'Priority' && !str_ends_with($attribute->getName(), '\Priority')) {
                     continue;
                 }
 
