@@ -66,11 +66,11 @@ class ControllerService
         }
     }
 
-    private function loadRoute(AbstractRoute|Group $route): void
+    private function loadRoute(AbstractRoute|Group $route, string $prefix = ''): void
     {
         if ($route instanceof Group) {
             foreach ($route->routes as $subRoute) {
-                $this->loadRoute($subRoute);
+                $this->loadRoute($subRoute, $prefix . $route->path);
             }
         } else {
             if (!isset($this->routes[$route->method])) {
@@ -78,8 +78,9 @@ class ControllerService
                 $this->routePatterns[$route->method] = [];
             }
 
-            $this->routes[$route->method][$route->path] = $route;
-            $this->routePatterns[$route->method][$route->path] = $this->convertToRegex($route->path);
+            $fullPath = $prefix . $route->path;
+            $this->routes[$route->method][$fullPath] = $route;
+            $this->routePatterns[$route->method][$fullPath] = $this->convertToRegex($fullPath);
         }
     }
 

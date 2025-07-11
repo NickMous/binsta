@@ -231,3 +231,31 @@ return [
     // Clean up
     unlink($multiParamRoutes);
 });
+
+it('loads group routes correctly', function (): void {
+    // Test for lines 72-73 coverage: Group route handling
+    $controllerService = new ControllerService(__DIR__ . '/../Datasets/group-routes.php');
+
+    $reflection = new ReflectionClass($controllerService);
+    $property = $reflection->getProperty('routes');
+    $property->setAccessible(true);
+    $routes = $property->getValue($controllerService);
+
+    // Check that group routes are loaded
+    expect($routes)->toBeArray()
+        ->toHaveKey('GET')
+        ->and($routes['GET'])->toHaveKey('/api/users')
+        ->and($routes['GET'])->toHaveKey('/api/posts')
+        ->and($routes['GET'])->toHaveKey('/standalone');
+});
+
+it('handles RouteNotFound for missing HTTP method', function (): void {
+    // Test for lines 93-94 coverage: RouteNotFound when method doesn't exist
+    $controllerService = new ControllerService(__DIR__ . '/../Datasets/valid-routes.php');
+
+    ob_start();
+    $controllerService->callRoute('/', 'DELETE'); // DELETE method doesn't exist
+    $output = ob_get_clean();
+
+    expect($output)->toContain('Route not found: DELETE: /');
+});
