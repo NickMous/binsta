@@ -259,3 +259,26 @@ class SuppressWarnings
     {
     }
 }
+
+// Class with method that has parameters for testing execute() method
+class MethodWithParametersClass
+{
+    public function processSimple(SimpleClass $simple): string
+    {
+        return 'processed: ' . $simple->getValue();
+    }
+}
+
+// Class specifically for testing method cache initialization
+class FreshClass
+{
+    public function freshMethod(): string
+    {
+        return 'fresh';
+    }
+
+    public function anotherMethod(): string
+    {
+        return 'another';
+    }
+}

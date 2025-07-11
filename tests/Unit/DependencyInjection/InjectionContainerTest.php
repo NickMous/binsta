@@ -25,6 +25,8 @@ use NickMous\Binsta\Tests\Unit\DependencyInjection\TooManyPriorityInterface;
 use NickMous\Binsta\Tests\Unit\DependencyInjection\UnionTypeParameterClass;
 use NickMous\Binsta\Tests\Unit\DependencyInjection\UntypedParameterClass;
 use NickMous\Binsta\Tests\Unit\DependencyInjection\WithPriorityAttributeClass;
+use NickMous\Binsta\Tests\Unit\DependencyInjection\MethodWithParametersClass;
+use NickMous\Binsta\Tests\Unit\DependencyInjection\FreshClass;
 
 covers(InjectionContainer::class);
 
@@ -61,12 +63,14 @@ describe('InjectionContainer', function (): void {
             expect($instance->getValue())->toBe('simple');
         });
 
-        test('returns same instance on subsequent calls (singleton behavior)', function (): void {
+        test('returns new instance on subsequent calls (non-singleton behavior)', function (): void {
             $container = InjectionContainer::getInstance();
             $instance1 = $container->get(SimpleClass::class);
             $instance2 = $container->get(SimpleClass::class);
 
-            expect($instance1)->toBe($instance2);
+            expect($instance1)->not->toBe($instance2);
+            expect($instance1)->toBeInstanceOf(SimpleClass::class);
+            expect($instance2)->toBeInstanceOf(SimpleClass::class);
         });
 
         test('resolves class with dependencies', function (): void {
@@ -192,6 +196,69 @@ describe('InjectionContainer', function (): void {
             $instance = $container->get(SimpleClass::class);
 
             expect($instance)->toBeInstanceOf(SimpleClass::class);
+        });
+    });
+
+    describe('Method Execution', function (): void {
+        test('executes method with dependency injection', function (): void {
+            $container = InjectionContainer::getInstance();
+            $result = $container->execute(DependentClass::class, 'getSimple');
+
+            expect($result)->toBeInstanceOf(SimpleClass::class);
+            expect($result->getValue())->toBe('simple');
+        });
+
+        test('executes method with method parameters', function (): void {
+            $container = InjectionContainer::getInstance();
+            $result = $container->execute(MethodWithParametersClass::class, 'processSimple');
+
+            expect($result)->toBe('processed: simple');
+        });
+
+        test('throws BadMethodCallException for non-existent method', function (): void {
+            $container = InjectionContainer::getInstance();
+
+            expect(fn() => $container->execute(SimpleClass::class, 'nonExistentMethod'))
+                ->toThrow(BadMethodCallException::class, 'Method nonExistentMethod does not exist in class');
+        });
+
+        test('caches method arguments for performance', function (): void {
+            $container = InjectionContainer::getInstance();
+
+            // First call - should cache arguments
+            $result1 = $container->execute(MethodWithParametersClass::class, 'processSimple');
+
+            // Second call - should use cached arguments
+            $result2 = $container->execute(MethodWithParametersClass::class, 'processSimple');
+
+            expect($result1)->toBe('processed: simple');
+            expect($result2)->toBe('processed: simple');
+        });
+
+        test('handles methods with no parameters', function (): void {
+            $container = InjectionContainer::getInstance();
+            $result = $container->execute(SimpleClass::class, 'getValue');
+
+            expect($result)->toBe('simple');
+        });
+
+        test('initializes method cache for new classes', function (): void {
+            $container = InjectionContainer::getInstance();
+            // Use a fresh class that hasn't been used before to hit the cache initialization
+            $result = $container->execute(FreshClass::class, 'freshMethod');
+
+            expect($result)->toBe('fresh');
+        });
+
+        test('initializes method cache for new methods on existing classes', function (): void {
+            $container = InjectionContainer::getInstance();
+            // First, instantiate the class (this will initialize the methods array)
+            $container->get(FreshClass::class);
+
+            // Now call a different method - this should hit the cache initialization for this specific method
+            $result = $container->execute(FreshClass::class, 'anotherMethod');
+
+            expect($result)->toBe('another');
         });
     });
 });

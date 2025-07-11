@@ -20,6 +20,9 @@ class InjectionContainer
      */
     private array $services = [];
 
+    /**
+     * @var array<string, array<string, array<string>>>
+     */
     private array $methods = [];
 
     private function __construct()
@@ -61,6 +64,9 @@ class InjectionContainer
         return $this->services[$class] ??= $this->resolve($class);
     }
 
+    /**
+     * @param array<mixed> $args
+     */
     public function execute(string $class, string $method, array $args = []): mixed
     {
         $correctClass = $this->getCorrectClass($class);
@@ -173,7 +179,7 @@ class InjectionContainer
         }
 
         $argumentsInstantiated = array_map(function ($arg) {
-            return is_object($arg) ? $arg : $this->get($arg);
+            return $this->get($arg);
         }, $arguments);
 
         return new $class(...$argumentsInstantiated);
@@ -192,20 +198,16 @@ class InjectionContainer
      */
     private function getArguments(string $class, string $methodName = '__construct'): array
     {
-        if (!isset($this->methods[$class])) {
-            $this->methods[$class] = [];
-        }
-
         if (isset($this->methods[$class][$methodName])) {
             return $this->methods[$class][$methodName];
         }
 
         $reflection_class = new ReflectionClass($class);
-        
+
         if (!$reflection_class->hasMethod($methodName)) {
             return [];
         }
-        
+
         $constructor = $reflection_class->getMethod($methodName);
 
         $arguments = [];
