@@ -7,14 +7,14 @@ use ReflectionClass;
 
 covers(Singleton::class);
 
-describe('Singleton', function () {
-    test('creates singleton attribute', function () {
+describe('Singleton', function (): void {
+    test('creates singleton attribute', function (): void {
         $singleton = new Singleton();
 
         expect($singleton)->toBeInstanceOf(Singleton::class);
     });
 
-    test('can be used as class attribute', function () {
+    test('can be used as class attribute', function (): void {
         $reflection = new ReflectionClass(TestSingletonClass::class);
         $attributes = $reflection->getAttributes(Singleton::class);
 

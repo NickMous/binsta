@@ -37,8 +37,7 @@
         "rector/rector": "^2.1",
         "pestphp/pest-plugin-type-coverage": "^3.5",
         "deployer/deployer": "^7.5",
-        "symfony/var-dumper": "^7.3",
-        "ext-xdebug": "*"
+        "symfony/var-dumper": "^7.3"
     },
     "config": {
         "allow-plugins": {
