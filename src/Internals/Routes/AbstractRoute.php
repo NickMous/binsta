@@ -5,6 +5,7 @@ namespace NickMous\Binsta\Internals\Routes;
 use Closure;
 use NickMous\Binsta\Internals\DependencyInjection\InjectionContainer;
 use NickMous\Binsta\Internals\Exceptions\Response\InvalidResponseException;
+use NickMous\Binsta\Internals\Exceptions\Validation\ValidationFailedException;
 use NickMous\Binsta\Internals\Response\Response;
 use NickMous\Binsta\Internals\Services\InjectionService;
 use RuntimeException;
@@ -22,6 +23,7 @@ abstract class AbstractRoute
 
     /**
      * @throws InvalidResponseException
+     * @throws ValidationFailedException
      */
     public function handle(): Response
     {
@@ -32,6 +34,11 @@ abstract class AbstractRoute
         return $this->handleClassMethod();
     }
 
+    /**
+     * @return Response
+     * @throws InvalidResponseException
+     * @throws ValidationFailedException
+     */
     private function handleClosure(): Response
     {
         $closure = $this->closure;
@@ -44,6 +51,12 @@ abstract class AbstractRoute
         throw new InvalidResponseException();
     }
 
+    /**
+     * @return Response
+     * @throws InvalidResponseException
+     * @throws ValidationFailedException
+     * @throws RuntimeException
+     */
     private function handleClassMethod(): Response
     {
         if ($this->className === null || $this->methodName === null) {

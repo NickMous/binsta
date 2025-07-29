@@ -16,11 +16,13 @@ const email = ref('')
 const password = ref('')
 const isLoading = ref(false)
 const error = ref('')
+const errors = ref<Record<string, string>>({})
 
 const handleLogin = async (event: Event) => {
   event.preventDefault()
   isLoading.value = true
   error.value = ''
+  errors.value = {}
 
   try {
     const response = await fetch('/api/auth/login', {
@@ -34,11 +36,16 @@ const handleLogin = async (event: Event) => {
       }),
     })
 
-    if (!response.ok) {
-      throw new Error('Login failed')
-    }
-
     const data = await response.json()
+
+    if (!response.ok) {
+      if (data.fields) {
+        errors.value = data.fields
+      } else {
+        error.value = data.message || 'Login failed'
+      }
+      return
+    }
 
     // Handle successful login (e.g., redirect or update auth state)
     console.log('Login successful:', data)
@@ -84,7 +91,11 @@ const handleLogin = async (event: Event) => {
                 type="email"
                 placeholder="m@example.com"
                 required
+                :class="{ 'border-red-500': errors.email }"
             />
+            <div v-if="errors.email" class="text-red-500 text-sm">
+              {{ errors.email }}
+            </div>
           </div>
           <div class="grid gap-3">
             <Label for="password">Password</Label>
@@ -94,7 +105,11 @@ const handleLogin = async (event: Event) => {
                 type="password"
                 placeholder="••••••••"
                 required
+                :class="{ 'border-red-500': errors.password }"
             />
+            <div v-if="errors.password" class="text-red-500 text-sm">
+              {{ errors.password }}
+            </div>
           </div>
           <Button type="submit" class="w-full" :disabled="isLoading">
             {{ isLoading ? 'Logging in...' : 'Login' }}

@@ -3,14 +3,15 @@
 namespace NickMous\Binsta\Controllers;
 
 use NickMous\Binsta\Internals\BaseController;
-use NickMous\Binsta\Internals\Requests\Request;
 use NickMous\Binsta\Internals\Response\JsonResponse;
 use NickMous\Binsta\Internals\Response\Response;
+use NickMous\Binsta\Requests\LoginRequest;
 
 class AuthController extends BaseController
 {
-    public function login(Request $request): Response
+    public function login(LoginRequest $request): Response
     {
-        return new JsonResponse([]) ;
+        $request->validate(true);
+        return new JsonResponse([]);
     }
 }

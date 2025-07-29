@@ -6,7 +6,9 @@ use NickMous\Binsta\Internals\Exceptions\InvalidRouteFileGiven;
 use NickMous\Binsta\Internals\Exceptions\Response\InvalidResponseException;
 use NickMous\Binsta\Internals\Exceptions\Route\InvalidRouteClassException;
 use NickMous\Binsta\Internals\Exceptions\Route\NoObjectException;
+use NickMous\Binsta\Internals\Exceptions\Validation\ValidationFailedException;
 use NickMous\Binsta\Internals\Response\Errors\Http\Route\RouteNotFound;
+use NickMous\Binsta\Internals\Response\JsonResponse;
 use NickMous\Binsta\Internals\Response\Response;
 use NickMous\Binsta\Internals\Response\VueResponse;
 use NickMous\Binsta\Internals\Routes\AbstractRoute;
@@ -98,8 +100,7 @@ class ControllerService
         // First try exact match for performance
         if (isset($this->routes[$method][$route])) {
             $routeObject = $this->routes[$method][$route];
-            $response = $routeObject->handle();
-            $this->handleResponse($response);
+            $this->handleRouteObject($routeObject);
             return;
         }
 
@@ -113,8 +114,7 @@ class ControllerService
                     $parameters = $this->extractParameters($matches);
                     $this->setRouteParameters($parameters);
 
-                    $response = $routeObject->handle();
-                    $this->handleResponse($response);
+                    $this->handleRouteObject($routeObject);
                     return;
                 }
             }
@@ -165,6 +165,26 @@ class ControllerService
     private function setRouteParameters(array $parameters): void
     {
         $GLOBALS['route_parameters'] = $parameters;
+    }
+
+    private function handleRouteObject(AbstractRoute $routeObject): void
+    {
+        try {
+            $response = $routeObject->handle();
+            $this->handleResponse($response);
+        } catch (ValidationFailedException $e) {
+            if ($e->returnJson === true) {
+                $response = new JsonResponse(
+                    data: [
+                        'error' => 'Validation failed',
+                        'message' => $e->getMessage(),
+                        'fields' => $e->errors,
+                    ],
+                    status: 400
+                );
+                $this->handleResponse($response);
+            }
+        }
     }
 
     private function handleResponse(Response $response): void

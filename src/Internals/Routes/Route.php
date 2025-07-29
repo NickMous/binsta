@@ -16,6 +16,15 @@ class Route
         return new Type\Get($path, $closure, $className, $methodName);
     }
 
+    public static function post(
+        string $path,
+        ?Closure $closure = null,
+        ?string $className = null,
+        ?string $methodName = null,
+    ): Type\Post {
+        return new Type\Post($path, $closure, $className, $methodName);
+    }
+
     /**
      * @param string                     $path
      * @param array<AbstractRoute|Group> $routes

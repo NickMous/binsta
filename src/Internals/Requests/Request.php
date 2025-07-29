@@ -2,6 +2,10 @@
 
 namespace NickMous\Binsta\Internals\Requests;
 
+use NickMous\Binsta\Internals\Containers\ValidationContainer;
+use NickMous\Binsta\Internals\Exceptions\Validation\ValidationFailedException;
+use NickMous\Binsta\Internals\Validation\HasValidation;
+
 class Request
 {
     /**
@@ -16,9 +20,23 @@ class Request
             $this->parameters[$key] = $value;
         }
 
-        // Store POST parameters (POST takes precedence over GET)
-        foreach ($_POST as $key => $value) {
-            $this->parameters[$key] = $value;
+        // Handle JSON POST data
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+
+            if (str_contains($contentType, 'application/json')) {
+                $jsonData = json_decode(file_get_contents('php://input'), true);
+                if (is_array($jsonData)) {
+                    foreach ($jsonData as $key => $value) {
+                        $this->parameters[$key] = $value;
+                    }
+                }
+            } else {
+                // Store regular POST parameters (POST takes precedence over GET)
+                foreach ($_POST as $key => $value) {
+                    $this->parameters[$key] = $value;
+                }
+            }
         }
     }
 
@@ -70,5 +88,42 @@ class Request
     public function has(string $key): bool
     {
         return isset($this->parameters[$key]);
+    }
+
+    public function validate(bool $returnJson = false): void
+    {
+        if (!$this instanceof HasValidation) {
+            return;
+        }
+
+        $fieldsToValidate = $this->rules();
+        $messages = $this->messages();
+        $validationContainer = ValidationContainer::getInstance();
+        $errors = [];
+
+        foreach ($fieldsToValidate as $field => $rules) {
+            $value = $this->get($field);
+
+            if (is_string($rules)) {
+                $rules = explode('|', $rules);
+            }
+
+            foreach ($rules as $ruleKey) {
+                if (isset($errors[$field])) {
+                    continue;
+                }
+
+                $validator = $validationContainer->getValidator($ruleKey);
+
+                if (!$validator->validate($value)) {
+                    $messageKey = $field . '.' . $ruleKey;
+                    $errors[$field] = $messages[$messageKey] ?? $messageKey;
+                }
+            }
+        }
+
+        if (!empty($errors)) {
+            throw new ValidationFailedException($errors, $returnJson);
+        }
     }
 }
