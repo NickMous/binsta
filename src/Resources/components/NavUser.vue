@@ -77,6 +77,12 @@ const userStore = useUserStore()
               Log in
             </DropdownMenuItem>
           </RouterLink>
+          <RouterLink to="/signup">
+            <DropdownMenuItem>
+              <Sparkles/>
+              Sign up
+            </DropdownMenuItem>
+          </RouterLink>
         </DropdownMenuContent>
         <DropdownMenuContent
             v-if="userStore.getUsername !== ''"

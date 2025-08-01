@@ -13,6 +13,12 @@ const routes = [
     name: 'login',
     component: () => import('@/pages/LoginPage.vue'),
     meta: { layout: 'empty' }
+  },
+  {
+    path: '/signup',
+    name: 'signup',
+    component: () => import('@/pages/SignUpPage.vue'),
+    meta: { layout: 'empty' }
   }
   // {
   //   path: '/trending',

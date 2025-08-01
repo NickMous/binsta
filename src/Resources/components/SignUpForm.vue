@@ -12,27 +12,38 @@ const props = defineProps<{
   class?: HTMLAttributes['class']
 }>()
 
+const name = ref('')
 const email = ref('')
 const password = ref('')
+const confirmPassword = ref('')
 const isLoading = ref(false)
 const error = ref('')
 const errors = ref<Record<string, string>>({})
 
-const handleLogin = async (event: Event) => {
+const handleSignUp = async (event: Event) => {
   event.preventDefault()
   isLoading.value = true
   error.value = ''
   errors.value = {}
 
+  // Client-side validation for password confirmation
+  if (password.value !== confirmPassword.value) {
+    errors.value.confirmPassword = 'Passwords do not match'
+    isLoading.value = false
+    return
+  }
+
   try {
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch('/api/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        name: name.value,
         email: email.value,
         password: password.value,
+        password_confirmation: confirmPassword.value,
       }),
     })
 
@@ -42,16 +53,16 @@ const handleLogin = async (event: Event) => {
       if (data.fields) {
         errors.value = data.fields
       } else {
-        error.value = data.message || 'Login failed'
+        error.value = data.message || 'Sign up failed'
       }
       return
     }
 
-    // Handle successful login (e.g., redirect or update auth state)
-    console.log('Login successful:', data)
+    // Handle successful sign up (e.g., redirect or update auth state)
+    console.log('Sign up successful:', data)
 
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Login failed'
+    error.value = err instanceof Error ? err.message : 'Sign up failed'
   } finally {
     isLoading.value = false
   }
@@ -60,7 +71,7 @@ const handleLogin = async (event: Event) => {
 
 <template>
   <div :class="cn('flex flex-col gap-6', props.class)">
-    <form @submit="handleLogin">
+    <form @submit="handleSignUp">
       <div class="flex flex-col gap-6">
         <div class="flex flex-col items-center gap-2">
           <RouterLink to="/" class="flex flex-col items-center gap-2 font-medium">
@@ -70,18 +81,32 @@ const handleLogin = async (event: Event) => {
             <span class="sr-only">Binsta</span>
           </RouterLink>
           <h1 class="text-xl font-bold">
-            Welcome to Binsta!
+            Create your account
           </h1>
           <div class="text-center text-sm">
-            Don't have an account?
-            <RouterLink to="/signup" class="underline underline-offset-4">
-              Sign up
+            Already have an account?
+            <RouterLink to="/login" class="underline underline-offset-4">
+              Sign in
             </RouterLink>
           </div>
         </div>
         <div class="flex flex-col gap-6">
           <div v-if="error" class="text-red-500 text-sm text-center">
             {{ error }}
+          </div>
+          <div class="grid gap-3">
+            <Label for="name">Name</Label>
+            <Input
+                id="name"
+                v-model="name"
+                type="text"
+                placeholder="John Doe"
+                required
+                :class="{ 'border-red-500': errors.name }"
+            />
+            <div v-if="errors.name" class="text-red-500 text-sm">
+              {{ errors.name }}
+            </div>
           </div>
           <div class="grid gap-3">
             <Label for="email">Email</Label>
@@ -111,8 +136,22 @@ const handleLogin = async (event: Event) => {
               {{ errors.password }}
             </div>
           </div>
+          <div class="grid gap-3">
+            <Label for="confirmPassword">Confirm Password</Label>
+            <Input
+                id="confirmPassword"
+                v-model="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                required
+                :class="{ 'border-red-500': errors.confirmPassword }"
+            />
+            <div v-if="errors.confirmPassword" class="text-red-500 text-sm">
+              {{ errors.confirmPassword }}
+            </div>
+          </div>
           <Button type="submit" class="w-full" :disabled="isLoading">
-            {{ isLoading ? 'Logging in...' : 'Login' }}
+            {{ isLoading ? 'Creating account...' : 'Create account' }}
           </Button>
         </div>
       </div>
