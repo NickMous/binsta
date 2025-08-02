@@ -3,6 +3,7 @@
 namespace NickMous\Binsta\Entities;
 
 use DateTime;
+use NickMous\Binsta\Internals\Entities\Entity;
 use RedBeanPHP\OODBBean;
 
 class User extends Entity
@@ -17,20 +18,27 @@ class User extends Entity
         set => $this->email = $value;
     }
 
+    private bool $isHydrating = false;
+
     public string $password {
         get => $this->password ?? '';
         set {
-            // Auto-hash password when setting
-            $this->password = password_hash($value, PASSWORD_DEFAULT);
+    if ($this->isHydrating) {
+        // During hydration, set raw hash without re-hashing
+        $this->password = $value;
+    } else {
+        // Auto-hash password when setting normally
+        $this->password = password_hash($value, PASSWORD_DEFAULT);
+    }
         }
     }
 
-    public ?DateTime $createdAt {
+    public ?DateTime $createdAt = null {
         get => $this->createdAt;
         set => $this->createdAt = $value;
     }
 
-    public ?DateTime $updatedAt {
+    public ?DateTime $updatedAt = null {
         get => $this->updatedAt;
         set => $this->updatedAt = $value;
     }
@@ -59,7 +67,9 @@ class User extends Entity
      */
     public function setPasswordHash(string $hash): void
     {
+        $this->isHydrating = true;
         $this->password = $hash;
+        $this->isHydrating = false;
     }
 
     /**
@@ -79,9 +89,11 @@ class User extends Entity
             return;
         }
 
+        $this->isHydrating = true;
+
         $this->name = (string) $this->bean->name;
         $this->email = (string) $this->bean->email;
-        $this->setPasswordHash((string) $this->bean->password); // Use raw hash setter
+        $this->password = (string) $this->bean->password; // Set raw hash during hydration
 
         if (!empty($this->bean->created_at)) {
             $this->createdAt = new DateTime($this->bean->created_at);
@@ -90,6 +102,8 @@ class User extends Entity
         if (!empty($this->bean->updated_at)) {
             $this->updatedAt = new DateTime($this->bean->updated_at);
         }
+
+        $this->isHydrating = false;
     }
 
     /**

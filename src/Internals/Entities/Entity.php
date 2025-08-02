@@ -1,6 +1,6 @@
 <?php
 
-namespace NickMous\Binsta\Entities;
+namespace NickMous\Binsta\Internals\Entities;
 
 use RedBeanPHP\OODBBean;
 use RedBeanPHP\R;

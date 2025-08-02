@@ -63,26 +63,18 @@ class UserRepository
     {
         $beans = R::find(User::getTableName(), 'name LIKE ?', ['%' . $name . '%']);
 
-        return array_map(fn(OODBBean $bean) => new User($bean), $beans);
+        return array_values(array_map(fn(OODBBean $bean) => new User($bean), $beans));
     }
 
     /**
      * Get all users
      * @return array<User>
      */
-    public static function findAll(?int $limit = null, int $offset = 0): array
+    public static function findAll(): array
     {
-        $sql = 'ORDER BY created_at DESC';
-        $params = [];
+        $beans = R::find(User::getTableName(), 'ORDER BY created_at DESC');
 
-        if ($limit !== null) {
-            $sql .= ' LIMIT ? OFFSET ?';
-            $params = [$limit, $offset];
-        }
-
-        $beans = R::find(User::getTableName(), $sql, $params);
-
-        return array_map(fn(OODBBean $bean) => new User($bean), $beans);
+        return array_values(array_map(fn(OODBBean $bean) => new User($bean), $beans));
     }
 
     /**
@@ -105,7 +97,7 @@ class UserRepository
             [$date->format('Y-m-d H:i:s')]
         );
 
-        return array_map(fn(OODBBean $bean) => new User($bean), $beans);
+        return array_values(array_map(fn(OODBBean $bean) => new User($bean), $beans));
     }
 
     /**
@@ -150,27 +142,6 @@ class UserRepository
 
         $user->delete();
         return true;
-    }
-
-    /**
-     * Find users with pagination
-     * @return array<string, mixed>
-     */
-    public static function paginate(int $page = 1, int $perPage = 10): array
-    {
-        $offset = ($page - 1) * $perPage;
-        $users = self::findAll($perPage, $offset);
-        $total = self::count();
-
-        return [
-            'users' => $users,
-            'total' => $total,
-            'page' => $page,
-            'per_page' => $perPage,
-            'total_pages' => (int) ceil($total / $perPage),
-            'has_next' => $page * $perPage < $total,
-            'has_prev' => $page > 1,
-        ];
     }
 
     /**
