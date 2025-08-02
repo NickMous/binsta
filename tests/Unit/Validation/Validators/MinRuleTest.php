@@ -37,7 +37,7 @@ describe('MinRule', function (): void {
 
     test('defaults to 0 when no parameters are set', function (): void {
         $rule = new MinRule();
-        
+
         expect($rule->validate(''))->toBe(true);      // empty string passes with min 0
         expect($rule->validate('any'))->toBe(true);   // any string passes with min 0
     });

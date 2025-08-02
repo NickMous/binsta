@@ -110,7 +110,7 @@ describe('ValidationContainer', function (): void {
         // Parameters should work
         expect($validator->validate('abc'))->toBe(true);
         expect($validator->validate('ab'))->toBe(false);
-        
+
         // Context should be ignored (no error)
     });
 

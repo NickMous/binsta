@@ -6,13 +6,13 @@ use NickMous\Binsta\Internals\Exceptions\Validation\ValidationFailedException;
 covers(LoginRequest::class);
 
 describe('LoginRequest', function (): void {
-    beforeEach(function () {
+    beforeEach(function (): void {
         // Set up basic server environment for Request constructor
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_SERVER['CONTENT_TYPE'] = 'application/json';
     });
 
-    afterEach(function () {
+    afterEach(function (): void {
         // Clean up
         unset($_SERVER['REQUEST_METHOD']);
         unset($_SERVER['CONTENT_TYPE']);
@@ -48,19 +48,24 @@ describe('LoginRequest', function (): void {
         ];
 
         // Create request with mocked data
-        $request = new class($requestData) extends LoginRequest {
-            public function __construct(array $data) {
+        $request = new class ($requestData) extends LoginRequest {
+            /** @param array<string, mixed> $data */
+            public function __construct(array $data)
+            {
                 // Skip parent constructor to avoid $_POST handling
                 $this->parameters = $data;
             }
-            
+
+            /** @var array<string, mixed> */
             private array $parameters;
-            
-            public function get(string $key, mixed $default = null): mixed {
+
+            public function get(string $key, mixed $default = null): mixed
+            {
                 return $this->parameters[$key] ?? $default;
             }
-            
-            public function all(): array {
+
+            public function all(): array
+            {
                 return $this->parameters;
             }
         };
@@ -74,18 +79,23 @@ describe('LoginRequest', function (): void {
             'password' => 'password123'
         ];
 
-        $request = new class($requestData) extends LoginRequest {
-            public function __construct(array $data) {
+        $request = new class ($requestData) extends LoginRequest {
+            /** @param array<string, mixed> $data */
+            public function __construct(array $data)
+            {
                 $this->parameters = $data;
             }
-            
+
+            /** @var array<string, mixed> */
             private array $parameters;
-            
-            public function get(string $key, mixed $default = null): mixed {
+
+            public function get(string $key, mixed $default = null): mixed
+            {
                 return $this->parameters[$key] ?? $default;
             }
-            
-            public function all(): array {
+
+            public function all(): array
+            {
                 return $this->parameters;
             }
         };
@@ -99,18 +109,23 @@ describe('LoginRequest', function (): void {
             'email' => 'john@example.com'
         ];
 
-        $request = new class($requestData) extends LoginRequest {
-            public function __construct(array $data) {
+        $request = new class ($requestData) extends LoginRequest {
+            /** @param array<string, mixed> $data */
+            public function __construct(array $data)
+            {
                 $this->parameters = $data;
             }
-            
+
+            /** @var array<string, mixed> */
             private array $parameters;
-            
-            public function get(string $key, mixed $default = null): mixed {
+
+            public function get(string $key, mixed $default = null): mixed
+            {
                 return $this->parameters[$key] ?? $default;
             }
-            
-            public function all(): array {
+
+            public function all(): array
+            {
                 return $this->parameters;
             }
         };
@@ -125,18 +140,23 @@ describe('LoginRequest', function (): void {
             'password' => 'password123'
         ];
 
-        $request = new class($requestData) extends LoginRequest {
-            public function __construct(array $data) {
+        $request = new class ($requestData) extends LoginRequest {
+            /** @param array<string, mixed> $data */
+            public function __construct(array $data)
+            {
                 $this->parameters = $data;
             }
-            
+
+            /** @var array<string, mixed> */
             private array $parameters;
-            
-            public function get(string $key, mixed $default = null): mixed {
+
+            public function get(string $key, mixed $default = null): mixed
+            {
                 return $this->parameters[$key] ?? $default;
             }
-            
-            public function all(): array {
+
+            public function all(): array
+            {
                 return $this->parameters;
             }
         };
@@ -148,18 +168,23 @@ describe('LoginRequest', function (): void {
     test('validates all fields are required', function (): void {
         $requestData = []; // empty request
 
-        $request = new class($requestData) extends LoginRequest {
-            public function __construct(array $data) {
+        $request = new class ($requestData) extends LoginRequest {
+            /** @param array<string, mixed> $data */
+            public function __construct(array $data)
+            {
                 $this->parameters = $data;
             }
-            
+
+            /** @var array<string, mixed> */
             private array $parameters;
-            
-            public function get(string $key, mixed $default = null): mixed {
+
+            public function get(string $key, mixed $default = null): mixed
+            {
                 return $this->parameters[$key] ?? $default;
             }
-            
-            public function all(): array {
+
+            public function all(): array
+            {
                 return $this->parameters;
             }
         };

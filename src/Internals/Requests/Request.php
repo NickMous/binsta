@@ -39,6 +39,11 @@ class Request
                 }
             }
         }
+
+        // Apply transformations if the request implements HasTransformation
+        if ($this instanceof HasTransformation) {
+            $this->parameters = $this->transform($this->parameters);
+        }
     }
 
     /**

@@ -19,17 +19,17 @@ describe('Route', function (): void {
         expect($route)->toBeInstanceOf(Get::class);
         expect($route->path)->toBe('/test');
         expect($route->method)->toBe('GET');
-        
+
         // Use reflection to access protected properties
         $reflection = new ReflectionClass($route);
         $closureProperty = $reflection->getProperty('closure');
         $closureProperty->setAccessible(true);
         expect($closureProperty->getValue($route))->toBe($closure);
-        
+
         $classNameProperty = $reflection->getProperty('className');
         $classNameProperty->setAccessible(true);
         expect($classNameProperty->getValue($route))->toBe('TestController');
-        
+
         $methodNameProperty = $reflection->getProperty('methodName');
         $methodNameProperty->setAccessible(true);
         expect($methodNameProperty->getValue($route))->toBe('index');
@@ -45,17 +45,17 @@ describe('Route', function (): void {
         expect($route)->toBeInstanceOf(Post::class);
         expect($route->path)->toBe('/api/create');
         expect($route->method)->toBe('POST');
-        
+
         // Use reflection to access protected properties
         $reflection = new ReflectionClass($route);
         $closureProperty = $reflection->getProperty('closure');
         $closureProperty->setAccessible(true);
         expect($closureProperty->getValue($route))->toBe($closure);
-        
+
         $classNameProperty = $reflection->getProperty('className');
         $classNameProperty->setAccessible(true);
         expect($classNameProperty->getValue($route))->toBe('ApiController');
-        
+
         $methodNameProperty = $reflection->getProperty('methodName');
         $methodNameProperty->setAccessible(true);
         expect($methodNameProperty->getValue($route))->toBe('create');
@@ -67,17 +67,17 @@ describe('Route', function (): void {
         expect($route)->toBeInstanceOf(Post::class);
         expect($route->path)->toBe('/api/minimal');
         expect($route->method)->toBe('POST');
-        
+
         // Use reflection to access protected properties
         $reflection = new ReflectionClass($route);
         $closureProperty = $reflection->getProperty('closure');
         $closureProperty->setAccessible(true);
         expect($closureProperty->getValue($route))->toBeNull();
-        
+
         $classNameProperty = $reflection->getProperty('className');
         $classNameProperty->setAccessible(true);
         expect($classNameProperty->getValue($route))->toBeNull();
-        
+
         $methodNameProperty = $reflection->getProperty('methodName');
         $methodNameProperty->setAccessible(true);
         expect($methodNameProperty->getValue($route))->toBeNull();
@@ -86,7 +86,7 @@ describe('Route', function (): void {
     test('creates Group route with static method', function (): void {
         $getRoute = Route::get('/users', null, 'UserController', 'index');
         $postRoute = Route::post('/users', null, 'UserController', 'store');
-        
+
         $group = Route::group('/api', [$getRoute, $postRoute]);
 
         expect($group)->toBeInstanceOf(Group::class);

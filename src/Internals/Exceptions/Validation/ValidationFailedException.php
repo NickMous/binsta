@@ -5,8 +5,8 @@ namespace NickMous\Binsta\Internals\Exceptions\Validation;
 class ValidationFailedException extends \Exception
 {
     /**
-     * @param array<string, string> $errors
-     * @param bool                  $returnJson
+     * @param array<string, array<int, string>|string> $errors
+     * @param bool                                      $returnJson
      */
     public function __construct(
         public readonly array $errors,

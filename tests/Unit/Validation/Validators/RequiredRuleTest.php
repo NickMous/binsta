@@ -12,7 +12,7 @@ describe('RequiredRule', function (): void {
 
     test('validates non-empty strings as valid', function (): void {
         $rule = new RequiredRule();
-        
+
         expect($rule->validate('test'))->toBe(true);
         expect($rule->validate('hello world'))->toBe(true);
         expect($rule->validate('0'))->toBe(true);        // string zero is valid
@@ -21,7 +21,7 @@ describe('RequiredRule', function (): void {
 
     test('validates empty and null values as invalid', function (): void {
         $rule = new RequiredRule();
-        
+
         expect($rule->validate(''))->toBe(false);        // empty string
         expect($rule->validate('   '))->toBe(false);     // whitespace only (trimmed to empty)
         expect($rule->validate(null))->toBe(false);      // null
@@ -29,7 +29,7 @@ describe('RequiredRule', function (): void {
 
     test('validates non-string values', function (): void {
         $rule = new RequiredRule();
-        
+
         expect($rule->validate(0))->toBe(true);          // number zero is valid
         expect($rule->validate(123))->toBe(true);        // positive number
         expect($rule->validate(-123))->toBe(true);       // negative number
@@ -43,7 +43,7 @@ describe('RequiredRule', function (): void {
 
     test('trims whitespace from strings before validation', function (): void {
         $rule = new RequiredRule();
-        
+
         expect($rule->validate('  test  '))->toBe(true);    // whitespace around content is valid
         expect($rule->validate("\t\n\r"))->toBe(false);     // only whitespace chars is invalid
         expect($rule->validate("\t hello \n"))->toBe(true); // whitespace around content is valid

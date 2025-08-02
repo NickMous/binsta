@@ -6,13 +6,13 @@ use NickMous\Binsta\Internals\Exceptions\Validation\ValidationFailedException;
 covers(RegisterRequest::class);
 
 describe('RegisterRequest', function (): void {
-    beforeEach(function () {
+    beforeEach(function (): void {
         // Set up basic server environment for Request constructor
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_SERVER['CONTENT_TYPE'] = 'application/json';
     });
 
-    afterEach(function () {
+    afterEach(function (): void {
         // Clean up
         unset($_SERVER['REQUEST_METHOD']);
         unset($_SERVER['CONTENT_TYPE']);
@@ -24,7 +24,7 @@ describe('RegisterRequest', function (): void {
 
         expect($rules)->toBe([
             'name' => 'required|string',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:user,email',
             'password' => 'required|string|min:8',
             'password_confirmation' => 'required|string|same:password',
         ]);
@@ -58,19 +58,24 @@ describe('RegisterRequest', function (): void {
         ];
 
         // Create request with mocked data
-        $request = new class($requestData) extends RegisterRequest {
-            public function __construct(array $data) {
+        $request = new class ($requestData) extends RegisterRequest {
+            /** @param array<string, mixed> $data */
+            public function __construct(array $data)
+            {
                 // Skip parent constructor to avoid $_POST handling
                 $this->parameters = $data;
             }
-            
+
+            /** @var array<string, mixed> */
             private array $parameters;
-            
-            public function get(string $key, mixed $default = null): mixed {
+
+            public function get(string $key, mixed $default = null): mixed
+            {
                 return $this->parameters[$key] ?? $default;
             }
-            
-            public function all(): array {
+
+            public function all(): array
+            {
                 return $this->parameters;
             }
         };
@@ -86,18 +91,23 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => 'password123'
         ];
 
-        $request = new class($requestData) extends RegisterRequest {
-            public function __construct(array $data) {
+        $request = new class ($requestData) extends RegisterRequest {
+            /** @param array<string, mixed> $data */
+            public function __construct(array $data)
+            {
                 $this->parameters = $data;
             }
-            
+
+            /** @var array<string, mixed> */
             private array $parameters;
-            
-            public function get(string $key, mixed $default = null): mixed {
+
+            public function get(string $key, mixed $default = null): mixed
+            {
                 return $this->parameters[$key] ?? $default;
             }
-            
-            public function all(): array {
+
+            public function all(): array
+            {
                 return $this->parameters;
             }
         };
@@ -114,18 +124,23 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => 'password123'
         ];
 
-        $request = new class($requestData) extends RegisterRequest {
-            public function __construct(array $data) {
+        $request = new class ($requestData) extends RegisterRequest {
+            /** @param array<string, mixed> $data */
+            public function __construct(array $data)
+            {
                 $this->parameters = $data;
             }
-            
+
+            /** @var array<string, mixed> */
             private array $parameters;
-            
-            public function get(string $key, mixed $default = null): mixed {
+
+            public function get(string $key, mixed $default = null): mixed
+            {
                 return $this->parameters[$key] ?? $default;
             }
-            
-            public function all(): array {
+
+            public function all(): array
+            {
                 return $this->parameters;
             }
         };
@@ -142,18 +157,23 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => '123'
         ];
 
-        $request = new class($requestData) extends RegisterRequest {
-            public function __construct(array $data) {
+        $request = new class ($requestData) extends RegisterRequest {
+            /** @param array<string, mixed> $data */
+            public function __construct(array $data)
+            {
                 $this->parameters = $data;
             }
-            
+
+            /** @var array<string, mixed> */
             private array $parameters;
-            
-            public function get(string $key, mixed $default = null): mixed {
+
+            public function get(string $key, mixed $default = null): mixed
+            {
                 return $this->parameters[$key] ?? $default;
             }
-            
-            public function all(): array {
+
+            public function all(): array
+            {
                 return $this->parameters;
             }
         };
@@ -170,18 +190,23 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => 'different_password'
         ];
 
-        $request = new class($requestData) extends RegisterRequest {
-            public function __construct(array $data) {
+        $request = new class ($requestData) extends RegisterRequest {
+            /** @param array<string, mixed> $data */
+            public function __construct(array $data)
+            {
                 $this->parameters = $data;
             }
-            
+
+            /** @var array<string, mixed> */
             private array $parameters;
-            
-            public function get(string $key, mixed $default = null): mixed {
+
+            public function get(string $key, mixed $default = null): mixed
+            {
                 return $this->parameters[$key] ?? $default;
             }
-            
-            public function all(): array {
+
+            public function all(): array
+            {
                 return $this->parameters;
             }
         };
@@ -199,18 +224,23 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => '12345678'
         ];
 
-        $request = new class($requestData) extends RegisterRequest {
-            public function __construct(array $data) {
+        $request = new class ($requestData) extends RegisterRequest {
+            /** @param array<string, mixed> $data */
+            public function __construct(array $data)
+            {
                 $this->parameters = $data;
             }
-            
+
+            /** @var array<string, mixed> */
             private array $parameters;
-            
-            public function get(string $key, mixed $default = null): mixed {
+
+            public function get(string $key, mixed $default = null): mixed
+            {
                 return $this->parameters[$key] ?? $default;
             }
-            
-            public function all(): array {
+
+            public function all(): array
+            {
                 return $this->parameters;
             }
         };
@@ -220,19 +250,24 @@ describe('RegisterRequest', function (): void {
         // Test 7 characters (should fail)
         $requestData['password'] = '1234567';
         $requestData['password_confirmation'] = '1234567';
-        
-        $request = new class($requestData) extends RegisterRequest {
-            public function __construct(array $data) {
+
+        $request = new class ($requestData) extends RegisterRequest {
+            /** @param array<string, mixed> $data */
+            public function __construct(array $data)
+            {
                 $this->parameters = $data;
             }
-            
+
+            /** @var array<string, mixed> */
             private array $parameters;
-            
-            public function get(string $key, mixed $default = null): mixed {
+
+            public function get(string $key, mixed $default = null): mixed
+            {
                 return $this->parameters[$key] ?? $default;
             }
-            
-            public function all(): array {
+
+            public function all(): array
+            {
                 return $this->parameters;
             }
         };
@@ -244,18 +279,23 @@ describe('RegisterRequest', function (): void {
     test('validates all fields are required', function (): void {
         $requestData = []; // empty request
 
-        $request = new class($requestData) extends RegisterRequest {
-            public function __construct(array $data) {
+        $request = new class ($requestData) extends RegisterRequest {
+            /** @param array<string, mixed> $data */
+            public function __construct(array $data)
+            {
                 $this->parameters = $data;
             }
-            
+
+            /** @var array<string, mixed> */
             private array $parameters;
-            
-            public function get(string $key, mixed $default = null): mixed {
+
+            public function get(string $key, mixed $default = null): mixed
+            {
                 return $this->parameters[$key] ?? $default;
             }
-            
-            public function all(): array {
+
+            public function all(): array
+            {
                 return $this->parameters;
             }
         };

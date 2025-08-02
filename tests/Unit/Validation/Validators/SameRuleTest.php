@@ -25,7 +25,7 @@ describe('SameRule', function (): void {
 
     test('validates with different field names', function (): void {
         $rule = new SameRule();
-        
+
         // Test comparing to email field
         $rule->setParameters(['email']);
         $rule->setContext([
@@ -119,11 +119,11 @@ describe('SameRule', function (): void {
     test('updates context when setContext is called multiple times', function (): void {
         $rule = new SameRule();
         $rule->setParameters(['password']);
-        
+
         // Set initial context
         $rule->setContext(['password' => 'original']);
         expect($rule->validate('original'))->toBe(true);
-        
+
         // Update context
         $rule->setContext(['password' => 'updated']);
         expect($rule->validate('original'))->toBe(false);

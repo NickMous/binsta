@@ -15,17 +15,17 @@ describe('Post', function (): void {
 
         expect($route->path)->toBe('/api/test');
         expect($route->method)->toBe('POST');
-        
+
         // Use reflection to access protected properties
         $reflection = new ReflectionClass($route);
         $closureProperty = $reflection->getProperty('closure');
         $closureProperty->setAccessible(true);
         expect($closureProperty->getValue($route))->toBe($closure);
-        
+
         $classNameProperty = $reflection->getProperty('className');
         $classNameProperty->setAccessible(true);
         expect($classNameProperty->getValue($route))->toBeNull();
-        
+
         $methodNameProperty = $reflection->getProperty('methodName');
         $methodNameProperty->setAccessible(true);
         expect($methodNameProperty->getValue($route))->toBeNull();
@@ -36,17 +36,17 @@ describe('Post', function (): void {
 
         expect($route->path)->toBe('/api/users');
         expect($route->method)->toBe('POST');
-        
+
         // Use reflection to access protected properties
         $reflection = new ReflectionClass($route);
         $closureProperty = $reflection->getProperty('closure');
         $closureProperty->setAccessible(true);
         expect($closureProperty->getValue($route))->toBeNull();
-        
+
         $classNameProperty = $reflection->getProperty('className');
         $classNameProperty->setAccessible(true);
         expect($classNameProperty->getValue($route))->toBe('UserController');
-        
+
         $methodNameProperty = $reflection->getProperty('methodName');
         $methodNameProperty->setAccessible(true);
         expect($methodNameProperty->getValue($route))->toBe('store');
@@ -61,17 +61,17 @@ describe('Post', function (): void {
 
         expect($route->path)->toBe('/api/posts');
         expect($route->method)->toBe('POST');
-        
+
         // Use reflection to access protected properties
         $reflection = new ReflectionClass($route);
         $closureProperty = $reflection->getProperty('closure');
         $closureProperty->setAccessible(true);
         expect($closureProperty->getValue($route))->toBe($closure);
-        
+
         $classNameProperty = $reflection->getProperty('className');
         $classNameProperty->setAccessible(true);
         expect($classNameProperty->getValue($route))->toBe('PostController');
-        
+
         $methodNameProperty = $reflection->getProperty('methodName');
         $methodNameProperty->setAccessible(true);
         expect($methodNameProperty->getValue($route))->toBe('create');
@@ -82,17 +82,17 @@ describe('Post', function (): void {
 
         expect($route->path)->toBe('/api/empty');
         expect($route->method)->toBe('POST');
-        
+
         // Use reflection to access protected properties
         $reflection = new ReflectionClass($route);
         $closureProperty = $reflection->getProperty('closure');
         $closureProperty->setAccessible(true);
         expect($closureProperty->getValue($route))->toBeNull();
-        
+
         $classNameProperty = $reflection->getProperty('className');
         $classNameProperty->setAccessible(true);
         expect($classNameProperty->getValue($route))->toBeNull();
-        
+
         $methodNameProperty = $reflection->getProperty('methodName');
         $methodNameProperty->setAccessible(true);
         expect($methodNameProperty->getValue($route))->toBeNull();

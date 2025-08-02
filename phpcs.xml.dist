@@ -22,4 +22,12 @@
         <exclude-pattern>*/tests/Unit/DependencyInjection/TestClasses\.php$</exclude-pattern>
     </rule>
 
+    <!-- Exclude property hooks syntax errors (PHP 8.4 feature not yet supported by PHPCS) -->
+    <rule ref="PSR2.Classes.PropertyDeclaration.Multiple">
+        <exclude-pattern>*/src/Entities/User\.php$</exclude-pattern>
+    </rule>
+    <rule ref="PSR2.Classes.PropertyDeclaration.ScopeMissing">
+        <exclude-pattern>*/src/Entities/User\.php$</exclude-pattern>
+    </rule>
+
 </ruleset>

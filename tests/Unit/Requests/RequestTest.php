@@ -121,7 +121,7 @@ describe('Request', function (): void {
 
     test('allows setting parameters dynamically', function (): void {
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        
+
         $request = new Request();
 
         // Test __set magic method
@@ -130,7 +130,7 @@ describe('Request', function (): void {
             ->and($request->get('dynamic'))->toBe('value')
             ->and($request->has('dynamic'))->toBe(true)
             ->and(isset($request->dynamic))->toBe(true);
-        
+
         // Clean up
         unset($_SERVER['REQUEST_METHOD']);
     });

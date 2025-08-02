@@ -12,7 +12,7 @@ describe('EmailRule', function (): void {
 
     test('validates correct email addresses', function (): void {
         $rule = new EmailRule();
-        
+
         expect($rule->validate('test@example.com'))->toBe(true);
         expect($rule->validate('user.name@domain.com'))->toBe(true);
         expect($rule->validate('user+tag@example.org'))->toBe(true);
@@ -23,7 +23,7 @@ describe('EmailRule', function (): void {
 
     test('rejects invalid email addresses', function (): void {
         $rule = new EmailRule();
-        
+
         expect($rule->validate('invalid-email'))->toBe(false);
         expect($rule->validate('@example.com'))->toBe(false);        // missing username
         expect($rule->validate('test@'))->toBe(false);               // missing domain
@@ -35,7 +35,7 @@ describe('EmailRule', function (): void {
 
     test('rejects empty and null values', function (): void {
         $rule = new EmailRule();
-        
+
         expect($rule->validate(''))->toBe(false);                    // empty string
         expect($rule->validate('   '))->toBe(false);                 // whitespace only
         expect($rule->validate(null))->toBe(false);                  // null
@@ -43,7 +43,7 @@ describe('EmailRule', function (): void {
 
     test('rejects non-string values', function (): void {
         $rule = new EmailRule();
-        
+
         expect($rule->validate(123))->toBe(false);                   // number
         expect($rule->validate(true))->toBe(false);                  // boolean
         expect($rule->validate([]))->toBe(false);                    // array
@@ -52,7 +52,7 @@ describe('EmailRule', function (): void {
 
     test('handles edge cases', function (): void {
         $rule = new EmailRule();
-        
+
         expect($rule->validate('a@b.co'))->toBe(true);               // minimal valid email
         expect($rule->validate('very.long.email.address@very.long.domain.name.com'))->toBe(true); // long email
         expect($rule->validate('test@example.com '))->toBe(false);   // trailing space (trimmed, but space in email is invalid)
