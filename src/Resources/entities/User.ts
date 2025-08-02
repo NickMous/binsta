@@ -1,3 +1,26 @@
+export interface UserApiResponse {
+    id: string | number;
+    name: string;
+    username: string;
+    email: string;
+    profile_picture?: string;
+    profilePicture?: string;
+    created_at?: string;
+    createdAt?: string | Date;
+    updated_at?: string;
+    updatedAt?: string | Date;
+}
+
+export interface UserApiPayload {
+    id: number;
+    name: string;
+    username: string;
+    email: string;
+    profile_picture?: string;
+    created_at: string;
+    updated_at: string;
+}
+
 export class User {
     public id: number;
     public name: string;
@@ -17,19 +40,19 @@ export class User {
         this.updatedAt = data.updatedAt ?? new Date();
     }
 
-    static fromApiResponse(data: any): User {
+    static fromApiResponse(data: UserApiResponse): User {
         return new User({
             id: Number(data.id),
             name: data.name,
             username: data.username,
             email: data.email,
             profilePicture: data.profile_picture || data.profilePicture,
-            createdAt: new Date(data.created_at || data.createdAt),
-            updatedAt: new Date(data.updated_at || data.updatedAt)
+            createdAt: new Date(data.created_at || data.createdAt || new Date()),
+            updatedAt: new Date(data.updated_at || data.updatedAt || new Date())
         });
     }
 
-    toApiPayload(): Record<string, any> {
+    toApiPayload(): UserApiPayload {
         return {
             id: this.id,
             name: this.name,

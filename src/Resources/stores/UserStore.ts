@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import type {IUser} from "@/entities/User.ts";
+import type {IUser, UserApiResponse} from "@/entities/User.ts";
 import {User} from "@/entities/User.ts";
 
 interface UserStoreState extends IUser {
@@ -50,7 +50,7 @@ export const useUserStore = defineStore('user', {
             this.updatedAt = user.updatedAt;
             this.isAuthenticated = true;
         },
-        setUserFromApiResponse(data: any) {
+        setUserFromApiResponse(data: UserApiResponse) {
             const user = User.fromApiResponse(data);
             this.setUser(user);
         },
