@@ -233,7 +233,6 @@ return [
 });
 
 it('loads group routes correctly', function (): void {
-    // Test for lines 72-73 coverage: Group route handling
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/group-routes.php');
 
     $reflection = new ReflectionClass($controllerService);
@@ -241,7 +240,6 @@ it('loads group routes correctly', function (): void {
     $property->setAccessible(true);
     $routes = $property->getValue($controllerService);
 
-    // Check that group routes are loaded
     expect($routes)->toBeArray()
         ->toHaveKey('GET')
         ->and($routes['GET'])->toHaveKey('/api/users')
@@ -250,12 +248,44 @@ it('loads group routes correctly', function (): void {
 });
 
 it('handles RouteNotFound for missing HTTP method', function (): void {
-    // Test for lines 93-94 coverage: RouteNotFound when method doesn't exist
     $controllerService = new ControllerService(__DIR__ . '/../Datasets/valid-routes.php');
 
     ob_start();
-    $controllerService->callRoute('/', 'DELETE'); // DELETE method doesn't exist
+    $controllerService->callRoute('/', 'DELETE');
     $output = ob_get_clean();
 
     expect($output)->toContain('Route not found: DELETE: /');
+});
+
+it('handles ValidationFailedException with JSON response', function (): void {
+    $validationRoutes = __DIR__ . '/../Datasets/validation-routes.php';
+    file_put_contents($validationRoutes, '<?php
+use NickMous\\Binsta\\Internals\\Response\\Response;
+use NickMous\\Binsta\\Internals\\Routes\\Route;
+use NickMous\\Binsta\\Internals\\Exceptions\\Validation\\ValidationFailedException;
+
+return [
+    Route::post("/api/validate", function () {
+        $exception = new ValidationFailedException(["name" => ["Name is required"]], true);
+        throw $exception;
+    }),
+];');
+
+    $controllerService = new ControllerService($validationRoutes);
+
+    ob_start();
+    $controllerService->callRoute('/api/validate', 'POST');
+    $output = ob_get_clean();
+
+    $jsonData = json_decode($output, true);
+    expect($jsonData)->toBeArray()
+        ->toHaveKey('error')
+        ->toHaveKey('message')
+        ->toHaveKey('fields')
+        ->and($jsonData['error'])->toBe('Validation failed')
+        ->and($jsonData['message'])->toBe('Validation failed')
+        ->and($jsonData['fields'])->toBe(['name' => ['Name is required']]);
+
+    // Clean up
+    unlink($validationRoutes);
 });

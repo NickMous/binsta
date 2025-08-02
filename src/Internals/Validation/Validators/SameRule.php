@@ -40,7 +40,7 @@ class SameRule implements ParameterizedValidationRule, ContextAwareValidationRul
 
     public function validate(mixed $value): bool
     {
-        if (!isset($this->context[$this->fieldToCompare])) {
+        if (!array_key_exists($this->fieldToCompare, $this->context)) {
             return false;
         }
 

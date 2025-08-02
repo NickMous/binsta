@@ -9,6 +9,7 @@ describe('Request', function (): void {
         // Set up GET parameters
         $_GET['test'] = 'value';
         $_GET['another'] = 'param';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
 
         $request = new Request();
 
@@ -16,14 +17,14 @@ describe('Request', function (): void {
         expect($request->another)->toBe('param');
 
         // Clean up
-        unset($_GET['test']);
-        unset($_GET['another']);
+        unset($_GET['test'], $_GET['another'], $_SERVER['REQUEST_METHOD']);
     });
 
     test('creates request with POST parameters', function (): void {
         // Set up POST parameters
         $_POST['username'] = 'testuser';
         $_POST['password'] = 'testpass';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
 
         $request = new Request();
 
@@ -31,14 +32,14 @@ describe('Request', function (): void {
         expect($request->password)->toBe('testpass');
 
         // Clean up
-        unset($_POST['username']);
-        unset($_POST['password']);
+        unset($_POST['username'], $_POST['password'], $_SERVER['REQUEST_METHOD']);
     });
 
     test('creates request with both GET and POST parameters', function (): void {
         // Set up both GET and POST parameters
         $_GET['page'] = '1';
         $_POST['action'] = 'save';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
 
         $request = new Request();
 
@@ -48,6 +49,7 @@ describe('Request', function (): void {
         // Clean up
         unset($_GET['page']);
         unset($_POST['action']);
+        unset($_SERVER['REQUEST_METHOD']);
     });
 
     test('creates request with no parameters', function (): void {
@@ -56,6 +58,7 @@ describe('Request', function (): void {
         $originalPost = $_POST;
         $_GET = [];
         $_POST = [];
+        $_SERVER['REQUEST_METHOD'] = 'GET';
 
         $request = new Request();
 
@@ -65,12 +68,14 @@ describe('Request', function (): void {
         // Restore original values
         $_GET = $originalGet;
         $_POST = $originalPost;
+        unset($_SERVER['REQUEST_METHOD']);
     });
 
     test('POST parameters take precedence over GET parameters', function (): void {
         // Set up conflicting GET and POST parameters
         $_GET['name'] = 'get-value';
         $_POST['name'] = 'post-value';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
 
         $request = new Request();
 
@@ -80,11 +85,13 @@ describe('Request', function (): void {
         // Clean up
         unset($_GET['name']);
         unset($_POST['name']);
+        unset($_SERVER['REQUEST_METHOD']);
     });
 
     test('provides convenient methods for parameter access', function (): void {
         $_GET['search'] = 'test';
         $_POST['action'] = 'submit';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
 
         $request = new Request();
 
@@ -109,9 +116,12 @@ describe('Request', function (): void {
         // Clean up
         unset($_GET['search']);
         unset($_POST['action']);
+        unset($_SERVER['REQUEST_METHOD']);
     });
 
     test('allows setting parameters dynamically', function (): void {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        
         $request = new Request();
 
         // Test __set magic method
@@ -120,5 +130,8 @@ describe('Request', function (): void {
             ->and($request->get('dynamic'))->toBe('value')
             ->and($request->has('dynamic'))->toBe(true)
             ->and(isset($request->dynamic))->toBe(true);
+        
+        // Clean up
+        unset($_SERVER['REQUEST_METHOD']);
     });
 });
