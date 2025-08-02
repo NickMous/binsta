@@ -45,18 +45,6 @@ export class User {
         return this.name || this.username;
     }
 
-    getInitials(): string {
-        if (this.name) {
-            return this.name
-                .split(' ')
-                .map(n => n[0])
-                .join('')
-                .toUpperCase()
-                .slice(0, 2);
-        }
-        return this.username.slice(0, 2).toUpperCase();
-    }
-
     hasProfilePicture(): boolean {
         return !!this.profilePicture;
     }
@@ -91,4 +79,14 @@ export class User {
                this.email === other.email &&
                this.profilePicture === other.profilePicture;
     }
+}
+
+export interface IUser {
+    id: number;
+    name: string;
+    username: string;
+    email: string;
+    profilePicture?: string;
+    createdAt: Date;
+    updatedAt: Date;
 }

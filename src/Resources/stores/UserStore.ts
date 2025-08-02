@@ -1,4 +1,5 @@
 import {defineStore} from "pinia";
+import type {IUser} from "@/entities/User.ts";
 
 export const useUserStore = defineStore('user', {
     state: (): IUser => ({id: 0, name: '', username: '', email: '', profilePicture: undefined, createdAt: new Date(), updatedAt: new Date()}),
@@ -33,12 +34,3 @@ export const useUserStore = defineStore('user', {
     }
 });
 
-export interface IUser {
-    id: number;
-    name: string;
-    username: string;
-    email: string;
-    profilePicture?: string;
-    createdAt: Date;
-    updatedAt: Date;
-}
