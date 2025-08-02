@@ -2,6 +2,7 @@
 
 namespace NickMous\Binsta\Internals\Requests;
 
+use InvalidArgumentException;
 use NickMous\Binsta\Internals\Containers\ValidationContainer;
 use NickMous\Binsta\Internals\Exceptions\Validation\ValidationFailedException;
 use NickMous\Binsta\Internals\Validation\HasValidation;
@@ -108,16 +109,34 @@ class Request
                 $rules = explode('|', $rules);
             }
 
-            foreach ($rules as $ruleKey) {
+            foreach ($rules as $rule) {
                 if (isset($errors[$field])) {
                     continue;
                 }
 
-                $validator = $validationContainer->getValidator($ruleKey);
+                // Parse rule and parameters (e.g., "min:8" -> rule="min", params=["8"])
+                $ruleParts = explode(':', $rule, 2);
+                $ruleName = $ruleParts[0];
+                $parameters = isset($ruleParts[1]) ? explode(',', $ruleParts[1]) : [];
 
-                if (!$validator->validate($value)) {
-                    $messageKey = $field . '.' . $ruleKey;
-                    $errors[$field] = $messages[$messageKey] ?? $messageKey;
+                try {
+                    $validator = $validationContainer->createValidator($ruleName, $parameters, $this->all());
+
+                    if (!$validator->validate($value)) {
+                        $messageKey = $field . '.' . $ruleName;
+                        $errors[$field] = $messages[$messageKey] ?? $messageKey;
+                    }
+                } catch (InvalidArgumentException) {
+                    // Fallback to simple validator for backward compatibility
+                    try {
+                        $validator = $validationContainer->getValidator($ruleName);
+                        if (!$validator->validate($value)) {
+                            $messageKey = $field . '.' . $ruleName;
+                            $errors[$field] = $messages[$messageKey] ?? $messageKey;
+                        }
+                    } catch (InvalidArgumentException) {
+                        $errors[$field] = "Unknown validation rule: {$ruleName}";
+                    }
                 }
             }
         }

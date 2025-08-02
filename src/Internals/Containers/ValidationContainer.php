@@ -2,9 +2,11 @@
 
 namespace NickMous\Binsta\Internals\Containers;
 
+use InvalidArgumentException;
 use NickMous\Binsta\Internals\Exceptions\Validation\DuplicateValidationRuleException;
+use NickMous\Binsta\Internals\Validation\ContextAwareValidationRule;
+use NickMous\Binsta\Internals\Validation\ParameterizedValidationRule;
 use NickMous\Binsta\Internals\Validation\ValidationRule;
-use NickMous\Binsta\Internals\Validation\Validators\RequiredRule;
 
 class ValidationContainer
 {
@@ -68,9 +70,33 @@ class ValidationContainer
     public function getValidator(string $ruleName): ValidationRule
     {
         if (!isset($this->validationRules[$ruleName])) {
-            throw new \InvalidArgumentException("Validation rule '{$ruleName}' not found.");
+            throw new InvalidArgumentException("Validation rule '{$ruleName}' not found.");
         }
 
         return $this->validationRules[$ruleName]['instance'];
+    }
+
+    /**
+     * @param array<int, string> $parameters
+     * @param array<string, mixed> $context
+     */
+    public function createValidator(string $ruleName, array $parameters = [], array $context = []): ValidationRule
+    {
+        if (!isset($this->validationRules[$ruleName])) {
+            throw new InvalidArgumentException("Validation rule '{$ruleName}' not found.");
+        }
+
+        $className = $this->validationRules[$ruleName]['class'];
+        $validator = new $className();
+
+        if ($validator instanceof ParameterizedValidationRule) {
+            $validator->setParameters($parameters);
+        }
+
+        if ($validator instanceof ContextAwareValidationRule) {
+            $validator->setContext($context);
+        }
+
+        return $validator;
     }
 }
