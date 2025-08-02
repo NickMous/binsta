@@ -20,7 +20,6 @@
             <file>./src/Kernel.php</file>
             <file>./src/Twig/TwigExtension.php</file>
             <directory>./src/Internals/Exceptions</directory>
-            <directory>./src/Internals/Response</directory>
         </exclude>
     </source>
     <php>

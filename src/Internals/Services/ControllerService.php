@@ -6,20 +6,23 @@ use NickMous\Binsta\Internals\Exceptions\InvalidRouteFileGiven;
 use NickMous\Binsta\Internals\Exceptions\Response\InvalidResponseException;
 use NickMous\Binsta\Internals\Exceptions\Route\InvalidRouteClassException;
 use NickMous\Binsta\Internals\Exceptions\Route\NoObjectException;
+use NickMous\Binsta\Internals\Exceptions\Validation\ValidationFailedException;
 use NickMous\Binsta\Internals\Response\Errors\Http\Route\RouteNotFound;
+use NickMous\Binsta\Internals\Response\JsonResponse;
 use NickMous\Binsta\Internals\Response\Response;
 use NickMous\Binsta\Internals\Response\VueResponse;
 use NickMous\Binsta\Internals\Routes\AbstractRoute;
+use NickMous\Binsta\Internals\Routes\Type\Group;
 
 class ControllerService
 {
     /**
-     * @var array<string, mixed>
+     * @var array<string, array<string, AbstractRoute>>
      */
     private array $routes = [];
 
     /**
-     * @var array<string, string>
+     * @var array<string, array<string, string>>
      */
     private array $routePatterns = [];
 
@@ -57,45 +60,68 @@ class ControllerService
                 throw new NoObjectException();
             }
 
-            if (!is_subclass_of($route, AbstractRoute::class)) {
+            if (!is_subclass_of($route, AbstractRoute::class) && !$route instanceof Group) {
                 throw new InvalidRouteClassException($route::class);
             }
 
-            $this->routes[$route->path] = $route;
-            $this->routePatterns[$route->path] = $this->convertToRegex($route->path);
+            $this->loadRoute($route);
+        }
+    }
+
+    private function loadRoute(AbstractRoute|Group $route, string $prefix = ''): void
+    {
+        if ($route instanceof Group) {
+            foreach ($route->routes as $subRoute) {
+                $this->loadRoute($subRoute, $prefix . $route->path);
+            }
+        } else {
+            if (!isset($this->routes[$route->method])) {
+                $this->routes[$route->method] = [];
+                $this->routePatterns[$route->method] = [];
+            }
+
+            $fullPath = $prefix . $route->path;
+            $this->routes[$route->method][$fullPath] = $route;
+            $this->routePatterns[$route->method][$fullPath] = $this->convertToRegex($fullPath);
         }
     }
 
     /**
      * @throws InvalidResponseException
      */
-    public function callRoute(string $route): void
+    public function callRoute(string $route, string $method): void
     {
+        // Check if method exists at all
+        if (!isset($this->routes[$method])) {
+            $this->handleResponse(new RouteNotFound($route, $method));
+            return;
+        }
+
         // First try exact match for performance
-        if (isset($this->routes[$route]) && ($this->routes[$route] instanceof AbstractRoute)) {
-            $routeObject = $this->routes[$route];
-            $response = $routeObject->handle();
-            $this->handleResponse($response);
+        if (isset($this->routes[$method][$route])) {
+            $routeObject = $this->routes[$method][$route];
+            $this->handleRouteObject($routeObject);
             return;
         }
 
         // Try pattern matching
-        foreach ($this->routePatterns as $pattern => $regex) {
-            if (preg_match($regex, $route, $matches)) {
-                $routeObject = $this->routes[$pattern];
+        if (isset($this->routePatterns[$method])) {
+            foreach ($this->routePatterns[$method] as $pattern => $regex) {
+                if (preg_match($regex, $route, $matches)) {
+                    $routeObject = $this->routes[$method][$pattern];
 
-                // Extract route parameters and make them available
-                $parameters = $this->extractParameters($matches);
-                $this->setRouteParameters($parameters);
+                    // Extract route parameters and make them available
+                    $parameters = $this->extractParameters($matches);
+                    $this->setRouteParameters($parameters);
 
-                $response = $routeObject->handle();
-                $this->handleResponse($response);
-                return;
+                    $this->handleRouteObject($routeObject);
+                    return;
+                }
             }
         }
 
         // No route found
-        $this->handleResponse(new RouteNotFound($route));
+        $this->handleResponse(new RouteNotFound($route, $method));
     }
 
     /**
@@ -139,6 +165,26 @@ class ControllerService
     private function setRouteParameters(array $parameters): void
     {
         $GLOBALS['route_parameters'] = $parameters;
+    }
+
+    private function handleRouteObject(AbstractRoute $routeObject): void
+    {
+        try {
+            $response = $routeObject->handle();
+            $this->handleResponse($response);
+        } catch (ValidationFailedException $e) {
+            if ($e->returnJson === true) {
+                $response = new JsonResponse(
+                    data: [
+                        'error' => 'Validation failed',
+                        'message' => $e->getMessage(),
+                        'fields' => $e->errors,
+                    ],
+                    status: 400
+                );
+                $this->handleResponse($response);
+            }
+        }
     }
 
     private function handleResponse(Response $response): void

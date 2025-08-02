@@ -17,6 +17,16 @@ it('throws an error when database configuration is missing', function (): void {
     // Reset the database manager first
     DatabaseManager::reset();
 
+    // Store original environment variables
+    $originalEnv = [
+        'DB_CONNECTION' => $_ENV['DB_CONNECTION'] ?? '',
+        'DB_DATABASE' => $_ENV['DB_DATABASE'] ?? '',
+        'DB_HOST' => $_ENV['DB_HOST'] ?? '',
+        'DB_PORT' => $_ENV['DB_PORT'] ?? '',
+        'DB_USERNAME' => $_ENV['DB_USERNAME'] ?? '',
+        'DB_PASSWORD' => $_ENV['DB_PASSWORD'] ?? '',
+    ];
+
     // Clear environment variables
     $_ENV['DB_CONNECTION'] = '';
     $_ENV['DB_DATABASE'] = '';
@@ -28,4 +38,9 @@ it('throws an error when database configuration is missing', function (): void {
     expect(function (): void {
         DatabaseManager::instantiate();
     })->toThrow(RuntimeException::class, 'Database configuration is not set in environment variables.');
+
+    // Restore original environment variables
+    foreach ($originalEnv as $key => $value) {
+        $_ENV[$key] = $value;
+    }
 });

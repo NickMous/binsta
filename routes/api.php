@@ -1,26 +1,17 @@
 <?php
 
+use NickMous\Binsta\Controllers\AuthController;
 use NickMous\Binsta\Internals\Response\VueResponse;
 use NickMous\Binsta\Internals\Routes\Route;
 
 return [
-    // API endpoints
-    Route::get('/api/posts', function () {
-        // Example API response - you can replace with proper JSON response
-        return new VueResponse('API: Posts endpoint');
-    }),
-    
-    Route::get('/api/posts/{id:\d+}', function () {
-        $params = $GLOBALS['route_parameters'] ?? [];
-        return new VueResponse('API: Post ' . ($params['id'] ?? 'unknown'));
-    }),
-    
-    Route::get('/api/users', function () {
-        return new VueResponse('API: Users endpoint');
-    }),
-    
-    Route::get('/api/users/{id:\d+}', function () {
-        $params = $GLOBALS['route_parameters'] ?? [];
-        return new VueResponse('API: User ' . ($params['id'] ?? 'unknown'));
-    }),
+    Route::group('/api', [
+        Route::group('/auth', [
+            Route::post('/login', className: AuthController::class, methodName: 'login'),
+            Route::post('/register', className: AuthController::class, methodName: 'register'),
+            Route::get('/register', function () {
+                return new VueResponse('auth/register');
+            }),
+        ])
+    ]),
 ];

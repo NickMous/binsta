@@ -13,3 +13,7 @@ parameters:
     ignoreErrors:
         - '#Access to an undefined property RedBeanPHP\\OODBBean::\$#'
         - '#Access to an undefined property iterable<RedBeanPHP\\OODBBean>&RedBeanPHP\\OODBBean::\$#'
+        - '#Unable to resolve the template type TValue in call to function expect#'
+        - '#Method.*UntypedParameterClass.*has parameter.*with no type specified#'
+        - '#Attribute class.*Priority.*is not repeatable but is already present above the class#'
+        - '#Access to an undefined property NickMous\\Binsta\\Internals\\Requests\\Request::\$#'

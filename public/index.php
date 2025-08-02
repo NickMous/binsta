@@ -9,7 +9,7 @@ new Kernel()->init();
 new ControllerService(
     __DIR__ . '/../routes/web.php',
     __DIR__ . '/../routes/api.php'
-)->callRoute('/' . ($_GET['internal_dnt_params'] ?? ''));
+)->callRoute('/' . ($_GET['internal_dnt_params'] ?? ''), $_SERVER['REQUEST_METHOD']);
 
 //$controller = 'recipe';
 //$method = 'index';
