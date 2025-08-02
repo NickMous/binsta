@@ -15,6 +15,7 @@ class RegisterRequest extends Request implements HasValidation, HasTransformatio
     {
         return [
             'name' => 'required|string',
+            'username' => 'required|string|unique:user,username|regex:/^[a-zA-Z0-9_]+$/|min:3|max:20',
             'email' => 'required|email|unique:user,email',
             'password' => 'required|string|min:8',
             'password_confirmation' => 'required|string|same:password',
@@ -31,6 +32,12 @@ class RegisterRequest extends Request implements HasValidation, HasTransformatio
         return [
             'name.required' => 'Name is required.',
             'name.string' => 'Name must be a string.',
+            'username.required' => 'Username is required.',
+            'username.string' => 'Username must be a string.',
+            'username.unique' => 'Username is already taken.',
+            'username.regex' => 'Username can only contain letters, numbers, and underscores.',
+            'username.min' => 'Username must be at least 3 characters.',
+            'username.max' => 'Username cannot exceed 20 characters.',
             'email.required' => 'Email is required.',
             'email.email' => 'Email must be a valid email address.',
             'email.unique' => 'Email address is already registered.',

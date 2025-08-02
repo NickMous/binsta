@@ -13,6 +13,7 @@ const props = defineProps<{
 }>()
 
 const name = ref('')
+const username = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
@@ -41,6 +42,7 @@ const handleSignUp = async (event: Event) => {
       },
       body: JSON.stringify({
         name: name.value,
+        username: username.value,
         email: email.value,
         password: password.value,
         password_confirmation: confirmPassword.value,
@@ -106,6 +108,20 @@ const handleSignUp = async (event: Event) => {
             />
             <div v-if="errors.name" class="text-red-500 text-sm">
               {{ errors.name }}
+            </div>
+          </div>
+          <div class="grid gap-3">
+            <Label for="username">Username</Label>
+            <Input
+                id="username"
+                v-model="username"
+                type="text"
+                placeholder="johndoe"
+                required
+                :class="{ 'border-red-500': errors.username }"
+            />
+            <div v-if="errors.username" class="text-red-500 text-sm">
+              {{ errors.username }}
             </div>
           </div>
           <div class="grid gap-3">

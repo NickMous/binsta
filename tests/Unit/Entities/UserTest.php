@@ -26,10 +26,11 @@ describe('User', function (): void {
         });
 
         test('create method creates new user with hashed password', function (): void {
-            $user = User::create('John Doe', 'john@example.com', 'password123');
+            $user = User::create('John Doe', 'johndoe', 'john@example.com', 'password123');
 
             expect($user)->toBeInstanceOf(User::class);
             expect($user->name)->toBe('John Doe');
+            expect($user->username)->toBe('johndoe');
             expect($user->email)->toBe('john@example.com');
             expect($user->password)->not->toBe('password123'); // Should be hashed
             expect($user->verifyPassword('password123'))->toBeTrue();
@@ -39,7 +40,7 @@ describe('User', function (): void {
 
         test('create method sets created_at timestamp', function (): void {
             $beforeCreate = new DateTime();
-            $user = User::create('Jane Doe', 'jane@example.com', 'password123');
+            $user = User::create('Jane Doe', 'janedoe', 'jane@example.com', 'password123');
             $afterCreate = new DateTime();
 
             expect($user->createdAt)->toBeInstanceOf(DateTime::class);
@@ -56,6 +57,24 @@ describe('User', function (): void {
 
             $user->name = 'Test User';
             expect($user->name)->toBe('Test User');
+        });
+
+        test('username property can be set and retrieved', function (): void {
+            $user = new User();
+
+            expect($user->username)->toBe(''); // Default empty string
+
+            $user->username = 'testuser';
+            expect($user->username)->toBe('testuser');
+        });
+
+        test('profilePicture property can be set and retrieved', function (): void {
+            $user = new User();
+
+            expect($user->profilePicture)->toBeNull(); // Default null
+
+            $user->profilePicture = 'https://example.com/avatar.jpg';
+            expect($user->profilePicture)->toBe('https://example.com/avatar.jpg');
         });
 
         test('email property can be set and retrieved', function (): void {
@@ -100,19 +119,19 @@ describe('User', function (): void {
 
     describe('password handling', function (): void {
         test('verifyPassword works with correct password', function (): void {
-            $user = User::create('Test User', 'test@example.com', 'secret123');
+            $user = User::create('Test User', 'testuser', 'test@example.com', 'secret123');
 
             expect($user->verifyPassword('secret123'))->toBeTrue();
         });
 
         test('verifyPassword fails with incorrect password', function (): void {
-            $user = User::create('Test User', 'test@example.com', 'secret123');
+            $user = User::create('Test User', 'testuser', 'test@example.com', 'secret123');
 
             expect($user->verifyPassword('wrongpassword'))->toBeFalse();
         });
 
         test('verifyPassword fails with empty password', function (): void {
-            $user = User::create('Test User', 'test@example.com', 'secret123');
+            $user = User::create('Test User', 'testuser', 'test@example.com', 'secret123');
 
             expect($user->verifyPassword(''))->toBeFalse();
         });
@@ -127,7 +146,7 @@ describe('User', function (): void {
         });
 
         test('password is re-hashed when changed after creation', function (): void {
-            $user = User::create('Test User', 'test@example.com', 'original123');
+            $user = User::create('Test User', 'testuser', 'test@example.com', 'original123');
             $originalHash = $user->password;
 
             $user->password = 'newpassword456';
@@ -140,25 +159,30 @@ describe('User', function (): void {
 
     describe('toArray method', function (): void {
         test('toArray returns correct data without password', function (): void {
-            $user = User::create('John Doe', 'john@example.com', 'password123');
+            $user = User::create('John Doe', 'johndoe', 'john@example.com', 'password123');
+            $user->profilePicture = 'https://example.com/avatar.jpg';
             $user->save(); // Save to get an ID
 
             $array = $user->toArray();
 
             expect($array)->toHaveKey('id');
             expect($array)->toHaveKey('name');
+            expect($array)->toHaveKey('username');
             expect($array)->toHaveKey('email');
+            expect($array)->toHaveKey('profile_picture');
             expect($array)->toHaveKey('created_at');
             expect($array)->toHaveKey('updated_at');
             expect($array)->not->toHaveKey('password');
 
             expect($array['name'])->toBe('John Doe');
+            expect($array['username'])->toBe('johndoe');
             expect($array['email'])->toBe('john@example.com');
+            expect($array['profile_picture'])->toBe('https://example.com/avatar.jpg');
             expect($array['id'])->not->toBeNull();
         });
 
         test('toArray includes password when requested', function (): void {
-            $user = User::create('John Doe', 'john@example.com', 'password123');
+            $user = User::create('John Doe', 'johndoe', 'john@example.com', 'password123');
 
             $array = $user->toArray(true);
 
@@ -167,7 +191,7 @@ describe('User', function (): void {
         });
 
         test('toArray formats timestamps correctly', function (): void {
-            $user = User::create('John Doe', 'john@example.com', 'password123');
+            $user = User::create('John Doe', 'johndoe', 'john@example.com', 'password123');
 
             $array = $user->toArray();
 
@@ -190,7 +214,8 @@ describe('User', function (): void {
 
     describe('database operations', function (): void {
         test('save and retrieve user maintains data integrity', function (): void {
-            $user = User::create('Save Test', 'save@example.com', 'password123');
+            $user = User::create('Save Test', 'savetest', 'save@example.com', 'password123');
+            $user->profilePicture = 'https://example.com/save.jpg';
             $originalPassword = $user->password;
 
             $userId = $user->save();
@@ -203,14 +228,16 @@ describe('User', function (): void {
             $retrievedUser = new User(\RedBeanPHP\R::load('user', $userId));
 
             expect($retrievedUser->name)->toBe('Save Test');
+            expect($retrievedUser->username)->toBe('savetest');
             expect($retrievedUser->email)->toBe('save@example.com');
+            expect($retrievedUser->profilePicture)->toBe('https://example.com/save.jpg');
             expect($retrievedUser->password)->toBe($originalPassword);
             expect($retrievedUser->verifyPassword('password123'))->toBeTrue();
             expect($retrievedUser->createdAt)->toBeInstanceOf(DateTime::class);
         });
 
         test('prepare method sets updated_at on save', function (): void {
-            $user = User::create('Update Test', 'update@example.com', 'password123');
+            $user = User::create('Update Test', 'updatetest', 'update@example.com', 'password123');
 
             expect($user->updatedAt)->toBeNull(); // Not set initially
 
@@ -234,7 +261,7 @@ describe('User', function (): void {
 
         test('hydration preserves password hash without re-hashing', function (): void {
             // Create and save user
-            $user = User::create('Hydration Test', 'hydration@example.com', 'password123');
+            $user = User::create('Hydration Test', 'hydrationtest', 'hydration@example.com', 'password123');
             $originalHash = $user->password;
             $user->save();
 
@@ -247,7 +274,7 @@ describe('User', function (): void {
         });
 
         test('delete removes user from database', function (): void {
-            $user = User::create('Delete Test', 'delete@example.com', 'password123');
+            $user = User::create('Delete Test', 'deletetest', 'delete@example.com', 'password123');
             $user->save();
             $userId = $user->getId();
 
@@ -271,7 +298,9 @@ describe('User', function (): void {
             $user = new User($bean);
 
             expect($user->name)->toBe('');
+            expect($user->username)->toBe('');
             expect($user->email)->toBe('');
+            expect($user->profilePicture)->toBeNull();
             expect($user->password)->toBe('');
             expect($user->createdAt)->toBeNull();
             expect($user->updatedAt)->toBeNull();

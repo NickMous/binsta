@@ -47,9 +47,9 @@ class UserRepository
     /**
      * Create and save a new user
      */
-    public static function create(string $name, string $email, string $password): User
+    public static function create(string $name, string $username, string $email, string $password): User
     {
-        $user = User::create($name, $email, $password);
+        $user = User::create($name, $username, $email, $password);
         $user->save();
 
         return $user;
@@ -116,8 +116,16 @@ class UserRepository
             $user->name = $data['name'];
         }
 
+        if (isset($data['username'])) {
+            $user->username = $data['username'];
+        }
+
         if (isset($data['email'])) {
             $user->email = $data['email'];
+        }
+
+        if (isset($data['profile_picture'])) {
+            $user->profilePicture = $data['profile_picture'];
         }
 
         if (isset($data['password'])) {

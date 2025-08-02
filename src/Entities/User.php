@@ -13,9 +13,19 @@ class User extends Entity
         set => $this->name = $value;
     }
 
+    public string $username {
+        get => $this->username ?? '';
+        set => $this->username = $value;
+    }
+
     public string $email {
         get => $this->email ?? '';
         set => $this->email = $value;
+    }
+
+    public ?string $profilePicture = null {
+        get => $this->profilePicture;
+        set => $this->profilePicture = $value;
     }
 
     private bool $isHydrating = false;
@@ -51,10 +61,11 @@ class User extends Entity
     /**
      * Create a new User instance
      */
-    public static function create(string $name, string $email, string $password): self
+    public static function create(string $name, string $username, string $email, string $password): self
     {
         $user = new self();
         $user->name = $name;
+        $user->username = $username;
         $user->email = $email;
         $user->password = $password; // Will be auto-hashed by setter
         $user->createdAt = new DateTime();
@@ -92,7 +103,9 @@ class User extends Entity
         $this->isHydrating = true;
 
         $this->name = (string) $this->bean->name;
+        $this->username = (string) $this->bean->username;
         $this->email = (string) $this->bean->email;
+        $this->profilePicture = $this->bean->profile_picture ?: null;
         $this->password = (string) $this->bean->password; // Set raw hash during hydration
 
         if (!empty($this->bean->created_at)) {
@@ -116,7 +129,9 @@ class User extends Entity
         }
 
         $this->bean->name = $this->name;
+        $this->bean->username = $this->username;
         $this->bean->email = $this->email;
+        $this->bean->profile_picture = $this->profilePicture;
         $this->bean->password = $this->password;
 
         // Set timestamps
@@ -145,7 +160,9 @@ class User extends Entity
         $data = [
             'id' => $this->getId(),
             'name' => $this->name,
+            'username' => $this->username,
             'email' => $this->email,
+            'profile_picture' => $this->profilePicture,
             'created_at' => $this->createdAt?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt?->format('Y-m-d H:i:s'),
         ];

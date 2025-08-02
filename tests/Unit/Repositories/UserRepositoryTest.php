@@ -23,7 +23,7 @@ describe('UserRepository', function (): void {
     describe('findById', function (): void {
         test('returns user when found', function (): void {
             // Create a test user
-            $user = UserRepository::create('John Doe', 'john@example.com', 'password123');
+            $user = UserRepository::create('John Doe', 'johndoe', 'john@example.com', 'password123');
             $userId = $user->getId();
 
             // Find the user by ID
@@ -49,7 +49,7 @@ describe('UserRepository', function (): void {
 
     describe('findByEmail', function (): void {
         test('returns user when found by email', function (): void {
-            UserRepository::create('Jane Doe', 'jane@example.com', 'password123');
+            UserRepository::create('Jane Doe', 'janedoe', 'jane@example.com', 'password123');
 
             $foundUser = UserRepository::findByEmail('jane@example.com');
 
@@ -67,7 +67,7 @@ describe('UserRepository', function (): void {
 
     describe('emailExists', function (): void {
         test('returns true when email exists', function (): void {
-            UserRepository::create('Test User', 'test@example.com', 'password123');
+            UserRepository::create('Test User', 'testuser', 'test@example.com', 'password123');
 
             $exists = UserRepository::emailExists('test@example.com');
 
@@ -83,7 +83,7 @@ describe('UserRepository', function (): void {
 
     describe('create', function (): void {
         test('creates and saves a new user', function (): void {
-            $user = UserRepository::create('New User', 'new@example.com', 'password123');
+            $user = UserRepository::create('New User', 'newuser', 'new@example.com', 'password123');
 
             expect($user)->toBeInstanceOf(User::class);
             expect($user->getId())->not->toBeNull();
@@ -97,7 +97,7 @@ describe('UserRepository', function (): void {
         });
 
         test('automatically hashes password', function (): void {
-            $user = UserRepository::create('Password User', 'pwd@example.com', 'plaintext');
+            $user = UserRepository::create('Password User', 'pwduser', 'pwd@example.com', 'plaintext');
 
             // Password should be hashed, not plain text
             expect($user->password)->not->toBe('plaintext');
@@ -107,9 +107,9 @@ describe('UserRepository', function (): void {
 
     describe('findByNameLike', function (): void {
         test('finds users with partial name match', function (): void {
-            UserRepository::create('John Smith', 'john.smith@example.com', 'password123');
-            UserRepository::create('John Doe', 'john.doe@example.com', 'password123');
-            UserRepository::create('Jane Doe', 'jane.doe@example.com', 'password123');
+            UserRepository::create('John Smith', 'johnsmith', 'john.smith@example.com', 'password123');
+            UserRepository::create('John Doe', 'johndoe2', 'john.doe@example.com', 'password123');
+            UserRepository::create('Jane Doe', 'janedoe2', 'jane.doe@example.com', 'password123');
 
             $users = UserRepository::findByNameLike('John');
 
@@ -119,7 +119,7 @@ describe('UserRepository', function (): void {
         });
 
         test('returns empty array when no matches', function (): void {
-            UserRepository::create('Alice Cooper', 'alice@example.com', 'password123');
+            UserRepository::create('Alice Cooper', 'alicecooper', 'alice@example.com', 'password123');
 
             $users = UserRepository::findByNameLike('Bob');
 
@@ -129,10 +129,10 @@ describe('UserRepository', function (): void {
 
     describe('findAll', function (): void {
         test('returns all users ordered by created_at DESC', function (): void {
-            $user1 = UserRepository::create('First User', 'first@example.com', 'password123');
+            $user1 = UserRepository::create('First User', 'firstuser', 'first@example.com', 'password123');
             // Wait a moment to ensure different timestamps
             sleep(1);
-            $user2 = UserRepository::create('Second User', 'second@example.com', 'password123');
+            $user2 = UserRepository::create('Second User', 'seconduser', 'second@example.com', 'password123');
 
             $users = UserRepository::findAll();
 
@@ -154,10 +154,10 @@ describe('UserRepository', function (): void {
         test('returns correct count of users', function (): void {
             expect(UserRepository::count())->toBe(0);
 
-            UserRepository::create('User 1', 'user1@example.com', 'password123');
+            UserRepository::create('User 1', 'user1', 'user1@example.com', 'password123');
             expect(UserRepository::count())->toBe(1);
 
-            UserRepository::create('User 2', 'user2@example.com', 'password123');
+            UserRepository::create('User 2', 'user2', 'user2@example.com', 'password123');
             expect(UserRepository::count())->toBe(2);
         });
     });
@@ -165,7 +165,7 @@ describe('UserRepository', function (): void {
     describe('findCreatedAfter', function (): void {
         test('finds users created after specified date', function (): void {
             // Create old user
-            UserRepository::create('Old User', 'old@example.com', 'password123');
+            UserRepository::create('Old User', 'olduser', 'old@example.com', 'password123');
 
             // Wait a moment to ensure different timestamps
             sleep(1);
@@ -173,7 +173,7 @@ describe('UserRepository', function (): void {
 
             // Wait another moment, then create new user
             sleep(1);
-            UserRepository::create('New User', 'new@example.com', 'password123');
+            UserRepository::create('New User', 'newuser2', 'new@example.com', 'password123');
 
             $users = UserRepository::findCreatedAfter($afterDate);
 
@@ -184,7 +184,7 @@ describe('UserRepository', function (): void {
         test('returns empty array when no users created after date', function (): void {
             $futureDate = new DateTime('+1 year');
 
-            UserRepository::create('Current User', 'current@example.com', 'password123');
+            UserRepository::create('Current User', 'currentuser', 'current@example.com', 'password123');
 
             $users = UserRepository::findCreatedAfter($futureDate);
 
@@ -194,7 +194,7 @@ describe('UserRepository', function (): void {
 
     describe('update', function (): void {
         test('updates existing user fields', function (): void {
-            $user = UserRepository::create('Original Name', 'original@example.com', 'password123');
+            $user = UserRepository::create('Original Name', 'originalname', 'original@example.com', 'password123');
             $userId = $user->getId();
 
             $updatedUser = UserRepository::update($userId, [
@@ -212,7 +212,7 @@ describe('UserRepository', function (): void {
         });
 
         test('updates password and hashes it', function (): void {
-            $user = UserRepository::create('User', 'user@example.com', 'oldpassword');
+            $user = UserRepository::create('User', 'user', 'user@example.com', 'oldpassword');
             $userId = $user->getId();
 
             $updatedUser = UserRepository::update($userId, [
@@ -230,7 +230,7 @@ describe('UserRepository', function (): void {
         });
 
         test('only updates provided fields', function (): void {
-            $user = UserRepository::create('Original Name', 'original@example.com', 'password123');
+            $user = UserRepository::create('Original Name', 'originalname2', 'original2@example.com', 'password123');
             $userId = $user->getId();
             $originalEmail = $user->email;
 
@@ -244,7 +244,7 @@ describe('UserRepository', function (): void {
 
     describe('deleteById', function (): void {
         test('deletes existing user and returns true', function (): void {
-            $user = UserRepository::create('To Delete', 'delete@example.com', 'password123');
+            $user = UserRepository::create('To Delete', 'todelete', 'delete@example.com', 'password123');
             $userId = $user->getId();
 
             $result = UserRepository::deleteById($userId);
@@ -262,7 +262,7 @@ describe('UserRepository', function (): void {
 
     describe('authenticate', function (): void {
         test('returns user when credentials are correct', function (): void {
-            UserRepository::create('Auth User', 'auth@example.com', 'correct-password');
+            UserRepository::create('Auth User', 'authuser', 'auth@example.com', 'correct-password');
 
             $user = UserRepository::authenticate('auth@example.com', 'correct-password');
 
@@ -277,17 +277,17 @@ describe('UserRepository', function (): void {
         });
 
         test('returns null when password is incorrect', function (): void {
-            UserRepository::create('Auth User', 'auth@example.com', 'correct-password');
+            UserRepository::create('Auth User', 'authuser2', 'auth2@example.com', 'correct-password');
 
-            $user = UserRepository::authenticate('auth@example.com', 'wrong-password');
+            $user = UserRepository::authenticate('auth2@example.com', 'wrong-password');
 
             expect($user)->toBeNull();
         });
 
         test('returns null when email exists but password is empty', function (): void {
-            UserRepository::create('Auth User', 'auth@example.com', 'correct-password');
+            UserRepository::create('Auth User', 'authuser3', 'auth3@example.com', 'correct-password');
 
-            $user = UserRepository::authenticate('auth@example.com', '');
+            $user = UserRepository::authenticate('auth3@example.com', '');
 
             expect($user)->toBeNull();
         });

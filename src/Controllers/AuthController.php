@@ -2,6 +2,7 @@
 
 namespace NickMous\Binsta\Controllers;
 
+use NickMous\Binsta\Entities\User;
 use NickMous\Binsta\Internals\BaseController;
 use NickMous\Binsta\Internals\Exceptions\Validation\ValidationFailedException;
 use NickMous\Binsta\Internals\Response\JsonResponse;
@@ -28,10 +29,17 @@ class AuthController extends BaseController
             );
         }
 
+        $this->saveUserSession($user);
+
         return new JsonResponse([
             'message' => 'Login successful',
             'user' => $user->toArray()
         ]);
+    }
+
+    protected function saveUserSession(User $user): void
+    {
+        $_SESSION['user'] = $user->getId();
     }
 
     public function register(RegisterRequest $request): Response
@@ -40,9 +48,12 @@ class AuthController extends BaseController
 
         $user = UserRepository::create(
             $request->get('name'),
+            $request->get('username'),
             $request->get('email'),
             $request->get('password')
         );
+
+        $this->saveUserSession($user);
 
         return new JsonResponse([
             'message' => 'User registered successfully',
