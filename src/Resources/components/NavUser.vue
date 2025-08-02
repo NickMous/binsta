@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogIn, LogOut, Sparkles} from 'lucide-vue-next'
+import {useRouter} from 'vue-router'
 
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {
@@ -16,6 +17,12 @@ import {useUserStore} from "@/stores/UserStore.ts";
 
 const {isMobile} = useSidebar()
 const userStore = useUserStore()
+const router = useRouter()
+
+const handleLogout = async () => {
+  userStore.logout()
+  await router.push('/login')
+}
 </script>
 
 <template>
@@ -128,7 +135,7 @@ const userStore = useUserStore()
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator/>
-          <DropdownMenuItem>
+          <DropdownMenuItem @click="handleLogout">
             <LogOut/>
             Log out
           </DropdownMenuItem>

@@ -1,16 +1,21 @@
 <script setup lang="ts">
 import type {HTMLAttributes} from 'vue'
 import {ref} from 'vue'
+import {useRouter} from 'vue-router'
 
 import {GalleryVerticalEnd} from 'lucide-vue-next'
 import {cn} from '@/lib/utils'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
+import {useUserStore} from '@/stores/UserStore'
 
 const props = defineProps<{
   class?: HTMLAttributes['class']
 }>()
+
+const router = useRouter()
+const userStore = useUserStore()
 
 const name = ref('')
 const username = ref('')
@@ -60,8 +65,17 @@ const handleSignUp = async (event: Event) => {
       return
     }
 
-    // Handle successful sign up (e.g., redirect or update auth state)
+    // Handle successful sign up - save user in store and redirect
     console.log('Sign up successful:', data)
+    
+    // Save user data to store
+    if (data.user) {
+      userStore.setUserFromApiResponse(data.user)
+      userStore.persistUser()
+    }
+    
+    // Redirect to home page
+    await router.push('/')
 
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Sign up failed'
