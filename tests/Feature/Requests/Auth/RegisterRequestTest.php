@@ -2,6 +2,8 @@
 
 use NickMous\Binsta\Requests\Auth\RegisterRequest;
 use NickMous\Binsta\Internals\Exceptions\Validation\ValidationFailedException;
+use NickMous\Binsta\Managers\DatabaseManager;
+use NickMous\Binsta\Kernel;
 
 covers(RegisterRequest::class);
 
@@ -40,10 +42,19 @@ describe('RegisterRequest', function (): void {
         // Set up basic server environment for Request constructor
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_SERVER['CONTENT_TYPE'] = 'application/json';
+        
+        // Initialize database for feature tests
+        new Kernel()->init();
+        DatabaseManager::instantiate();
     });
 
     afterEach(function (): void {
-        // Clean up
+        // Clean up database
+        \RedBeanPHP\R::nuke();
+        \RedBeanPHP\R::close();
+        DatabaseManager::reset();
+        
+        // Clean up server environment
         unset($_SERVER['REQUEST_METHOD']);
         unset($_SERVER['CONTENT_TYPE']);
     });

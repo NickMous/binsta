@@ -152,9 +152,15 @@ describe('UserRepository', function (): void {
     describe('findAll', function (): void {
         test('returns all users ordered by created_at DESC', function (): void {
             $user1 = UserRepository::create('First User', 'firstuser', 'first@example.com', 'password123');
-            // Wait a moment to ensure different timestamps
-            sleep(1);
             $user2 = UserRepository::create('Second User', 'seconduser', 'second@example.com', 'password123');
+            
+            // Set explicit timestamps to ensure proper ordering without using sleep()
+            $user1->createdAt = new DateTime('2023-01-01 10:00:00');
+            $user2->createdAt = new DateTime('2023-01-01 11:00:00');
+            
+            // Save the updated timestamps
+            UserRepository::save($user1);
+            UserRepository::save($user2);
 
             $users = UserRepository::findAll();
 
@@ -186,16 +192,18 @@ describe('UserRepository', function (): void {
 
     describe('findCreatedAfter', function (): void {
         test('finds users created after specified date', function (): void {
-            // Create old user
-            UserRepository::create('Old User', 'olduser', 'old@example.com', 'password123');
+            // Create old user with explicit timestamp
+            $oldUser = UserRepository::create('Old User', 'olduser', 'old@example.com', 'password123');
+            $oldUser->createdAt = new DateTime('2023-01-01 10:00:00');
+            UserRepository::save($oldUser);
 
-            // Wait a moment to ensure different timestamps
-            sleep(1);
-            $afterDate = new DateTime();
+            // Define a cutoff date between old and new users
+            $afterDate = new DateTime('2023-01-01 10:30:00');
 
-            // Wait another moment, then create new user
-            sleep(1);
-            UserRepository::create('New User', 'newuser2', 'new@example.com', 'password123');
+            // Create new user with timestamp after the cutoff
+            $newUser = UserRepository::create('New User', 'newuser2', 'new@example.com', 'password123');
+            $newUser->createdAt = new DateTime('2023-01-01 11:00:00');
+            UserRepository::save($newUser);
 
             $users = UserRepository::findCreatedAfter($afterDate);
 
