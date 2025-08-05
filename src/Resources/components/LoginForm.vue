@@ -94,7 +94,7 @@ const handleLogin = async (event: Event) => {
           </div>
         </div>
         <div class="flex flex-col gap-6">
-          <div v-if="error" class="text-red-500 text-sm text-center">
+          <div v-if="error" class="text-red-500 text-sm text-center" role="alert" aria-live="polite">
             {{ error }}
           </div>
           <div class="grid gap-3">
@@ -106,8 +106,10 @@ const handleLogin = async (event: Event) => {
                 placeholder="m@example.com"
                 required
                 :class="{ 'border-red-500': errors.email }"
+                :aria-describedby="errors.email ? 'email-error' : undefined"
+                :aria-invalid="!!errors.email"
             />
-            <div v-if="errors.email" class="text-red-500 text-sm">
+            <div v-if="errors.email" id="email-error" class="text-red-500 text-sm" role="alert" aria-live="polite">
               {{ errors.email }}
             </div>
           </div>
@@ -120,8 +122,10 @@ const handleLogin = async (event: Event) => {
                 placeholder="••••••••"
                 required
                 :class="{ 'border-red-500': errors.password }"
+                :aria-describedby="errors.password ? 'password-error' : undefined"
+                :aria-invalid="!!errors.password"
             />
-            <div v-if="errors.password" class="text-red-500 text-sm">
+            <div v-if="errors.password" id="password-error" class="text-red-500 text-sm" role="alert" aria-live="polite">
               {{ errors.password }}
             </div>
           </div>

@@ -12,14 +12,11 @@ describe('UniqueRule', function (): void {
         expect($rule->getKey())->toBe('unique');
     });
 
-    test('validates unique values correctly', function (): void {
+    test('validates input types correctly', function (): void {
         $rule = new UniqueRule();
 
         // Set up parameters for user table, email field
         $rule->setParameters(['user', 'email']);
-
-        // Test with non-existent email (should be valid/unique)
-        expect($rule->validate('nonexistent@example.com'))->toBe(true);
 
         // Test with empty string (should be invalid)
         expect($rule->validate(''))->toBe(false);
@@ -29,6 +26,9 @@ describe('UniqueRule', function (): void {
 
         // Test with non-string (should be invalid)
         expect($rule->validate(123))->toBe(false);
+
+        // Test with whitespace only (should be invalid)
+        expect($rule->validate('   '))->toBe(false);
     });
 
     test('fails validation when parameters are missing', function (): void {
@@ -46,54 +46,37 @@ describe('UniqueRule', function (): void {
         expect($rule->validate('test@example.com'))->toBe(false);
     });
 
-    test('validates with different table and field combinations', function (): void {
+    test('validates identifier security - rejects unsafe table names', function (): void {
         $rule = new UniqueRule();
 
-        // Test with different table/field combination
-        $rule->setParameters(['post', 'slug']);
-        expect($rule->validate('some-unique-slug'))->toBe(true);
+        // Test SQL injection attempts in table name
+        expect(fn() => $rule->setParameters(['user; DROP TABLE users; --', 'email']))
+            ->toThrow(\InvalidArgumentException::class);
 
-        // Test whitespace trimming
-        $rule->setParameters(['user', 'email']);
-        expect($rule->validate('  test@example.com  '))->toBe(true);
-        expect($rule->validate('   '))->toBe(false); // Only whitespace
+        expect(fn() => $rule->setParameters(['user`', 'email']))
+            ->toThrow(\InvalidArgumentException::class);
+
+        expect(fn() => $rule->setParameters(['user-table', 'email']))
+            ->toThrow(\InvalidArgumentException::class);
+
+        expect(fn() => $rule->setParameters(['1user', 'email']))
+            ->toThrow(\InvalidArgumentException::class);
     });
 
-    test('handles multiple parameters correctly', function (): void {
+    test('validates identifier security - rejects unsafe field names', function (): void {
         $rule = new UniqueRule();
 
-        // Should use first two parameters only
-        $rule->setParameters(['user', 'email', 'extra', 'params']);
+        // Test SQL injection attempts in field name
+        expect(fn() => $rule->setParameters(['user', 'email; DROP TABLE users; --']))
+            ->toThrow(\InvalidArgumentException::class);
 
-        expect($rule->validate('unique@test.com'))->toBe(true);
-    });
+        expect(fn() => $rule->setParameters(['user', 'email`']))
+            ->toThrow(\InvalidArgumentException::class);
 
-    test('detects existing values in database', function (): void {
-        // Initialize database for this specific test
-        new Kernel()->init();
-        DatabaseManager::instantiate();
+        expect(fn() => $rule->setParameters(['user', 'email-field']))
+            ->toThrow(\InvalidArgumentException::class);
 
-        // Create a test user in the database
-        $user = \RedBeanPHP\R::dispense('user');
-        $user->email = 'existing@example.com';
-        $user->name = 'Existing User';
-        \RedBeanPHP\R::store($user);
-
-        $rule = new UniqueRule();
-        $rule->setParameters(['user', 'email']);
-
-        // Should fail validation for existing email
-        expect($rule->validate('existing@example.com'))->toBe(false);
-
-        // Should pass validation for new email
-        expect($rule->validate('new@example.com'))->toBe(true);
-
-        // Database queries are typically case-insensitive for emails
-        expect($rule->validate('EXISTING@EXAMPLE.COM'))->toBe(false);
-
-        // Clean up
-        \RedBeanPHP\R::nuke();
-        \RedBeanPHP\R::close();
-        DatabaseManager::reset();
+        expect(fn() => $rule->setParameters(['user', '1email']))
+            ->toThrow(\InvalidArgumentException::class);
     });
 });

@@ -107,7 +107,7 @@ const handleSignUp = async (event: Event) => {
           </div>
         </div>
         <div class="flex flex-col gap-6">
-          <div v-if="error" class="text-red-500 text-sm text-center">
+          <div v-if="error" class="text-red-500 text-sm text-center" role="alert" aria-live="polite">
             {{ error }}
           </div>
           <div class="grid gap-3">
@@ -119,8 +119,10 @@ const handleSignUp = async (event: Event) => {
                 placeholder="John Doe"
                 required
                 :class="{ 'border-red-500': errors.name }"
+                :aria-describedby="errors.name ? 'name-error' : undefined"
+                :aria-invalid="!!errors.name"
             />
-            <div v-if="errors.name" class="text-red-500 text-sm">
+            <div v-if="errors.name" id="name-error" class="text-red-500 text-sm" role="alert" aria-live="polite">
               {{ errors.name }}
             </div>
           </div>
@@ -133,8 +135,10 @@ const handleSignUp = async (event: Event) => {
                 placeholder="johndoe"
                 required
                 :class="{ 'border-red-500': errors.username }"
+                :aria-describedby="errors.username ? 'username-error' : undefined"
+                :aria-invalid="!!errors.username"
             />
-            <div v-if="errors.username" class="text-red-500 text-sm">
+            <div v-if="errors.username" id="username-error" class="text-red-500 text-sm" role="alert" aria-live="polite">
               {{ errors.username }}
             </div>
           </div>
@@ -147,8 +151,10 @@ const handleSignUp = async (event: Event) => {
                 placeholder="m@example.com"
                 required
                 :class="{ 'border-red-500': errors.email }"
+                :aria-describedby="errors.email ? 'email-error' : undefined"
+                :aria-invalid="!!errors.email"
             />
-            <div v-if="errors.email" class="text-red-500 text-sm">
+            <div v-if="errors.email" id="email-error" class="text-red-500 text-sm" role="alert" aria-live="polite">
               {{ errors.email }}
             </div>
           </div>
@@ -161,8 +167,10 @@ const handleSignUp = async (event: Event) => {
                 placeholder="••••••••"
                 required
                 :class="{ 'border-red-500': errors.password }"
+                :aria-describedby="errors.password ? 'password-error' : undefined"
+                :aria-invalid="!!errors.password"
             />
-            <div v-if="errors.password" class="text-red-500 text-sm">
+            <div v-if="errors.password" id="password-error" class="text-red-500 text-sm" role="alert" aria-live="polite">
               {{ errors.password }}
             </div>
           </div>
@@ -175,8 +183,10 @@ const handleSignUp = async (event: Event) => {
                 placeholder="••••••••"
                 required
                 :class="{ 'border-red-500': errors.confirmPassword }"
+                :aria-describedby="errors.confirmPassword ? 'confirmPassword-error' : undefined"
+                :aria-invalid="!!errors.confirmPassword"
             />
-            <div v-if="errors.confirmPassword" class="text-red-500 text-sm">
+            <div v-if="errors.confirmPassword" id="confirmPassword-error" class="text-red-500 text-sm" role="alert" aria-live="polite">
               {{ errors.confirmPassword }}
             </div>
           </div>

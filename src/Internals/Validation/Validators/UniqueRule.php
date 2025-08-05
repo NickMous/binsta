@@ -20,6 +20,10 @@ class UniqueRule implements ValidationRule, ParameterizedValidationRule
     {
         $this->table = $parameters[0] ?? '';
         $this->field = $parameters[1] ?? '';
+        
+        // Validate table and field names contain only safe characters
+        $this->validateIdentifier($this->table);
+        $this->validateIdentifier($this->field);
     }
 
     public function validate(mixed $value): bool
@@ -46,5 +50,25 @@ class UniqueRule implements ValidationRule, ParameterizedValidationRule
         $existing = R::findOne($this->table, "{$this->field} = ?", [$value]);
 
         return $existing === null;
+    }
+
+    /**
+     * Validate that an identifier (table or field name) contains only safe characters
+     * 
+     * @param string $identifier The identifier to validate
+     * @throws \InvalidArgumentException If the identifier contains unsafe characters
+     */
+    private function validateIdentifier(string $identifier): void
+    {
+        if (empty($identifier)) {
+            return;
+        }
+        
+        // Allow only alphanumeric characters and underscores
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $identifier)) {
+            throw new \InvalidArgumentException(
+                "Invalid identifier '{$identifier}'. Only alphanumeric characters and underscores are allowed."
+            );
+        }
     }
 }

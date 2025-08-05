@@ -4,6 +4,9 @@ use NickMous\Binsta\Requests\Profile\UploadProfilePictureRequest;
 
 covers(UploadProfilePictureRequest::class);
 
+// 1x1 PNG image with proper headers that mime_content_type can detect
+const MINIMAL_PNG_DATA = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=';
+
 describe('UploadProfilePictureRequest', function (): void {
     beforeEach(function (): void {
         $_FILES = [];
@@ -44,8 +47,7 @@ describe('UploadProfilePictureRequest', function (): void {
     test('validates successfully with valid image file', function (): void {
         // Create temporary image file with proper PNG header
         $tempFile = tempnam(sys_get_temp_dir(), 'test_image');
-        // Proper 1x1 PNG with complete headers that mime_content_type can detect
-        $imageData = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=');
+        $imageData = base64_decode(MINIMAL_PNG_DATA);
         file_put_contents($tempFile, $imageData);
 
         // Mock $_FILES global

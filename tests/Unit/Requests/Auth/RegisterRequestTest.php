@@ -5,6 +5,36 @@ use NickMous\Binsta\Internals\Exceptions\Validation\ValidationFailedException;
 
 covers(RegisterRequest::class);
 
+/**
+ * Create a mocked RegisterRequest with given data for testing
+ * @param array<string, mixed> $data
+ * @return RegisterRequest
+ */
+function createMockedRegisterRequest(array $data): RegisterRequest
+{
+    return new class ($data) extends RegisterRequest {
+        /** @param array<string, mixed> $data */
+        public function __construct(array $data)
+        {
+            // Skip parent constructor to avoid $_POST handling
+            $this->parameters = $data;
+        }
+
+        /** @var array<string, mixed> */
+        private array $parameters;
+
+        public function get(string $key, mixed $default = null): mixed
+        {
+            return $this->parameters[$key] ?? $default;
+        }
+
+        public function all(): array
+        {
+            return $this->parameters;
+        }
+    };
+}
+
 describe('RegisterRequest', function (): void {
     beforeEach(function (): void {
         // Set up basic server environment for Request constructor
@@ -66,28 +96,7 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => 'password123'
         ];
 
-        // Create request with mocked data
-        $request = new class ($requestData) extends RegisterRequest {
-            /** @param array<string, mixed> $data */
-            public function __construct(array $data)
-            {
-                // Skip parent constructor to avoid $_POST handling
-                $this->parameters = $data;
-            }
-
-            /** @var array<string, mixed> */
-            private array $parameters;
-
-            public function get(string $key, mixed $default = null): mixed
-            {
-                return $this->parameters[$key] ?? $default;
-            }
-
-            public function all(): array
-            {
-                return $this->parameters;
-            }
-        };
+        $request = createMockedRegisterRequest($requestData);
 
         // Should not throw exception
         expect(fn() => $request->validate())->not->toThrow(ValidationFailedException::class);
@@ -100,26 +109,7 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => 'password123'
         ];
 
-        $request = new class ($requestData) extends RegisterRequest {
-            /** @param array<string, mixed> $data */
-            public function __construct(array $data)
-            {
-                $this->parameters = $data;
-            }
-
-            /** @var array<string, mixed> */
-            private array $parameters;
-
-            public function get(string $key, mixed $default = null): mixed
-            {
-                return $this->parameters[$key] ?? $default;
-            }
-
-            public function all(): array
-            {
-                return $this->parameters;
-            }
-        };
+        $request = createMockedRegisterRequest($requestData);
 
         expect(fn() => $request->validate())
             ->toThrow(ValidationFailedException::class);
@@ -133,26 +123,7 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => 'password123'
         ];
 
-        $request = new class ($requestData) extends RegisterRequest {
-            /** @param array<string, mixed> $data */
-            public function __construct(array $data)
-            {
-                $this->parameters = $data;
-            }
-
-            /** @var array<string, mixed> */
-            private array $parameters;
-
-            public function get(string $key, mixed $default = null): mixed
-            {
-                return $this->parameters[$key] ?? $default;
-            }
-
-            public function all(): array
-            {
-                return $this->parameters;
-            }
-        };
+        $request = createMockedRegisterRequest($requestData);
 
         expect(fn() => $request->validate())
             ->toThrow(ValidationFailedException::class);
@@ -166,26 +137,7 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => '123'
         ];
 
-        $request = new class ($requestData) extends RegisterRequest {
-            /** @param array<string, mixed> $data */
-            public function __construct(array $data)
-            {
-                $this->parameters = $data;
-            }
-
-            /** @var array<string, mixed> */
-            private array $parameters;
-
-            public function get(string $key, mixed $default = null): mixed
-            {
-                return $this->parameters[$key] ?? $default;
-            }
-
-            public function all(): array
-            {
-                return $this->parameters;
-            }
-        };
+        $request = createMockedRegisterRequest($requestData);
 
         expect(fn() => $request->validate())
             ->toThrow(ValidationFailedException::class);
@@ -199,26 +151,7 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => 'different_password'
         ];
 
-        $request = new class ($requestData) extends RegisterRequest {
-            /** @param array<string, mixed> $data */
-            public function __construct(array $data)
-            {
-                $this->parameters = $data;
-            }
-
-            /** @var array<string, mixed> */
-            private array $parameters;
-
-            public function get(string $key, mixed $default = null): mixed
-            {
-                return $this->parameters[$key] ?? $default;
-            }
-
-            public function all(): array
-            {
-                return $this->parameters;
-            }
-        };
+        $request = createMockedRegisterRequest($requestData);
 
         expect(fn() => $request->validate())
             ->toThrow(ValidationFailedException::class);
@@ -234,26 +167,7 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => '12345678'
         ];
 
-        $request = new class ($requestData) extends RegisterRequest {
-            /** @param array<string, mixed> $data */
-            public function __construct(array $data)
-            {
-                $this->parameters = $data;
-            }
-
-            /** @var array<string, mixed> */
-            private array $parameters;
-
-            public function get(string $key, mixed $default = null): mixed
-            {
-                return $this->parameters[$key] ?? $default;
-            }
-
-            public function all(): array
-            {
-                return $this->parameters;
-            }
-        };
+        $request = createMockedRegisterRequest($requestData);
 
         expect(fn() => $request->validate())->not->toThrow(ValidationFailedException::class);
 
@@ -261,26 +175,7 @@ describe('RegisterRequest', function (): void {
         $requestData['password'] = '1234567';
         $requestData['password_confirmation'] = '1234567';
 
-        $request = new class ($requestData) extends RegisterRequest {
-            /** @param array<string, mixed> $data */
-            public function __construct(array $data)
-            {
-                $this->parameters = $data;
-            }
-
-            /** @var array<string, mixed> */
-            private array $parameters;
-
-            public function get(string $key, mixed $default = null): mixed
-            {
-                return $this->parameters[$key] ?? $default;
-            }
-
-            public function all(): array
-            {
-                return $this->parameters;
-            }
-        };
+        $request = createMockedRegisterRequest($requestData);
 
         expect(fn() => $request->validate())
             ->toThrow(ValidationFailedException::class);
@@ -289,26 +184,7 @@ describe('RegisterRequest', function (): void {
     test('validates all fields are required', function (): void {
         $requestData = []; // empty request
 
-        $request = new class ($requestData) extends RegisterRequest {
-            /** @param array<string, mixed> $data */
-            public function __construct(array $data)
-            {
-                $this->parameters = $data;
-            }
-
-            /** @var array<string, mixed> */
-            private array $parameters;
-
-            public function get(string $key, mixed $default = null): mixed
-            {
-                return $this->parameters[$key] ?? $default;
-            }
-
-            public function all(): array
-            {
-                return $this->parameters;
-            }
-        };
+        $request = createMockedRegisterRequest($requestData);
 
         expect(fn() => $request->validate())
             ->toThrow(ValidationFailedException::class);
@@ -322,26 +198,7 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => 'password123'
         ];
 
-        $request = new class ($requestData) extends RegisterRequest {
-            /** @param array<string, mixed> $data */
-            public function __construct(array $data)
-            {
-                $this->parameters = $data;
-            }
-
-            /** @var array<string, mixed> */
-            private array $parameters;
-
-            public function get(string $key, mixed $default = null): mixed
-            {
-                return $this->parameters[$key] ?? $default;
-            }
-
-            public function all(): array
-            {
-                return $this->parameters;
-            }
-        };
+        $request = createMockedRegisterRequest($requestData);
 
         expect(fn() => $request->validate())
             ->toThrow(ValidationFailedException::class);
@@ -356,26 +213,7 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => 'password123'
         ];
 
-        $request = new class ($requestData) extends RegisterRequest {
-            /** @param array<string, mixed> $data */
-            public function __construct(array $data)
-            {
-                $this->parameters = $data;
-            }
-
-            /** @var array<string, mixed> */
-            private array $parameters;
-
-            public function get(string $key, mixed $default = null): mixed
-            {
-                return $this->parameters[$key] ?? $default;
-            }
-
-            public function all(): array
-            {
-                return $this->parameters;
-            }
-        };
+        $request = createMockedRegisterRequest($requestData);
 
         expect(fn() => $request->validate())
             ->toThrow(ValidationFailedException::class);
@@ -390,26 +228,7 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => 'password123'
         ];
 
-        $request = new class ($requestData) extends RegisterRequest {
-            /** @param array<string, mixed> $data */
-            public function __construct(array $data)
-            {
-                $this->parameters = $data;
-            }
-
-            /** @var array<string, mixed> */
-            private array $parameters;
-
-            public function get(string $key, mixed $default = null): mixed
-            {
-                return $this->parameters[$key] ?? $default;
-            }
-
-            public function all(): array
-            {
-                return $this->parameters;
-            }
-        };
+        $request = createMockedRegisterRequest($requestData);
 
         expect(fn() => $request->validate())
             ->toThrow(ValidationFailedException::class);
@@ -424,26 +243,7 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => 'password123'
         ];
 
-        $request = new class ($requestData) extends RegisterRequest {
-            /** @param array<string, mixed> $data */
-            public function __construct(array $data)
-            {
-                $this->parameters = $data;
-            }
-
-            /** @var array<string, mixed> */
-            private array $parameters;
-
-            public function get(string $key, mixed $default = null): mixed
-            {
-                return $this->parameters[$key] ?? $default;
-            }
-
-            public function all(): array
-            {
-                return $this->parameters;
-            }
-        };
+        $request = createMockedRegisterRequest($requestData);
 
         expect(fn() => $request->validate())
             ->toThrow(ValidationFailedException::class);
@@ -459,52 +259,14 @@ describe('RegisterRequest', function (): void {
             'password_confirmation' => 'password123'
         ];
 
-        $request = new class ($requestData) extends RegisterRequest {
-            /** @param array<string, mixed> $data */
-            public function __construct(array $data)
-            {
-                $this->parameters = $data;
-            }
-
-            /** @var array<string, mixed> */
-            private array $parameters;
-
-            public function get(string $key, mixed $default = null): mixed
-            {
-                return $this->parameters[$key] ?? $default;
-            }
-
-            public function all(): array
-            {
-                return $this->parameters;
-            }
-        };
+        $request = createMockedRegisterRequest($requestData);
 
         expect(fn() => $request->validate())->not->toThrow(ValidationFailedException::class);
 
         // Test exactly 20 characters (should pass)
         $requestData['username'] = 'abcdefghijklmnopqrst'; // exactly 20 characters
 
-        $request = new class ($requestData) extends RegisterRequest {
-            /** @param array<string, mixed> $data */
-            public function __construct(array $data)
-            {
-                $this->parameters = $data;
-            }
-
-            /** @var array<string, mixed> */
-            private array $parameters;
-
-            public function get(string $key, mixed $default = null): mixed
-            {
-                return $this->parameters[$key] ?? $default;
-            }
-
-            public function all(): array
-            {
-                return $this->parameters;
-            }
-        };
+        $request = createMockedRegisterRequest($requestData);
 
         expect(fn() => $request->validate())->not->toThrow(ValidationFailedException::class);
     });
