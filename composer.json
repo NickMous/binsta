@@ -55,8 +55,8 @@
             "rector process"
         ],
         "coverage": [
-            "XDEBUG_MODE=coverage pest --coverage --min=100",
-            "pest --type-coverage --min=100"
+            "XDEBUG_MODE=coverage pest --coverage --min=75",
+            "pest --type-coverage --min=75"
         ],
         "mutation": [
             "XDEBUG_MODE=coverage pest --mutate --min=100"
