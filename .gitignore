@@ -255,3 +255,4 @@ _NCrunch*
 **/.vs/
 **/obj/
 cache/
+coverage-report/

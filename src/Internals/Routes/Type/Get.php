@@ -7,16 +7,12 @@ use NickMous\Binsta\Internals\Routes\AbstractRoute;
 
 class Get extends AbstractRoute
 {
-    /**
-     * Get constructor.
-     *
-     * @param string  $path
-     * @param Closure $closure
-     */
     public function __construct(
         string $path,
-        Closure $closure
+        ?Closure $closure = null,
+        ?string $className = null,
+        ?string $methodName = null,
     ) {
-        parent::__construct($path, $closure, 'GET');
+        parent::__construct($path, $closure, $className, $methodName, 'GET');
     }
 }
