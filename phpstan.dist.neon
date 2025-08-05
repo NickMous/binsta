@@ -17,3 +17,4 @@ parameters:
         - '#Method.*UntypedParameterClass.*has parameter.*with no type specified#'
         - '#Attribute class.*Priority.*is not repeatable but is already present above the class#'
         - '#Access to an undefined property NickMous\\Binsta\\Internals\\Requests\\Request::\$#'
+        - '#Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase.#'

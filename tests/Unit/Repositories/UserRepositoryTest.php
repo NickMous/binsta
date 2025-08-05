@@ -47,6 +47,28 @@ describe('UserRepository', function (): void {
         });
     });
 
+    describe('findByUsername', function (): void {
+        test('returns user when found by username', function (): void {
+            // Create a test user
+            $user = UserRepository::create('John Doe', 'johndoe', 'john@example.com', 'password123');
+
+            // Find the user by username
+            $foundUser = UserRepository::findByUsername('johndoe');
+
+            expect($foundUser)->not->toBeNull();
+            expect($foundUser)->toBeInstanceOf(User::class);
+            expect($foundUser->getId())->toBe($user->getId());
+            expect($foundUser->name)->toBe('John Doe');
+            expect($foundUser->username)->toBe('johndoe');
+            expect($foundUser->email)->toBe('john@example.com');
+        });
+
+        test('returns null when username not found', function (): void {
+            $foundUser = UserRepository::findByUsername('nonexistent');
+            expect($foundUser)->toBeNull();
+        });
+    });
+
     describe('findByEmail', function (): void {
         test('returns user when found by email', function (): void {
             UserRepository::create('Jane Doe', 'janedoe', 'jane@example.com', 'password123');
@@ -240,6 +262,38 @@ describe('UserRepository', function (): void {
             expect($updatedUser->name)->toBe('Updated Name');
             expect($updatedUser->email)->toBe($originalEmail); // Should remain unchanged
         });
+
+        test('updates username field', function (): void {
+            $user = UserRepository::create('User Name', 'oldusername', 'user@example.com', 'password123');
+            $userId = $user->getId();
+
+            $updatedUser = UserRepository::update($userId, [
+                'username' => 'newusername'
+            ]);
+
+            expect($updatedUser)->not->toBeNull();
+            expect($updatedUser->username)->toBe('newusername');
+
+            // Verify changes persisted
+            $foundUser = UserRepository::findById($userId);
+            expect($foundUser->username)->toBe('newusername');
+        });
+
+        test('updates profile_picture field', function (): void {
+            $user = UserRepository::create('User Name', 'username', 'user@example.com', 'password123');
+            $userId = $user->getId();
+
+            $updatedUser = UserRepository::update($userId, [
+                'profile_picture' => 'avatar.jpg'
+            ]);
+
+            expect($updatedUser)->not->toBeNull();
+            expect($updatedUser->profilePicture)->toBe('avatar.jpg');
+
+            // Verify changes persisted
+            $foundUser = UserRepository::findById($userId);
+            expect($foundUser->profilePicture)->toBe('avatar.jpg');
+        });
     });
 
     describe('deleteById', function (): void {
@@ -290,6 +344,26 @@ describe('UserRepository', function (): void {
             $user = UserRepository::authenticate('auth3@example.com', '');
 
             expect($user)->toBeNull();
+        });
+    });
+
+    describe('save', function (): void {
+        test('saves user entity and returns it', function (): void {
+            // Create a user
+            $user = UserRepository::create('Test User', 'testuser', 'test@example.com', 'password123');
+
+            // Modify the user
+            $user->name = 'Modified Name';
+
+            // Save the user
+            $savedUser = UserRepository::save($user);
+
+            expect($savedUser)->toBeInstanceOf(User::class);
+            expect($savedUser->name)->toBe('Modified Name');
+
+            // Verify changes persisted
+            $foundUser = UserRepository::findById($user->getId());
+            expect($foundUser->name)->toBe('Modified Name');
         });
     });
 });

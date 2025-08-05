@@ -545,4 +545,59 @@ describe('RegisterRequest', function (): void {
             expect(fn() => $request->validate())->not->toThrow(ValidationFailedException::class, "Username '{$username}' should be valid");
         }
     });
+
+    test('transforms email to lowercase and trims whitespace', function (): void {
+        $request = new RegisterRequest();
+
+        $data = [
+            'name' => 'John Doe',
+            'username' => 'johndoe',
+            'email' => '  John@EXAMPLE.COM  ',
+            'password' => 'password123',
+            'password_confirmation' => 'password123'
+        ];
+
+        $transformed = $request->transform($data);
+
+        expect($transformed['email'])->toBe('john@example.com');
+        expect($transformed['name'])->toBe('John Doe');
+        expect($transformed['username'])->toBe('johndoe');
+        expect($transformed['password'])->toBe('password123');
+        expect($transformed['password_confirmation'])->toBe('password123');
+    });
+
+    test('handles missing email in transform', function (): void {
+        $request = new RegisterRequest();
+
+        $data = [
+            'name' => 'John Doe',
+            'username' => 'johndoe',
+            'password' => 'password123',
+            'password_confirmation' => 'password123'
+        ];
+
+        $transformed = $request->transform($data);
+
+        expect($transformed)->toBe($data);
+    });
+
+    test('handles non-string email in transform', function (): void {
+        $request = new RegisterRequest();
+
+        $data = [
+            'name' => 'John Doe',
+            'username' => 'johndoe',
+            'email' => 123,
+            'password' => 'password123',
+            'password_confirmation' => 'password123'
+        ];
+
+        $transformed = $request->transform($data);
+
+        expect($transformed['email'])->toBe(123);
+        expect($transformed['name'])->toBe('John Doe');
+        expect($transformed['username'])->toBe('johndoe');
+        expect($transformed['password'])->toBe('password123');
+        expect($transformed['password_confirmation'])->toBe('password123');
+    });
 });

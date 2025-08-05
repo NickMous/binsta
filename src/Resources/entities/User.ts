@@ -5,6 +5,7 @@ export interface UserApiResponse {
     email: string;
     profile_picture?: string;
     profilePicture?: string;
+    biography?: string;
     created_at?: string;
     createdAt?: string | Date;
     updated_at?: string;
@@ -17,6 +18,7 @@ export interface UserApiPayload {
     username: string;
     email: string;
     profile_picture?: string;
+    biography?: string;
     created_at: string;
     updated_at: string;
 }
@@ -27,6 +29,7 @@ export class User {
     public username: string;
     public email: string;
     public profilePicture?: string;
+    public biography?: string;
     public createdAt: Date;
     public updatedAt: Date;
 
@@ -36,6 +39,7 @@ export class User {
         this.username = data.username ?? '';
         this.email = data.email ?? '';
         this.profilePicture = data.profilePicture;
+        this.biography = data.biography;
         this.createdAt = data.createdAt ?? new Date();
         this.updatedAt = data.updatedAt ?? new Date();
     }
@@ -47,6 +51,7 @@ export class User {
             username: data.username,
             email: data.email,
             profilePicture: data.profile_picture || data.profilePicture,
+            biography: data.biography,
             createdAt: new Date(data.created_at || data.createdAt || new Date()),
             updatedAt: new Date(data.updated_at || data.updatedAt || new Date())
         });
@@ -59,6 +64,7 @@ export class User {
             username: this.username,
             email: this.email,
             profile_picture: this.profilePicture,
+            biography: this.biography,
             created_at: this.createdAt.toISOString(),
             updated_at: this.updatedAt.toISOString()
         };
@@ -83,6 +89,7 @@ export class User {
             username: this.username,
             email: this.email,
             profilePicture: this.profilePicture,
+            biography: this.biography,
             createdAt: new Date(this.createdAt),
             updatedAt: new Date(this.updatedAt)
         });
@@ -100,7 +107,8 @@ export class User {
                this.name === other.name &&
                this.username === other.username &&
                this.email === other.email &&
-               this.profilePicture === other.profilePicture;
+               this.profilePicture === other.profilePicture &&
+               this.biography === other.biography;
     }
 }
 
@@ -110,6 +118,7 @@ export interface IUser {
     username: string;
     email: string;
     profilePicture?: string;
+    biography?: string;
     createdAt: Date;
     updatedAt: Date;
 }

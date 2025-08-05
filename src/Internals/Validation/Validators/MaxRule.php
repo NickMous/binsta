@@ -27,10 +27,21 @@ class MaxRule implements ParameterizedValidationRule
 
     public function validate(mixed $value): bool
     {
-        if (!is_string($value)) {
-            return false;
+        // Handle file uploads - check file size in KB
+        if (is_array($value) && isset($value['size'], $value['error'])) {
+            if ($value['error'] !== UPLOAD_ERR_OK) {
+                return false;
+            }
+            // Convert bytes to KB and compare
+            $fileSizeKB = $value['size'] / 1024;
+            return $fileSizeKB <= $this->maxLength;
         }
 
-        return strlen($value) <= $this->maxLength;
+        // Handle strings - check character length
+        if (is_string($value)) {
+            return strlen($value) <= $this->maxLength;
+        }
+
+        return false;
     }
 }

@@ -4,9 +4,9 @@ namespace NickMous\Binsta\Internals\Validation\Validators;
 
 use NickMous\Binsta\Internals\Validation\ValidationRule;
 
-class RequiredRule implements ValidationRule
+class FileRule implements ValidationRule
 {
-    public const string KEY = 'required';
+    public const string KEY = 'file';
 
     public function getKey(): string
     {
@@ -15,12 +15,11 @@ class RequiredRule implements ValidationRule
 
     public function validate(mixed $value): bool
     {
-        // Handle file uploads
-        if (is_array($value) && isset($value['error'])) {
+        // Value should be the file array from $_FILES
+        if (is_array($value) && isset($value['error'], $value['size'])) {
             return $value['error'] === UPLOAD_ERR_OK;
         }
 
-        // Check if the value is null or an empty string
-        return !(is_null($value) || (is_string($value) && trim($value) === ''));
+        return false;
     }
 }

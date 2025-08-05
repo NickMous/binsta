@@ -121,10 +121,12 @@ const handleLogout = async () => {
           </DropdownMenuGroup>
           <DropdownMenuSeparator/>
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <BadgeCheck/>
-              Account
-            </DropdownMenuItem>
+            <RouterLink to="/profile/edit">
+              <DropdownMenuItem>
+                <BadgeCheck/>
+                Edit Profile
+              </DropdownMenuItem>
+            </RouterLink>
             <DropdownMenuItem>
               <CreditCard/>
               Billing

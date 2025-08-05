@@ -28,6 +28,11 @@ class User extends Entity
         set => $this->profilePicture = $value;
     }
 
+    public ?string $biography = null {
+        get => $this->biography;
+        set => $this->biography = $value;
+    }
+
     private bool $isHydrating = false;
 
     public string $password {
@@ -105,7 +110,8 @@ class User extends Entity
         $this->name = (string) $this->bean->name;
         $this->username = (string) $this->bean->username;
         $this->email = (string) $this->bean->email;
-        $this->profilePicture = $this->bean->profile_picture ?: null;
+        $this->profilePicture = (string) $this->bean->profile_picture ?: null;
+        $this->biography = $this->bean->biography ?: null;
         $this->password = (string) $this->bean->password; // Set raw hash during hydration
 
         if (!empty($this->bean->created_at)) {
@@ -131,7 +137,8 @@ class User extends Entity
         $this->bean->name = $this->name;
         $this->bean->username = $this->username;
         $this->bean->email = $this->email;
-        $this->bean->profile_picture = $this->profilePicture;
+        $this->bean->profile_picture = (string) $this->profilePicture;
+        $this->bean->biography = $this->biography;
         $this->bean->password = $this->password;
 
         // Set timestamps
@@ -163,6 +170,7 @@ class User extends Entity
             'username' => $this->username,
             'email' => $this->email,
             'profile_picture' => $this->profilePicture,
+            'biography' => $this->biography,
             'created_at' => $this->createdAt?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt?->format('Y-m-d H:i:s'),
         ];

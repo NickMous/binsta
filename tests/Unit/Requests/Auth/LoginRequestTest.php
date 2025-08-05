@@ -192,4 +192,44 @@ describe('LoginRequest', function (): void {
         expect(fn() => $request->validate())
             ->toThrow(ValidationFailedException::class);
     });
+
+    test('transforms email to lowercase and trims whitespace', function (): void {
+        $request = new LoginRequest();
+
+        $data = [
+            'email' => '  John@EXAMPLE.COM  ',
+            'password' => 'password123'
+        ];
+
+        $transformed = $request->transform($data);
+
+        expect($transformed['email'])->toBe('john@example.com');
+        expect($transformed['password'])->toBe('password123');
+    });
+
+    test('handles missing email in transform', function (): void {
+        $request = new LoginRequest();
+
+        $data = [
+            'password' => 'password123'
+        ];
+
+        $transformed = $request->transform($data);
+
+        expect($transformed)->toBe($data);
+    });
+
+    test('handles non-string email in transform', function (): void {
+        $request = new LoginRequest();
+
+        $data = [
+            'email' => 123,
+            'password' => 'password123'
+        ];
+
+        $transformed = $request->transform($data);
+
+        expect($transformed['email'])->toBe(123);
+        expect($transformed['password'])->toBe('password123');
+    });
 });

@@ -20,6 +20,12 @@ const routes = [
     name: 'signup',
     component: () => import('@/pages/SignUpPage.vue'),
     meta: { layout: 'empty', requiresAuth: false }
+  },
+  {
+    path: '/profile/edit',
+    name: 'profile-edit',
+    component: () => import('@/pages/ProfileEditPage.vue'),
+    meta: { layout: 'app', requiresAuth: true }
   }
   // {
   //   path: '/trending',

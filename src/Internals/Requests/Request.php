@@ -110,6 +110,11 @@ class Request
         foreach ($fieldsToValidate as $field => $rules) {
             $value = $this->get($field);
 
+            // For file uploads, check $_FILES if value is null
+            if ($value === null && isset($_FILES[$field])) {
+                $value = $_FILES[$field];
+            }
+
             if (is_string($rules)) {
                 $rules = explode('|', $rules);
             }

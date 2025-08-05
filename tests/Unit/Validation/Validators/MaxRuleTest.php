@@ -51,14 +51,47 @@ describe('MaxRule', function (): void {
         expect($rule->validate('test'))->toBe(false);  // non-empty fails with default 0
     });
 
-    test('only validates strings', function (): void {
+    test('validates file uploads by size in KB', function (): void {
+        $rule = new MaxRule();
+        $rule->setParameters(['2048']); // 2MB in KB
+
+        // Mock file upload - 1MB file (should pass)
+        $smallFile = [
+            'size' => 1024 * 1024, // 1MB in bytes
+            'error' => UPLOAD_ERR_OK
+        ];
+        expect($rule->validate($smallFile))->toBe(true);
+
+        // Mock file upload - 78KB file (should definitely pass)
+        $tinyFile = [
+            'size' => 78 * 1024, // 78KB in bytes
+            'error' => UPLOAD_ERR_OK
+        ];
+        expect($rule->validate($tinyFile))->toBe(true);
+
+        // Mock file upload - 3MB file (should fail)
+        $largeFile = [
+            'size' => 3 * 1024 * 1024, // 3MB in bytes
+            'error' => UPLOAD_ERR_OK
+        ];
+        expect($rule->validate($largeFile))->toBe(false);
+
+        // Mock file with upload error (should fail)
+        $errorFile = [
+            'size' => 1024,
+            'error' => UPLOAD_ERR_NO_FILE
+        ];
+        expect($rule->validate($errorFile))->toBe(false);
+    });
+
+    test('only validates strings and file arrays', function (): void {
         $rule = new MaxRule();
         $rule->setParameters(['5']);
 
         expect($rule->validate(null))->toBe(false);
         expect($rule->validate(123))->toBe(false);
         expect($rule->validate(true))->toBe(false);
-        expect($rule->validate([]))->toBe(false);
+        expect($rule->validate(['not_a_file' => 'array']))->toBe(false);
         expect($rule->validate(new stdClass()))->toBe(false);
     });
 

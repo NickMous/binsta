@@ -3,6 +3,7 @@ import type {IUser, UserApiResponse} from "@/entities/User.ts";
 import {User} from "@/entities/User.ts";
 
 interface UserStoreState extends IUser {
+    biography?: string;
     isAuthenticated: boolean;
     isLoading: boolean;
 }
@@ -13,7 +14,8 @@ export const useUserStore = defineStore('user', {
         name: '', 
         username: '', 
         email: '', 
-        profilePicture: undefined, 
+        profilePicture: undefined,
+        biography: undefined, 
         createdAt: new Date(), 
         updatedAt: new Date(),
         isAuthenticated: false,
@@ -35,6 +37,7 @@ export const useUserStore = defineStore('user', {
             username: state.username,
             email: state.email,
             profilePicture: state.profilePicture,
+            biography: state.biography,
             createdAt: state.createdAt,
             updatedAt: state.updatedAt
         })
@@ -46,6 +49,7 @@ export const useUserStore = defineStore('user', {
             this.username = user.username;
             this.email = user.email;
             this.profilePicture = user.profilePicture;
+            this.biography = user.biography;
             this.createdAt = user.createdAt;
             this.updatedAt = user.updatedAt;
             this.isAuthenticated = true;
@@ -60,6 +64,7 @@ export const useUserStore = defineStore('user', {
             this.username = '';
             this.email = '';
             this.profilePicture = undefined;
+            this.biography = undefined;
             this.createdAt = new Date();
             this.updatedAt = new Date();
             this.isAuthenticated = false;
@@ -81,6 +86,7 @@ export const useUserStore = defineStore('user', {
                 username: this.username,
                 email: this.email,
                 profilePicture: this.profilePicture,
+                biography: this.biography,
                 createdAt: this.createdAt.toISOString(),
                 updatedAt: this.updatedAt.toISOString()
             };

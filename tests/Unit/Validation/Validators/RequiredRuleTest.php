@@ -48,4 +48,35 @@ describe('RequiredRule', function (): void {
         expect($rule->validate("\t\n\r"))->toBe(false);     // only whitespace chars is invalid
         expect($rule->validate("\t hello \n"))->toBe(true); // whitespace around content is valid
     });
+
+    test('validates file uploads correctly', function (): void {
+        $rule = new RequiredRule();
+
+        // Valid file upload
+        $validFile = [
+            'size' => 1024,
+            'error' => UPLOAD_ERR_OK,
+            'tmp_name' => '/tmp/phpupload',
+            'name' => 'test.jpg'
+        ];
+        expect($rule->validate($validFile))->toBe(true);
+
+        // Invalid file upload (no file)
+        $invalidFile = [
+            'size' => 0,
+            'error' => UPLOAD_ERR_NO_FILE,
+            'tmp_name' => '',
+            'name' => ''
+        ];
+        expect($rule->validate($invalidFile))->toBe(false);
+
+        // Invalid file upload (form size exceeded)
+        $errorFile = [
+            'size' => 0,
+            'error' => UPLOAD_ERR_FORM_SIZE,
+            'tmp_name' => '',
+            'name' => 'large.jpg'
+        ];
+        expect($rule->validate($errorFile))->toBe(false);
+    });
 });

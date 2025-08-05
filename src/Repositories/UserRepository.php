@@ -37,6 +37,20 @@ class UserRepository
     }
 
     /**
+     * Find a user by username
+     */
+    public static function findByUsername(string $username): ?User
+    {
+        $bean = R::findOne(User::getTableName(), 'username = ?', [$username]);
+
+        if ($bean === null) {
+            return null;
+        }
+
+        return new User($bean);
+    }
+
+    /**
      * Check if a user exists with the given email
      */
     public static function emailExists(string $email): bool
@@ -150,6 +164,15 @@ class UserRepository
 
         $user->delete();
         return true;
+    }
+
+    /**
+     * Save a user entity
+     */
+    public static function save(User $user): User
+    {
+        $user->save();
+        return $user;
     }
 
     /**

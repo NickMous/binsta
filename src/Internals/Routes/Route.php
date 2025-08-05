@@ -25,6 +25,15 @@ class Route
         return new Type\Post($path, $closure, $className, $methodName);
     }
 
+    public static function put(
+        string $path,
+        ?Closure $closure = null,
+        ?string $className = null,
+        ?string $methodName = null,
+    ): Type\Put {
+        return new Type\Put($path, $closure, $className, $methodName);
+    }
+
     /**
      * @param string                     $path
      * @param array<AbstractRoute|Group> $routes
