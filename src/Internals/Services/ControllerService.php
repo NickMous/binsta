@@ -37,6 +37,8 @@ class ControllerService
         foreach ($routePatterns as $routeFilePath) {
             $this->loadRoutes($routeFilePath);
         }
+
+        $this->sortRoutes();
     }
 
     /**
@@ -83,6 +85,51 @@ class ControllerService
             $fullPath = $prefix . $route->path;
             $this->routes[$route->method][$fullPath] = $route;
             $this->routePatterns[$route->method][$fullPath] = $this->convertToRegex($fullPath);
+        }
+    }
+
+    private function sortRoutes(): void
+    {
+        foreach ($this->routes as $method => $routes) {
+            uasort($routes, function ($a, $b) {
+                $aPath = $a->path;
+                $bPath = $b->path;
+
+                // Catch-all routes (containing .*) should be last
+                $aIsCatchAll = str_contains($aPath, '.*');
+                $bIsCatchAll = str_contains($bPath, '.*');
+
+                if ($aIsCatchAll && !$bIsCatchAll) {
+                    return 1;  // a goes after b
+                }
+                if (!$aIsCatchAll && $bIsCatchAll) {
+                    return -1; // a goes before b
+                }
+
+                // If both are catch-all or both are specific, sort by specificity
+                // More specific routes (more slashes, fewer parameters) go first
+                $aSlashCount = substr_count($aPath, '/');
+                $bSlashCount = substr_count($bPath, '/');
+
+                if ($aSlashCount !== $bSlashCount) {
+                    return $bSlashCount <=> $aSlashCount; // More slashes first
+                }
+
+                // If same slash count, routes with fewer parameters are more specific
+                $aParamCount = substr_count($aPath, '{');
+                $bParamCount = substr_count($bPath, '{');
+
+                return $aParamCount <=> $bParamCount; // Fewer parameters first
+            });
+
+            $this->routes[$method] = $routes;
+
+            // Also sort the routePatterns to match
+            $sortedPatterns = [];
+            foreach ($routes as $path => $route) {
+                $sortedPatterns[$path] = $this->routePatterns[$method][$path];
+            }
+            $this->routePatterns[$method] = $sortedPatterns;
         }
     }
 

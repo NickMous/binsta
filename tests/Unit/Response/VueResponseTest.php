@@ -12,6 +12,7 @@ describe('VueResponse', function (): void {
         expect($response->content)->toBe("");
         expect($response->statusCode)->toBe(200);
         expect($response->headers)->toBe([]);
+        expect($response->props)->toBe([]);
     });
 
     test('creates vue response with component name', function (): void {
@@ -41,7 +42,7 @@ describe('VueResponse', function (): void {
 
     test('creates vue response with all parameters', function (): void {
         $headers = ['X-Component' => 'vue'];
-        $response = new VueResponse('UserSettings', 201, $headers);
+        $response = new VueResponse('UserSettings', statusCode: 201, headers: $headers);
 
         expect($response->componentName)->toBe('user-settings');
         expect($response->statusCode)->toBe(201);
@@ -79,5 +80,25 @@ describe('VueResponse', function (): void {
         $response = new VueResponse('Page404Error');
 
         expect($response->componentName)->toBe('page404-error');
+    });
+
+    test('creates vue response with props', function (): void {
+        $props = ['user' => '1', 'title' => 'Dashboard'];
+        $response = new VueResponse('Dashboard', props: $props);
+
+        expect($response->componentName)->toBe('dashboard');
+        expect($response->props)->toBe($props);
+        expect($response->statusCode)->toBe(200);
+    });
+
+    test('creates vue response with component name, props, status code and headers', function (): void {
+        $props = ['user' => '2', 'role' => 'admin'];
+        $headers = ['X-Component' => 'admin'];
+        $response = new VueResponse('AdminPanel', props: $props, statusCode: 201, headers: $headers);
+
+        expect($response->componentName)->toBe('admin-panel');
+        expect($response->props)->toBe($props);
+        expect($response->statusCode)->toBe(201);
+        expect($response->headers)->toBe($headers);
     });
 });

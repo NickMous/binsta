@@ -13,6 +13,8 @@ describe('UserRepository', function (): void {
 
         // Clear any existing test data
         \RedBeanPHP\R::wipe('user');
+
+        $this->userRepository = new UserRepository();
     });
 
     afterEach(function (): void {
@@ -23,11 +25,11 @@ describe('UserRepository', function (): void {
     describe('findById', function (): void {
         test('returns user when found', function (): void {
             // Create a test user
-            $user = UserRepository::create('John Doe', 'johndoe', 'john@example.com', 'password123');
+            $user = $this->userRepository->create('John Doe', 'johndoe', 'john@example.com', 'password123');
             $userId = $user->getId();
 
             // Find the user by ID
-            $foundUser = UserRepository::findById($userId);
+            $foundUser = $this->userRepository->findById($userId);
 
             expect($foundUser)->not->toBeNull();
             expect($foundUser->name)->toBe('John Doe');
@@ -35,13 +37,13 @@ describe('UserRepository', function (): void {
         });
 
         test('returns null when user not found', function (): void {
-            $foundUser = UserRepository::findById(999999);
+            $foundUser = $this->userRepository->findById(999999);
 
             expect($foundUser)->toBeNull();
         });
 
         test('returns null for non-existent ID', function (): void {
-            $foundUser = UserRepository::findById(0);
+            $foundUser = $this->userRepository->findById(0);
 
             expect($foundUser)->toBeNull();
         });
@@ -50,10 +52,10 @@ describe('UserRepository', function (): void {
     describe('findByUsername', function (): void {
         test('returns user when found by username', function (): void {
             // Create a test user
-            $user = UserRepository::create('John Doe', 'johndoe', 'john@example.com', 'password123');
+            $user = $this->userRepository->create('John Doe', 'johndoe', 'john@example.com', 'password123');
 
             // Find the user by username
-            $foundUser = UserRepository::findByUsername('johndoe');
+            $foundUser = $this->userRepository->findByUsername('johndoe');
 
             expect($foundUser)->not->toBeNull();
             expect($foundUser)->toBeInstanceOf(User::class);
@@ -64,16 +66,16 @@ describe('UserRepository', function (): void {
         });
 
         test('returns null when username not found', function (): void {
-            $foundUser = UserRepository::findByUsername('nonexistent');
+            $foundUser = $this->userRepository->findByUsername('nonexistent');
             expect($foundUser)->toBeNull();
         });
     });
 
     describe('findByEmail', function (): void {
         test('returns user when found by email', function (): void {
-            UserRepository::create('Jane Doe', 'janedoe', 'jane@example.com', 'password123');
+            $this->userRepository->create('Jane Doe', 'janedoe', 'jane@example.com', 'password123');
 
-            $foundUser = UserRepository::findByEmail('jane@example.com');
+            $foundUser = $this->userRepository->findByEmail('jane@example.com');
 
             expect($foundUser)->not->toBeNull();
             expect($foundUser->name)->toBe('Jane Doe');
@@ -81,7 +83,7 @@ describe('UserRepository', function (): void {
         });
 
         test('returns null when email not found', function (): void {
-            $foundUser = UserRepository::findByEmail('nonexistent@example.com');
+            $foundUser = $this->userRepository->findByEmail('nonexistent@example.com');
 
             expect($foundUser)->toBeNull();
         });
@@ -89,15 +91,15 @@ describe('UserRepository', function (): void {
 
     describe('emailExists', function (): void {
         test('returns true when email exists', function (): void {
-            UserRepository::create('Test User', 'testuser', 'test@example.com', 'password123');
+            $this->userRepository->create('Test User', 'testuser', 'test@example.com', 'password123');
 
-            $exists = UserRepository::emailExists('test@example.com');
+            $exists = $this->userRepository->emailExists('test@example.com');
 
             expect($exists)->toBeTrue();
         });
 
         test('returns false when email does not exist', function (): void {
-            $exists = UserRepository::emailExists('nonexistent@example.com');
+            $exists = $this->userRepository->emailExists('nonexistent@example.com');
 
             expect($exists)->toBeFalse();
         });
@@ -105,7 +107,7 @@ describe('UserRepository', function (): void {
 
     describe('create', function (): void {
         test('creates and saves a new user', function (): void {
-            $user = UserRepository::create('New User', 'newuser', 'new@example.com', 'password123');
+            $user = $this->userRepository->create('New User', 'newuser', 'new@example.com', 'password123');
 
             expect($user)->toBeInstanceOf(User::class);
             expect($user->getId())->not->toBeNull();
@@ -114,12 +116,12 @@ describe('UserRepository', function (): void {
             expect($user->createdAt)->not->toBeNull();
 
             // Verify it's actually saved to database
-            $foundUser = UserRepository::findByEmail('new@example.com');
+            $foundUser = $this->userRepository->findByEmail('new@example.com');
             expect($foundUser)->not->toBeNull();
         });
 
         test('automatically hashes password', function (): void {
-            $user = UserRepository::create('Password User', 'pwduser', 'pwd@example.com', 'plaintext');
+            $user = $this->userRepository->create('Password User', 'pwduser', 'pwd@example.com', 'plaintext');
 
             // Password should be hashed, not plain text
             expect($user->password)->not->toBe('plaintext');
@@ -129,11 +131,11 @@ describe('UserRepository', function (): void {
 
     describe('findByNameLike', function (): void {
         test('finds users with partial name match', function (): void {
-            UserRepository::create('John Smith', 'johnsmith', 'john.smith@example.com', 'password123');
-            UserRepository::create('John Doe', 'johndoe2', 'john.doe@example.com', 'password123');
-            UserRepository::create('Jane Doe', 'janedoe2', 'jane.doe@example.com', 'password123');
+            $this->userRepository->create('John Smith', 'johnsmith', 'john.smith@example.com', 'password123');
+            $this->userRepository->create('John Doe', 'johndoe2', 'john.doe@example.com', 'password123');
+            $this->userRepository->create('Jane Doe', 'janedoe2', 'jane.doe@example.com', 'password123');
 
-            $users = UserRepository::findByNameLike('John');
+            $users = $this->userRepository->findByNameLike('John');
 
             expect($users)->toHaveCount(2);
             expect($users[0]->name)->toMatch('/John/');
@@ -141,9 +143,9 @@ describe('UserRepository', function (): void {
         });
 
         test('returns empty array when no matches', function (): void {
-            UserRepository::create('Alice Cooper', 'alicecooper', 'alice@example.com', 'password123');
+            $this->userRepository->create('Alice Cooper', 'alicecooper', 'alice@example.com', 'password123');
 
-            $users = UserRepository::findByNameLike('Bob');
+            $users = $this->userRepository->findByNameLike('Bob');
 
             expect($users)->toBeEmpty();
         });
@@ -151,18 +153,18 @@ describe('UserRepository', function (): void {
 
     describe('findAll', function (): void {
         test('returns all users ordered by created_at DESC', function (): void {
-            $user1 = UserRepository::create('First User', 'firstuser', 'first@example.com', 'password123');
-            $user2 = UserRepository::create('Second User', 'seconduser', 'second@example.com', 'password123');
-            
+            $user1 = $this->userRepository->create('First User', 'firstuser', 'first@example.com', 'password123');
+            $user2 = $this->userRepository->create('Second User', 'seconduser', 'second@example.com', 'password123');
+
             // Set explicit timestamps to ensure proper ordering without using sleep()
             $user1->createdAt = new DateTime('2023-01-01 10:00:00');
             $user2->createdAt = new DateTime('2023-01-01 11:00:00');
-            
-            // Save the updated timestamps
-            UserRepository::save($user1);
-            UserRepository::save($user2);
 
-            $users = UserRepository::findAll();
+            // Save the updated timestamps
+            $this->userRepository->save($user1);
+            $this->userRepository->save($user2);
+
+            $users = $this->userRepository->findAll();
 
             expect($users)->toHaveCount(2);
             // Should be ordered by created_at DESC (newest first)
@@ -172,7 +174,7 @@ describe('UserRepository', function (): void {
 
 
         test('returns empty array when no users exist', function (): void {
-            $users = UserRepository::findAll();
+            $users = $this->userRepository->findAll();
 
             expect($users)->toBeEmpty();
         });
@@ -180,32 +182,32 @@ describe('UserRepository', function (): void {
 
     describe('count', function (): void {
         test('returns correct count of users', function (): void {
-            expect(UserRepository::count())->toBe(0);
+            expect($this->userRepository->count())->toBe(0);
 
-            UserRepository::create('User 1', 'user1', 'user1@example.com', 'password123');
-            expect(UserRepository::count())->toBe(1);
+            $this->userRepository->create('User 1', 'user1', 'user1@example.com', 'password123');
+            expect($this->userRepository->count())->toBe(1);
 
-            UserRepository::create('User 2', 'user2', 'user2@example.com', 'password123');
-            expect(UserRepository::count())->toBe(2);
+            $this->userRepository->create('User 2', 'user2', 'user2@example.com', 'password123');
+            expect($this->userRepository->count())->toBe(2);
         });
     });
 
     describe('findCreatedAfter', function (): void {
         test('finds users created after specified date', function (): void {
             // Create old user with explicit timestamp
-            $oldUser = UserRepository::create('Old User', 'olduser', 'old@example.com', 'password123');
+            $oldUser = $this->userRepository->create('Old User', 'olduser', 'old@example.com', 'password123');
             $oldUser->createdAt = new DateTime('2023-01-01 10:00:00');
-            UserRepository::save($oldUser);
+            $this->userRepository->save($oldUser);
 
             // Define a cutoff date between old and new users
             $afterDate = new DateTime('2023-01-01 10:30:00');
 
             // Create new user with timestamp after the cutoff
-            $newUser = UserRepository::create('New User', 'newuser2', 'new@example.com', 'password123');
+            $newUser = $this->userRepository->create('New User', 'newuser2', 'new@example.com', 'password123');
             $newUser->createdAt = new DateTime('2023-01-01 11:00:00');
-            UserRepository::save($newUser);
+            $this->userRepository->save($newUser);
 
-            $users = UserRepository::findCreatedAfter($afterDate);
+            $users = $this->userRepository->findCreatedAfter($afterDate);
 
             expect($users)->toHaveCount(1);
             expect($users[0]->name)->toBe('New User');
@@ -214,9 +216,9 @@ describe('UserRepository', function (): void {
         test('returns empty array when no users created after date', function (): void {
             $futureDate = new DateTime('+1 year');
 
-            UserRepository::create('Current User', 'currentuser', 'current@example.com', 'password123');
+            $this->userRepository->create('Current User', 'currentuser', 'current@example.com', 'password123');
 
-            $users = UserRepository::findCreatedAfter($futureDate);
+            $users = $this->userRepository->findCreatedAfter($futureDate);
 
             expect($users)->toBeEmpty();
         });
@@ -224,10 +226,10 @@ describe('UserRepository', function (): void {
 
     describe('update', function (): void {
         test('updates existing user fields', function (): void {
-            $user = UserRepository::create('Original Name', 'originalname', 'original@example.com', 'password123');
+            $user = $this->userRepository->create('Original Name', 'originalname', 'original@example.com', 'password123');
             $userId = $user->getId();
 
-            $updatedUser = UserRepository::update($userId, [
+            $updatedUser = $this->userRepository->update($userId, [
                 'name' => 'Updated Name',
                 'email' => 'updated@example.com'
             ]);
@@ -237,15 +239,15 @@ describe('UserRepository', function (): void {
             expect($updatedUser->email)->toBe('updated@example.com');
 
             // Verify changes persisted
-            $foundUser = UserRepository::findById($userId);
+            $foundUser = $this->userRepository->findById($userId);
             expect($foundUser->name)->toBe('Updated Name');
         });
 
         test('updates password and hashes it', function (): void {
-            $user = UserRepository::create('User', 'user', 'user@example.com', 'oldpassword');
+            $user = $this->userRepository->create('User', 'user', 'user@example.com', 'oldpassword');
             $userId = $user->getId();
 
-            $updatedUser = UserRepository::update($userId, [
+            $updatedUser = $this->userRepository->update($userId, [
                 'password' => 'newpassword'
             ]);
 
@@ -254,28 +256,28 @@ describe('UserRepository', function (): void {
         });
 
         test('returns null when user not found', function (): void {
-            $result = UserRepository::update(999999, ['name' => 'New Name']);
+            $result = $this->userRepository->update(999999, ['name' => 'New Name']);
 
             expect($result)->toBeNull();
         });
 
         test('only updates provided fields', function (): void {
-            $user = UserRepository::create('Original Name', 'originalname2', 'original2@example.com', 'password123');
+            $user = $this->userRepository->create('Original Name', 'originalname2', 'original2@example.com', 'password123');
             $userId = $user->getId();
             $originalEmail = $user->email;
 
-            UserRepository::update($userId, ['name' => 'Updated Name']);
+            $this->userRepository->update($userId, ['name' => 'Updated Name']);
 
-            $updatedUser = UserRepository::findById($userId);
+            $updatedUser = $this->userRepository->findById($userId);
             expect($updatedUser->name)->toBe('Updated Name');
             expect($updatedUser->email)->toBe($originalEmail); // Should remain unchanged
         });
 
         test('updates username field', function (): void {
-            $user = UserRepository::create('User Name', 'oldusername', 'user@example.com', 'password123');
+            $user = $this->userRepository->create('User Name', 'oldusername', 'user@example.com', 'password123');
             $userId = $user->getId();
 
-            $updatedUser = UserRepository::update($userId, [
+            $updatedUser = $this->userRepository->update($userId, [
                 'username' => 'newusername'
             ]);
 
@@ -283,15 +285,15 @@ describe('UserRepository', function (): void {
             expect($updatedUser->username)->toBe('newusername');
 
             // Verify changes persisted
-            $foundUser = UserRepository::findById($userId);
+            $foundUser = $this->userRepository->findById($userId);
             expect($foundUser->username)->toBe('newusername');
         });
 
         test('updates profile_picture field', function (): void {
-            $user = UserRepository::create('User Name', 'username', 'user@example.com', 'password123');
+            $user = $this->userRepository->create('User Name', 'username', 'user@example.com', 'password123');
             $userId = $user->getId();
 
-            $updatedUser = UserRepository::update($userId, [
+            $updatedUser = $this->userRepository->update($userId, [
                 'profile_picture' => 'avatar.jpg'
             ]);
 
@@ -299,24 +301,24 @@ describe('UserRepository', function (): void {
             expect($updatedUser->profilePicture)->toBe('avatar.jpg');
 
             // Verify changes persisted
-            $foundUser = UserRepository::findById($userId);
+            $foundUser = $this->userRepository->findById($userId);
             expect($foundUser->profilePicture)->toBe('avatar.jpg');
         });
     });
 
     describe('deleteById', function (): void {
         test('deletes existing user and returns true', function (): void {
-            $user = UserRepository::create('To Delete', 'todelete', 'delete@example.com', 'password123');
+            $user = $this->userRepository->create('To Delete', 'todelete', 'delete@example.com', 'password123');
             $userId = $user->getId();
 
-            $result = UserRepository::deleteById($userId);
+            $result = $this->userRepository->deleteById($userId);
 
             expect($result)->toBeTrue();
-            expect(UserRepository::findById($userId))->toBeNull();
+            expect($this->userRepository->findById($userId))->toBeNull();
         });
 
         test('returns false when user not found', function (): void {
-            $result = UserRepository::deleteById(999999);
+            $result = $this->userRepository->deleteById(999999);
 
             expect($result)->toBeFalse();
         });
@@ -324,32 +326,32 @@ describe('UserRepository', function (): void {
 
     describe('authenticate', function (): void {
         test('returns user when credentials are correct', function (): void {
-            UserRepository::create('Auth User', 'authuser', 'auth@example.com', 'correct-password');
+            $this->userRepository->create('Auth User', 'authuser', 'auth@example.com', 'correct-password');
 
-            $user = UserRepository::authenticate('auth@example.com', 'correct-password');
+            $user = $this->userRepository->authenticate('auth@example.com', 'correct-password');
 
             expect($user)->not->toBeNull();
             expect($user->name)->toBe('Auth User');
         });
 
         test('returns null when email not found', function (): void {
-            $user = UserRepository::authenticate('nonexistent@example.com', 'any-password');
+            $user = $this->userRepository->authenticate('nonexistent@example.com', 'any-password');
 
             expect($user)->toBeNull();
         });
 
         test('returns null when password is incorrect', function (): void {
-            UserRepository::create('Auth User', 'authuser2', 'auth2@example.com', 'correct-password');
+            $this->userRepository->create('Auth User', 'authuser2', 'auth2@example.com', 'correct-password');
 
-            $user = UserRepository::authenticate('auth2@example.com', 'wrong-password');
+            $user = $this->userRepository->authenticate('auth2@example.com', 'wrong-password');
 
             expect($user)->toBeNull();
         });
 
         test('returns null when email exists but password is empty', function (): void {
-            UserRepository::create('Auth User', 'authuser3', 'auth3@example.com', 'correct-password');
+            $this->userRepository->create('Auth User', 'authuser3', 'auth3@example.com', 'correct-password');
 
-            $user = UserRepository::authenticate('auth3@example.com', '');
+            $user = $this->userRepository->authenticate('auth3@example.com', '');
 
             expect($user)->toBeNull();
         });
@@ -358,19 +360,19 @@ describe('UserRepository', function (): void {
     describe('save', function (): void {
         test('saves user entity and returns it', function (): void {
             // Create a user
-            $user = UserRepository::create('Test User', 'testuser', 'test@example.com', 'password123');
+            $user = $this->userRepository->create('Test User', 'testuser', 'test@example.com', 'password123');
 
             // Modify the user
             $user->name = 'Modified Name';
 
             // Save the user
-            $savedUser = UserRepository::save($user);
+            $savedUser = $this->userRepository->save($user);
 
             expect($savedUser)->toBeInstanceOf(User::class);
             expect($savedUser->name)->toBe('Modified Name');
 
             // Verify changes persisted
-            $foundUser = UserRepository::findById($user->getId());
+            $foundUser = $this->userRepository->findById($user->getId());
             expect($foundUser->name)->toBe('Modified Name');
         });
     });

@@ -10,6 +10,8 @@ class VueResponse extends Response
         $this->componentName = strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', $value));
         }
         },
+        /** @var array<string, mixed> */
+        public array $props = [],
         int $statusCode = 200,
         array $headers = []
     ) {

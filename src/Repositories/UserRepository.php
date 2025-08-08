@@ -3,15 +3,17 @@
 namespace NickMous\Binsta\Repositories;
 
 use NickMous\Binsta\Entities\User;
+use NickMous\Binsta\Internals\Entities\Entity;
+use NickMous\Binsta\Internals\Repositories\BaseRepository;
 use RedBeanPHP\OODBBean;
 use RedBeanPHP\R;
 
-class UserRepository
+class UserRepository extends BaseRepository
 {
     /**
      * Find a user by ID
      */
-    public static function findById(int $id): ?User
+    public function findById(int $id): ?User
     {
         $bean = R::load(User::getTableName(), $id);
 
@@ -25,7 +27,7 @@ class UserRepository
     /**
      * Find a user by email
      */
-    public static function findByEmail(string $email): ?User
+    public function findByEmail(string $email): ?User
     {
         $bean = R::findOne(User::getTableName(), 'email = ?', [$email]);
 
@@ -39,7 +41,7 @@ class UserRepository
     /**
      * Find a user by username
      */
-    public static function findByUsername(string $username): ?User
+    public function findByUsername(string $username): ?User
     {
         $bean = R::findOne(User::getTableName(), 'username = ?', [$username]);
 
@@ -53,15 +55,15 @@ class UserRepository
     /**
      * Check if a user exists with the given email
      */
-    public static function emailExists(string $email): bool
+    public function emailExists(string $email): bool
     {
-        return self::findByEmail($email) !== null;
+        return $this->findByEmail($email) !== null;
     }
 
     /**
      * Create and save a new user
      */
-    public static function create(string $name, string $username, string $email, string $password): User
+    public function create(string $name, string $username, string $email, string $password): User
     {
         $user = User::create($name, $username, $email, $password);
         $user->save();
@@ -73,7 +75,7 @@ class UserRepository
      * Find users by name (partial match)
      * @return array<User>
      */
-    public static function findByNameLike(string $name): array
+    public function findByNameLike(string $name): array
     {
         $beans = R::find(User::getTableName(), 'name LIKE ?', ['%' . $name . '%']);
 
@@ -84,7 +86,7 @@ class UserRepository
      * Get all users
      * @return array<User>
      */
-    public static function findAll(): array
+    public function findAll(): array
     {
         $beans = R::find(User::getTableName(), 'ORDER BY created_at DESC');
 
@@ -94,7 +96,7 @@ class UserRepository
     /**
      * Count total users
      */
-    public static function count(): int
+    public function count(): int
     {
         return R::count(User::getTableName());
     }
@@ -103,7 +105,7 @@ class UserRepository
      * Find users created after a specific date
      * @return array<User>
      */
-    public static function findCreatedAfter(\DateTime $date): array
+    public function findCreatedAfter(\DateTime $date): array
     {
         $beans = R::find(
             User::getTableName(),
@@ -118,9 +120,9 @@ class UserRepository
      * Update user by ID
      * @param array<string, mixed> $data
      */
-    public static function update(int $id, array $data): ?User
+    public function update(int $id, array $data): ?User
     {
-        $user = self::findById($id);
+        $user = $this->findById($id);
 
         if ($user === null) {
             return null;
@@ -154,9 +156,9 @@ class UserRepository
     /**
      * Delete user by ID
      */
-    public static function deleteById(int $id): bool
+    public function deleteById(int $id): bool
     {
-        $user = self::findById($id);
+        $user = $this->findById($id);
 
         if ($user === null) {
             return false;
@@ -169,7 +171,7 @@ class UserRepository
     /**
      * Save a user entity
      */
-    public static function save(User $user): User
+    public function save(User $user): User
     {
         $user->save();
         return $user;
@@ -178,12 +180,30 @@ class UserRepository
     /**
      * Authenticate user by email and password
      */
-    public static function authenticate(string $email, string $password): ?User
+    public function authenticate(string $email, string $password): ?User
     {
-        $user = self::findByEmail($email);
+        $user = $this->findByEmail($email);
 
         if ($user === null || !$user->verifyPassword($password)) {
             return null;
+        }
+
+        return $user;
+    }
+
+    public function getEntityByParameter(string $parameterValue): Entity
+    {
+        if (is_numeric($parameterValue)) {
+            $user = $this->findById((int)$parameterValue);
+            if ($user !== null) {
+                return $user;
+            }
+        }
+
+        $user = $this->findByUsername($parameterValue) ?? $this->findByEmail($parameterValue);
+
+        if ($user === null) {
+            throw new \InvalidArgumentException("User not found for parameter: $parameterValue");
         }
 
         return $user;

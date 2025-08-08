@@ -4,7 +4,7 @@ namespace NickMous\Binsta\Entities;
 
 use DateTime;
 use NickMous\Binsta\Internals\Entities\Entity;
-use RedBeanPHP\OODBBean;
+use NickMous\Binsta\Repositories\UserRepository;
 
 class User extends Entity
 {
@@ -180,5 +180,10 @@ class User extends Entity
         }
 
         return $data;
+    }
+
+    public function getRepository(): string
+    {
+        return UserRepository::class;
     }
 }

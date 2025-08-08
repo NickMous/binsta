@@ -42,7 +42,7 @@ describe('RegisterRequest', function (): void {
         // Set up basic server environment for Request constructor
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_SERVER['CONTENT_TYPE'] = 'application/json';
-        
+
         // Initialize database for feature tests
         new Kernel()->init();
         DatabaseManager::instantiate();
@@ -53,7 +53,7 @@ describe('RegisterRequest', function (): void {
         \RedBeanPHP\R::nuke();
         \RedBeanPHP\R::close();
         DatabaseManager::reset();
-        
+
         // Clean up server environment
         unset($_SERVER['REQUEST_METHOD']);
         unset($_SERVER['CONTENT_TYPE']);

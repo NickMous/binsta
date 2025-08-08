@@ -14,6 +14,10 @@ use NickMous\Binsta\Requests\Profile\UploadProfilePictureRequest;
 
 class ProfileController extends BaseController
 {
+    public function __construct(
+        private readonly UserRepository $userRepository
+    ) {
+    }
     public function show(): Response
     {
         $user = $this->getCurrentUser();
@@ -36,7 +40,7 @@ class ProfileController extends BaseController
 
         if ($request->has('username')) {
             // Check if username is already taken by another user
-            $existingUser = UserRepository::findByUsername($request->get('username'));
+            $existingUser = $this->userRepository->findByUsername($request->get('username'));
             if ($existingUser && $existingUser->getId() !== $user->getId()) {
                 throw new ValidationFailedException(
                     ['username' => ['Username is already taken']],
@@ -48,7 +52,7 @@ class ProfileController extends BaseController
 
         if ($request->has('email')) {
             // Check if email is already taken by another user
-            $existingUser = UserRepository::findByEmail($request->get('email'));
+            $existingUser = $this->userRepository->findByEmail($request->get('email'));
             if ($existingUser && $existingUser->getId() !== $user->getId()) {
                 throw new ValidationFailedException(
                     ['email' => ['Email is already taken']],
@@ -62,7 +66,7 @@ class ProfileController extends BaseController
             $user->biography = $request->get('biography');
         }
 
-        UserRepository::save($user);
+        $this->userRepository->save($user);
 
         return new JsonResponse([
             'message' => 'Profile updated successfully',
@@ -86,7 +90,7 @@ class ProfileController extends BaseController
 
         // Update password
         $user->password = $request->get('new_password');
-        UserRepository::save($user);
+        $this->userRepository->save($user);
 
         return new JsonResponse([
             'message' => 'Password changed successfully'
@@ -156,7 +160,7 @@ class ProfileController extends BaseController
 
         // Update user profile picture
         $user->profilePicture = '/uploads/profiles/' . $filename;
-        UserRepository::save($user);
+        $this->userRepository->save($user);
 
         return new JsonResponse([
             'message' => 'Profile picture uploaded successfully',
@@ -175,7 +179,7 @@ class ProfileController extends BaseController
             );
         }
 
-        $user = UserRepository::findById((int) $userId);
+        $user = $this->userRepository->findById((int) $userId);
 
         if (!$user) {
             throw new ValidationFailedException(

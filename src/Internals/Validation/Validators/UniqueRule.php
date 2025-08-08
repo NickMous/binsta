@@ -20,7 +20,7 @@ class UniqueRule implements ValidationRule, ParameterizedValidationRule
     {
         $this->table = $parameters[0] ?? '';
         $this->field = $parameters[1] ?? '';
-        
+
         // Validate table and field names contain only safe characters
         $this->validateIdentifier($this->table);
         $this->validateIdentifier($this->field);
@@ -54,7 +54,7 @@ class UniqueRule implements ValidationRule, ParameterizedValidationRule
 
     /**
      * Validate that an identifier (table or field name) contains only safe characters
-     * 
+     *
      * @param string $identifier The identifier to validate
      * @throws \InvalidArgumentException If the identifier contains unsafe characters
      */
@@ -63,7 +63,7 @@ class UniqueRule implements ValidationRule, ParameterizedValidationRule
         if (empty($identifier)) {
             return;
         }
-        
+
         // Allow only alphanumeric characters and underscores
         if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $identifier)) {
             throw new \InvalidArgumentException(

@@ -2,6 +2,7 @@
 
 use NickMous\Binsta\Controllers\AuthController;
 use NickMous\Binsta\Entities\User;
+use NickMous\Binsta\Internals\DependencyInjection\InjectionContainer;
 use NickMous\Binsta\Requests\Auth\LoginRequest;
 use NickMous\Binsta\Requests\Auth\RegisterRequest;
 
@@ -25,7 +26,7 @@ describe('AuthController', function (): void {
             $mockUser = $this->createMock(User::class);
             $mockUser->method('getId')->willReturn(123);
 
-            $controller = new AuthController();
+            $controller = InjectionContainer::getInstance()->get(AuthController::class);
 
             // Use reflection to access the protected method
             $reflection = new ReflectionClass($controller);
@@ -45,7 +46,7 @@ describe('AuthController', function (): void {
             $mockUser = $this->createMock(User::class);
             $mockUser->method('getId')->willReturn(789);
 
-            $controller = new AuthController();
+            $controller = InjectionContainer::getInstance()->get(AuthController::class);
 
             // Use reflection to access the protected method
             $reflection = new ReflectionClass($controller);
@@ -63,7 +64,7 @@ describe('AuthController', function (): void {
             $mockUser = $this->createMock(User::class);
             $mockUser->method('getId')->willReturn(null);
 
-            $controller = new AuthController();
+            $controller = InjectionContainer::getInstance()->get(AuthController::class);
 
             // Use reflection to access the protected method
             $reflection = new ReflectionClass($controller);
@@ -80,7 +81,7 @@ describe('AuthController', function (): void {
 
     describe('method signatures and inheritance', function (): void {
         test('extends BaseController', function (): void {
-            $controller = new AuthController();
+            $controller = InjectionContainer::getInstance()->get(AuthController::class);
             expect($controller)->toBeInstanceOf(\NickMous\Binsta\Internals\BaseController::class);
         });
 
@@ -147,7 +148,7 @@ describe('AuthController', function (): void {
 
     describe('class structure', function (): void {
         test('class exists and is instantiable', function (): void {
-            $controller = new AuthController();
+            $controller = InjectionContainer::getInstance()->get(AuthController::class);
             expect($controller)->toBeInstanceOf(AuthController::class);
         });
 

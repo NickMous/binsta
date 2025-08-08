@@ -53,12 +53,12 @@ class Kernel
             return "$baseDir/.env.ci";
         }
 
-        if ($this->isDDEV() && file_exists("$baseDir/.env.ddev")) {
-            return "$baseDir/.env.ddev";
-        }
-
         if ($this->isTesting() && file_exists("$baseDir/.env.testing")) {
             return "$baseDir/.env.testing";
+        }
+
+        if ($this->isDDEV() && file_exists("$baseDir/.env.ddev")) {
+            return "$baseDir/.env.ddev";
         }
 
         // 3. Fallback to local development files

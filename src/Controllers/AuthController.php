@@ -13,11 +13,16 @@ use NickMous\Binsta\Requests\Auth\RegisterRequest;
 
 class AuthController extends BaseController
 {
+    public function __construct(
+        private readonly UserRepository $userRepository
+    ) {
+    }
+
     public function login(LoginRequest $request): Response
     {
         $request->validate(true);
 
-        $user = UserRepository::authenticate(
+        $user = $this->userRepository->authenticate(
             $request->get('email'),
             $request->get('password')
         );
@@ -46,7 +51,7 @@ class AuthController extends BaseController
     {
         $request->validate(true);
 
-        $user = UserRepository::create(
+        $user = $this->userRepository->create(
             $request->get('name'),
             $request->get('username'),
             $request->get('email'),

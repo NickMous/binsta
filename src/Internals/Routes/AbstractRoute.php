@@ -7,7 +7,6 @@ use NickMous\Binsta\Internals\DependencyInjection\InjectionContainer;
 use NickMous\Binsta\Internals\Exceptions\Response\InvalidResponseException;
 use NickMous\Binsta\Internals\Exceptions\Validation\ValidationFailedException;
 use NickMous\Binsta\Internals\Response\Response;
-use NickMous\Binsta\Internals\Services\InjectionService;
 use RuntimeException;
 
 abstract class AbstractRoute
@@ -68,7 +67,10 @@ abstract class AbstractRoute
             throw new RuntimeException("Method {$this->methodName} does not exist in class {$this->className}.");
         }
 
-        $response = InjectionContainer::getInstance()->execute($this->className, $this->methodName);
+        // Get route parameters from global scope (set by ControllerService)
+        $routeParameters = $GLOBALS['route_parameters'] ?? [];
+
+        $response = InjectionContainer::getInstance()->execute($this->className, $this->methodName, $routeParameters);
 
         if ($response instanceof Response) {
             return $response;

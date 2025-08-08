@@ -25,6 +25,19 @@ abstract class Entity
     abstract public static function getTableName(): string;
 
     /**
+     * Get the repository class for this entity
+     */
+    abstract public function getRepository(): string;
+
+    /**
+     * Get the repository class for this entity (static version)
+     */
+    public static function getRepositoryClass(): string
+    {
+        return new static()->getRepository(); // @phpstan-ignore-line
+    }
+
+    /**
      * Get the entity ID (null if not yet saved)
      */
     public function getId(): ?int

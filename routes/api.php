@@ -2,6 +2,7 @@
 
 use NickMous\Binsta\Controllers\AuthController;
 use NickMous\Binsta\Controllers\ProfileController;
+use NickMous\Binsta\Controllers\UserController;
 use NickMous\Binsta\Internals\Response\VueResponse;
 use NickMous\Binsta\Internals\Routes\Route;
 
@@ -19,6 +20,9 @@ return [
             Route::put('/', className: ProfileController::class, methodName: 'update'),
             Route::put('/password', className: ProfileController::class, methodName: 'changePassword'),
             Route::post('/picture', className: ProfileController::class, methodName: 'uploadProfilePicture'),
+        ]),
+        Route::group('/users', [
+            Route::get('/{user:\d+}', className: UserController::class, methodName: 'show'),
         ]),
     ]),
 ];

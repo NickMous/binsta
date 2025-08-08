@@ -2,6 +2,7 @@
 
 namespace NickMous\Binsta\Internals\DependencyInjection;
 
+use NickMous\Binsta\Internals\Entities\Entity;
 use NickMous\Binsta\Internals\Exceptions\DependencyInjection\DuplicatePrioritySetException;
 use NickMous\Binsta\Internals\Exceptions\DependencyInjection\NoClassFoundException;
 use NickMous\Binsta\Internals\Exceptions\DependencyInjection\NoPrioritySetException;
@@ -70,9 +71,9 @@ class InjectionContainer
     }
 
     /**
-     * @param array<mixed> $args
+     * @param array<string, mixed> $routeParameters
      */
-    public function execute(string $class, string $method, array $args = []): mixed
+    public function execute(string $class, string $method, array $routeParameters = []): mixed
     {
         $correctClass = $this->getCorrectClass($class);
         $instance = $this->get($class);
@@ -81,10 +82,7 @@ class InjectionContainer
             throw new \BadMethodCallException("Method {$method} does not exist in class {$class}");
         }
 
-        $arguments = $this->getArguments($correctClass, $method);
-        $argumentsInstantiated = array_map(function ($arg) {
-            return $this->get($arg);
-        }, $arguments);
+        $argumentsInstantiated = $this->resolveMethodArguments($correctClass, $method, $routeParameters);
 
         return $instance->{$method}(...$argumentsInstantiated);
     }
@@ -252,5 +250,65 @@ class InjectionContainer
 
         $this->methods[$class][$methodName] = $arguments;
         return $arguments;
+    }
+
+    /**
+     * Resolve method arguments with both dependency injection and route parameter resolution
+     * @param string $class
+     * @param string $methodName
+     * @param array<string, mixed> $routeParameters
+     * @return array<mixed>
+     * @throws ReflectionException
+     */
+    private function resolveMethodArguments(string $class, string $methodName, array $routeParameters = []): array
+    {
+        $reflectionClass = new ReflectionClass($class);
+
+        if (!$reflectionClass->hasMethod($methodName)) {
+            return [];
+        }
+
+        $method = $reflectionClass->getMethod($methodName);
+        $arguments = [];
+
+        foreach ($method->getParameters() as $parameter) {
+            $parameterName = $parameter->getName();
+            $type = $parameter->getType();
+
+            // Check if there's a route parameter matching this parameter name
+            if (array_key_exists($parameterName, $routeParameters)) {
+                // If the parameter has an Entity type hint, resolve the entity from the route parameter
+                if ($type instanceof ReflectionNamedType && is_subclass_of($type->getName(), Entity::class)) {
+                    $arguments[] = $this->resolveEntityFromParameter($type->getName(), (string)$routeParameters[$parameterName]);
+                } else {
+                    // Use the route parameter value directly
+                    $arguments[] = $routeParameters[$parameterName];
+                }
+            } elseif ($type instanceof ReflectionNamedType) {
+                // Standard dependency injection for classes
+                $arguments[] = $this->get($type->getName());
+            } elseif ($parameter->isDefaultValueAvailable()) {
+                // Use default value if available
+                $arguments[] = $parameter->getDefaultValue();
+            } else {
+                throw new NoTypesException($class, $parameter);
+            }
+        }
+
+        return $arguments;
+    }
+
+    /**
+     * Resolve an entity from a route parameter value
+     * @param string $entityClass
+     * @param string $parameterValue
+     * @return Entity
+     * @throws ReflectionException
+     */
+    private function resolveEntityFromParameter(string $entityClass, string $parameterValue): Entity
+    {
+        $repositoryClass = $entityClass::getRepositoryClass();
+
+        return $this->get($repositoryClass)->getEntityByParameter($parameterValue);
     }
 }

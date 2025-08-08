@@ -11,6 +11,8 @@ class ViteService
     private const string DEV_MANIFEST_FILE = __DIR__ . '/../../../public/dist/.vite/dev-manifest.json';
     public function process(VueResponse $vueResponse): VueResponse
     {
+        $attributes = $this->buildComponentAttributes($vueResponse->props);
+
         $content = <<<HTML
         <!doctype html>
         <html lang="en">
@@ -23,7 +25,8 @@ class ViteService
         </head>
         <body>
         <div id="app">
-            <{$vueResponse->componentName}></{$vueResponse->componentName}>
+            <{$vueResponse->componentName}{$attributes}>
+            </{$vueResponse->componentName}>
         </div>
         </body>
         </html>
@@ -32,6 +35,23 @@ class ViteService
         $vueResponse->content = $content;
 
         return $vueResponse;
+    }
+
+    /**
+     * @param array<string, mixed> $props
+     */
+    private function buildComponentAttributes(array $props): string
+    {
+        if (empty($props)) {
+            return '';
+        }
+
+        $attributes = [];
+        foreach ($props as $key => $value) {
+            $attributes[] = $key . '="' . htmlspecialchars((string) $value, ENT_QUOTES) . '"';
+        }
+
+        return ' ' . implode(' ', $attributes);
     }
 
     // @codeCoverageIgnoreStart

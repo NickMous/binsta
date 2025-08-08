@@ -109,7 +109,8 @@ it('renders a vue response correctly', function (): void {
     $output = ob_get_clean();
 
     expect($output)->toBeString()
-        ->and($output)->toContain('<hello-world></hello-world>');
+        ->and($output)->toContain('<hello-world>')
+        ->and($output)->toContain('</hello-world>');
 });
 
 it('throws an exception when the content is empty', function (): void {
