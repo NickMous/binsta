@@ -2,6 +2,8 @@
 
 use NickMous\Binsta\Controllers\ProfileController;
 use NickMous\Binsta\Entities\User;
+use NickMous\Binsta\Internals\DependencyInjection\InjectionContainer;
+use NickMous\Binsta\Internals\Exceptions\Validation\ValidationFailedException;
 use NickMous\Binsta\Requests\Profile\UpdateProfileRequest;
 use NickMous\Binsta\Requests\Profile\ChangePasswordRequest;
 use NickMous\Binsta\Requests\Profile\UploadProfilePictureRequest;
@@ -23,14 +25,16 @@ describe('ProfileController', function (): void {
     });
 
     test('show method exists and handles unauthenticated user', function (): void {
-        $controller = new ProfileController();
+        /** @var ProfileController $controller */
+        $controller = InjectionContainer::getInstance()->get(ProfileController::class);
 
         expect(fn() => $controller->show())
-            ->toThrow(\NickMous\Binsta\Internals\Exceptions\Validation\ValidationFailedException::class);
+            ->toThrow(ValidationFailedException::class);
     });
 
     test('update method exists and handles unauthenticated user', function (): void {
-        $controller = new ProfileController();
+        /** @var ProfileController $controller */
+        $controller = InjectionContainer::getInstance()->get(ProfileController::class);
         $request = new UpdateProfileRequest();
 
         expect(fn() => $controller->update($request))
@@ -38,7 +42,8 @@ describe('ProfileController', function (): void {
     });
 
     test('changePassword method exists and handles unauthenticated user', function (): void {
-        $controller = new ProfileController();
+        /** @var ProfileController $controller */
+        $controller = InjectionContainer::getInstance()->get(ProfileController::class);
         $request = new ChangePasswordRequest();
 
         expect(fn() => $controller->changePassword($request))
@@ -46,7 +51,8 @@ describe('ProfileController', function (): void {
     });
 
     test('uploadProfilePicture method exists and handles unauthenticated user', function (): void {
-        $controller = new ProfileController();
+        /** @var ProfileController $controller */
+        $controller = InjectionContainer::getInstance()->get(ProfileController::class);
         $request = new UploadProfilePictureRequest();
 
         expect(fn() => $controller->uploadProfilePicture($request))

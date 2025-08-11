@@ -82,7 +82,7 @@ class ControllerService
                 $this->routePatterns[$route->method] = [];
             }
 
-            $fullPath = $prefix . $route->path;
+            $fullPath = rtrim($prefix . $route->path, '/') ?: '/';
             $this->routes[$route->method][$fullPath] = $route;
             $this->routePatterns[$route->method][$fullPath] = $this->convertToRegex($fullPath);
         }

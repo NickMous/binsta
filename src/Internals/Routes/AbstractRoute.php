@@ -62,7 +62,7 @@ abstract class AbstractRoute
             throw new RuntimeException('Class name or method name is not set for this route.');
         }
 
-        $class = new $this->className();
+        $class = InjectionContainer::getInstance()->get($this->className);
         if (!method_exists($class, $this->methodName)) {
             throw new RuntimeException("Method {$this->methodName} does not exist in class {$this->className}.");
         }

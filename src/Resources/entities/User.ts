@@ -1,3 +1,5 @@
+import {useUserStore} from "@/stores/UserStore.ts";
+
 export interface UserApiResponse {
     id: string | number;
     name: string;
@@ -110,6 +112,22 @@ export class User {
                this.profilePicture === other.profilePicture &&
                this.biography === other.biography;
     }
+}
+
+export function refreshUser(): IUser {
+    const userStore = useUserStore();
+
+    fetch(`/api/users/${userStore.getId}`)
+        .then(response => response.json())
+        .then(data => {
+            userStore.setUser(data)
+        })
+        .catch(error => {
+            console.error('Failed to fetch user:', error)
+            userStore.clearUser()
+        });
+
+    return userStore.getUser;
 }
 
 export interface IUser {

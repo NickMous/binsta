@@ -21,8 +21,8 @@ class Request
             $this->parameters[$key] = $value;
         }
 
-        // Handle JSON POST data
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Handle JSON data for POST, PUT, PATCH requests
+        if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'PATCH'])) {
             $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
 
             if (str_contains($contentType, 'application/json')) {
@@ -32,7 +32,7 @@ class Request
                         $this->parameters[$key] = $value;
                     }
                 }
-            } else {
+            } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Store regular POST parameters (POST takes precedence over GET)
                 foreach ($_POST as $key => $value) {
                     $this->parameters[$key] = $value;
@@ -117,6 +117,17 @@ class Request
 
             if (is_string($rules)) {
                 $rules = explode('|', $rules);
+            }
+
+            // Check if 'sometimes' rule is present
+            $hasSometimes = in_array('sometimes', $rules);
+            if ($hasSometimes) {
+                // If field is not present and has 'sometimes', skip validation entirely
+                if (!$this->has($field) && !isset($_FILES[$field])) {
+                    continue;
+                }
+                // Remove 'sometimes' from rules array as it doesn't need actual validation
+                $rules = array_filter($rules, fn($rule) => $rule !== 'sometimes');
             }
 
             foreach ($rules as $rule) {

@@ -53,6 +53,7 @@ export const useUserStore = defineStore('user', {
             this.createdAt = user.createdAt;
             this.updatedAt = user.updatedAt;
             this.isAuthenticated = true;
+            this.persistUser();
         },
         setUserFromApiResponse(data: UserApiResponse) {
             const user = User.fromApiResponse(data);

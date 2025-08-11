@@ -134,12 +134,12 @@ class User extends Entity
             return;
         }
 
-        $this->bean->name = $this->name;
-        $this->bean->username = $this->username;
-        $this->bean->email = $this->email;
+        $this->bean->name = $this->name ?? '';
+        $this->bean->username = $this->username ?? '';
+        $this->bean->email = $this->email ?? '';
         $this->bean->profile_picture = (string) $this->profilePicture;
-        $this->bean->biography = $this->biography;
-        $this->bean->password = $this->password;
+        $this->bean->biography = $this->biography ?? '';
+        $this->bean->password = $this->password ?? '';
 
         // Set timestamps
         if ($this->createdAt !== null) {

@@ -17,7 +17,7 @@ class UpdateProfileRequest extends Request implements HasValidation, HasTransfor
             'name' => 'sometimes|required|string|max:255',
             'username' => 'sometimes|required|string|regex:/^[a-zA-Z0-9_]+$/|min:3|max:20',
             'email' => 'sometimes|required|email|max:255',
-            'biography' => 'sometimes|nullable|string|max:500',
+            'biography' => 'sometimes|string|max:500',
         ];
     }
 

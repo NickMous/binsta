@@ -29,7 +29,7 @@ class AuthController extends BaseController
 
         if ($user === null) {
             throw new ValidationFailedException(
-                ['email' => ['Invalid email or password']],
+                ['email' => 'Invalid email or password'],
                 true
             );
         }
