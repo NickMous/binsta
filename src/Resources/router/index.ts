@@ -64,7 +64,7 @@ const router = createRouter({
 })
 
 // Route guards for authentication
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   const userStore = useUserStore()
   
   // Check if route requires authentication
