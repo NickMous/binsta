@@ -208,4 +208,16 @@ class UserRepository extends BaseRepository
 
         return $user;
     }
+
+    /**
+     * Search for users by name or username
+     * @return User[]|null
+     */
+    public function searchFor(string $query): ?array
+    {
+        $query = '%' . $query . '%';
+        $beans = R::find(User::getTableName(), 'name LIKE ? OR username LIKE ? OR email LIKE ? LIMIT 5', [$query, $query, $query]);
+
+        return array_values(array_map(static fn(OODBBean $bean) => new User($bean), $beans));
+    }
 }

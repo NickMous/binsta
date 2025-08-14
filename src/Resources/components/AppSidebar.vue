@@ -1,12 +1,19 @@
 <script setup lang="ts">
-import type {SidebarProps} from '@/components/ui/sidebar'
-import {Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail,} from '@/components/ui/sidebar'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  type SidebarProps,
+  SidebarRail
+} from '@/components/ui/sidebar'
 
 import {BookOpen, Bot, Frame, Map, PieChart, Settings2, SquareTerminal,} from 'lucide-vue-next'
 import NavMain from '@/components/NavMain.vue'
 import NavProjects from '@/components/NavProjects.vue'
 import NavUser from '@/components/NavUser.vue'
 import TeamSwitcher from '@/components/TeamSwitcher.vue'
+import SearchBar from "@/components/SearchBar.vue";
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: 'icon',
@@ -127,6 +134,7 @@ const data = {
       <TeamSwitcher />
     </SidebarHeader>
     <SidebarContent>
+      <SearchBar />
       <NavMain :items="data.navMain" />
       <NavProjects :projects="data.projects" />
     </SidebarContent>

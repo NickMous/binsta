@@ -2,6 +2,7 @@
 
 use NickMous\Binsta\Controllers\AuthController;
 use NickMous\Binsta\Controllers\ProfileController;
+use NickMous\Binsta\Controllers\SearchController;
 use NickMous\Binsta\Controllers\UserController;
 use NickMous\Binsta\Internals\Response\VueResponse;
 use NickMous\Binsta\Internals\Routes\Route;
@@ -24,5 +25,6 @@ return [
         Route::group('/users', [
             Route::get('/{user:\d+}', className: UserController::class, methodName: 'show'),
         ]),
+        Route::get('/search/{query}', className: SearchController::class, methodName: 'search'),
     ]),
 ];
