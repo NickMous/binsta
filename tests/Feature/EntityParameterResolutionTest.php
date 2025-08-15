@@ -1,6 +1,7 @@
 <?php
 
 use NickMous\Binsta\Entities\User;
+use NickMous\Binsta\Internals\Exceptions\EntityNotFoundException;
 use NickMous\Binsta\Internals\Services\ControllerService;
 use NickMous\Binsta\Kernel;
 use NickMous\Binsta\Repositories\UserRepository;
@@ -46,13 +47,25 @@ describe('Entity Parameter Resolution', function (): void {
             ->and($responseData['email'])->toBe('test@example.com');
     });
 
-    test('throws exception when entity not found for route parameter', function (): void {
+    test('returns 404 JSON response when entity not found for route parameter', function (): void {
         // Create controller service with actual routes
         $controllerService = new ControllerService(__DIR__ . '/../Datasets/entity-test-routes.php');
 
-        // Test with non-existent user ID - expect exception to be thrown
-        expect(function () use ($controllerService): void {
-            $controllerService->callRoute('/api/users/999999', 'GET');
-        })->toThrow(\InvalidArgumentException::class, 'User not found for parameter: 999999');
+        // Test with non-existent user ID - expect 404 JSON response
+        ob_start();
+        $controllerService->callRoute('/api/users/999999', 'GET');
+        $output = ob_get_clean();
+
+        // Verify the response is a 404 JSON response
+        $responseData = json_decode($output, true);
+
+        expect($responseData)->toBeArray()
+            ->and($responseData)->toHaveKey('error')
+            ->and($responseData)->toHaveKey('message')
+            ->and($responseData['error'])->toBe('Not Found')
+            ->and($responseData['message'])->toBe('User not found for parameter: 999999');
+
+        // Verify the HTTP status code was set to 404
+        expect(http_response_code())->toBe(404);
     });
 });

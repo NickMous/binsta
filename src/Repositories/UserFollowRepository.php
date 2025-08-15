@@ -3,6 +3,7 @@
 namespace NickMous\Binsta\Repositories;
 
 use NickMous\Binsta\Entities\UserFollow;
+use NickMous\Binsta\Internals\Exceptions\EntityNotFoundException;
 use NickMous\Binsta\Internals\Entities\Entity;
 use NickMous\Binsta\Internals\Repositories\BaseRepository;
 use RedBeanPHP\OODBBean;
@@ -162,6 +163,6 @@ class UserFollowRepository extends BaseRepository
             }
         }
 
-        throw new \InvalidArgumentException("UserFollow not found for parameter: $parameterValue");
+        throw new EntityNotFoundException('UserFollow', $parameterValue);
     }
 }

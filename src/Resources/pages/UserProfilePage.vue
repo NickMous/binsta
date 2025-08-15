@@ -6,23 +6,43 @@ import {User, type UserApiResponse} from "@/entities/User.ts";
 import {Skeleton} from "@/components/ui/skeleton";
 import {Button} from "@/components/ui/button";
 import {useUserStore} from "@/stores/UserStore.ts";
+import {useBreadcrumbStore} from "@/stores/BreadcrumbStore.ts";
 
 const route = useRoute()
+const breadcrumbStore = useBreadcrumbStore();
 const userStore = useUserStore();
 const username = route.params.username as string;
+
+breadcrumbStore.replaceBreadcrumbs([
+  {
+    name: 'Users',
+    path: '/users',
+  },
+  {
+    name: username,
+    path: '/users/' + username,
+  }
+])
 
 const userData = ref<User | null>(null);
 const followsUser = ref(false);
 const userStats = ref<{followers_count: number, following_count: number} | null>(null);
 const isLoading = ref(true);
+const error = ref<string | null>(null);
 
 async function fetchUserData() {
   try {
     isLoading.value = true;
+    error.value = null;
     const response = await fetch(`/api/users/${username}`);
     
     if (!response.ok) {
-      throw new Error("User not found");
+      if (response.status === 404) {
+        error.value = `User "${username}" not found`;
+      } else {
+        error.value = "Failed to load user profile";
+      }
+      return;
     }
     
     const data = await response.json();
@@ -32,8 +52,9 @@ async function fetchUserData() {
       fetchUserFollowStatus(),
       fetchUserStatistics()
     ]);
-  } catch (error) {
-    console.error("Error fetching user data:", error);
+  } catch (err) {
+    console.error("Error fetching user data:", err);
+    error.value = "An unexpected error occurred while loading the user profile";
   } finally {
     isLoading.value = false;
   }
@@ -101,7 +122,27 @@ async function unfollowUser() {
 </script>
 
 <template>
-  <div class="grid auto-rows-min gap-4 md:grid-cols-3">
+  <!-- Error State -->
+  <div v-if="error && !isLoading" class="flex flex-col items-center justify-center py-12">
+    <div class="text-center">
+      <div class="text-6xl mb-4">😕</div>
+      <h2 class="text-2xl font-bold text-gray-800 mb-2">Oops!</h2>
+      <p class="text-gray-600 mb-4">{{ error }}</p>
+      <div class="flex gap-3 justify-center">
+        <Button variant="outline" @click="fetchUserData">
+          Try Again
+        </Button>
+        <Button as-child>
+          <RouterLink to="/">
+            Go to Home
+          </RouterLink>
+        </Button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Normal Profile Content -->
+  <div v-else class="grid auto-rows-min gap-4 md:grid-cols-3">
     <div class="flex justify-end items-center w-full">
       <Skeleton v-if="userData === null" class="relative flex shrink-0 overflow-hidden rounded-full size-20"/>
       <Avatar v-else-if="userData" class="size-20">

@@ -32,6 +32,12 @@ const routes = [
         name: 'user-profile',
         component: () => import('@/pages/UserProfilePage.vue'),
         meta: {layout: 'app', requiresAuth: false}
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'not-found',
+        component: () => import('@/pages/NotFoundPage.vue'),
+        meta: {layout: 'app', requiresAuth: false}
     }
 ]
 

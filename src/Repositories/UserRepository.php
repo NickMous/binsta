@@ -3,6 +3,7 @@
 namespace NickMous\Binsta\Repositories;
 
 use NickMous\Binsta\Entities\User;
+use NickMous\Binsta\Internals\Exceptions\EntityNotFoundException;
 use NickMous\Binsta\Internals\Entities\Entity;
 use NickMous\Binsta\Internals\Repositories\BaseRepository;
 use RedBeanPHP\OODBBean;
@@ -203,7 +204,7 @@ class UserRepository extends BaseRepository
         $user = $this->findByUsername($parameterValue) ?? $this->findByEmail($parameterValue);
 
         if ($user === null) {
-            throw new \InvalidArgumentException("User not found for parameter: $parameterValue");
+            throw new EntityNotFoundException('User', $parameterValue);
         }
 
         return $user;

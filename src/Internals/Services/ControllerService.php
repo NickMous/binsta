@@ -6,6 +6,7 @@ use NickMous\Binsta\Internals\Exceptions\InvalidRouteFileGiven;
 use NickMous\Binsta\Internals\Exceptions\Response\InvalidResponseException;
 use NickMous\Binsta\Internals\Exceptions\Route\InvalidRouteClassException;
 use NickMous\Binsta\Internals\Exceptions\Route\NoObjectException;
+use NickMous\Binsta\Internals\Exceptions\EntityNotFoundException;
 use NickMous\Binsta\Internals\Exceptions\Validation\ValidationFailedException;
 use NickMous\Binsta\Internals\Response\Errors\Http\Route\RouteNotFound;
 use NickMous\Binsta\Internals\Response\JsonResponse;
@@ -228,6 +229,15 @@ class ControllerService
                 );
                 $this->handleResponse($response);
             }
+        } catch (EntityNotFoundException $e) {
+            $response = new JsonResponse(
+                data: [
+                    'error' => 'Not Found',
+                    'message' => $e->getMessage(),
+                ],
+                status: 404
+            );
+            $this->handleResponse($response);
         }
     }
 
