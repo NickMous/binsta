@@ -10,7 +10,7 @@ import {
   ComboboxList
 } from "@/components/ui/combobox"
 import {SidebarGroup, SidebarMenu, SidebarMenuItem} from "@/components/ui/sidebar";
-import {ref, watch} from 'vue'
+import {ref, watch, onUnmounted} from 'vue'
 
 interface SearchResult {
   url: string;
@@ -43,6 +43,14 @@ watch(searchInput, (newValue) => {
       searchResults.value = []
     }
   }, 300) // 300ms debounce delay
+})
+
+// Clean up timeout on component unmount to prevent memory leaks
+onUnmounted(() => {
+  if (debounceTimeout) {
+    clearTimeout(debounceTimeout)
+    debounceTimeout = null
+  }
 })
 
 </script>

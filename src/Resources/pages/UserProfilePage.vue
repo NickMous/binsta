@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useRoute} from "vue-router";
-import {ref} from "vue";
+import {ref, onMounted} from "vue";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar";
 import {User, type UserApiResponse} from "@/entities/User.ts";
 import {Skeleton} from "@/components/ui/skeleton";
@@ -14,22 +14,34 @@ const username = route.params.username as string;
 const userData = ref<User | null>(null);
 const followsUser = ref(false);
 const userStats = ref<{followers_count: number, following_count: number} | null>(null);
+const isLoading = ref(true);
 
-fetch(`/api/users/${username}`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error("User not found");
-      }
-      return response.json();
-    })
-    .then(data => {
-      userData.value = User.fromApiResponse(data as UserApiResponse);
-      fetchUserFollowStatus();
-      fetchUserStatistics();
-    })
-    .catch(error => {
-      console.error("Error fetching user data:", error);
-    });
+async function fetchUserData() {
+  try {
+    isLoading.value = true;
+    const response = await fetch(`/api/users/${username}`);
+    
+    if (!response.ok) {
+      throw new Error("User not found");
+    }
+    
+    const data = await response.json();
+    userData.value = User.fromApiResponse(data as UserApiResponse);
+    
+    await Promise.all([
+      fetchUserFollowStatus(),
+      fetchUserStatistics()
+    ]);
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+onMounted(() => {
+  fetchUserData();
+});
 
 async function fetchUserFollowStatus() {
   try {
