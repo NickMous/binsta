@@ -10,7 +10,8 @@
     "sentry/sentry": "^4.14",
     "filp/whoops": "^2.18",
     "ext-curl": "*",
-    "ext-gd": "*"
+    "ext-gd": "*",
+    "fakerphp/faker": "^1.24"
   },
   "license": "MIT",
   "autoload": {
