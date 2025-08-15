@@ -76,37 +76,48 @@ export const useUserStore = defineStore('user', {
         logout() {
             this.clearUser();
             // Remove any stored session data
-            localStorage.removeItem('user');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('user'); // Clean up old format
             sessionStorage.removeItem('user');
         },
         persistUser() {
-            // Store user data in localStorage for persistence across sessions
-            const userData = {
-                id: this.id,
-                name: this.name,
-                username: this.username,
-                email: this.email,
-                profilePicture: this.profilePicture,
-                biography: this.biography,
-                createdAt: this.createdAt.toISOString(),
-                updatedAt: this.updatedAt.toISOString()
-            };
-            localStorage.setItem('user', JSON.stringify(userData));
+            // Only store user ID in localStorage for persistence across sessions
+            if (this.id > 0) {
+                localStorage.setItem('userId', this.id.toString());
+            } else {
+                localStorage.removeItem('userId');
+            }
         },
-        loadPersistedUser() {
-            const userData = localStorage.getItem('user');
-            if (userData) {
-                try {
-                    const parsedData = JSON.parse(userData);
-                    this.setUser({
-                        ...parsedData,
-                        createdAt: new Date(parsedData.createdAt),
-                        updatedAt: new Date(parsedData.updatedAt)
-                    });
-                } catch (error) {
-                    console.error('Failed to load persisted user data:', error);
-                    localStorage.removeItem('user');
+        async loadPersistedUser() {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                const id = parseInt(userId);
+                if (id > 0) {
+                    try {
+                        await this.fetchUser(id);
+                    } catch (error) {
+                        console.error('Failed to load persisted user data:', error);
+                        localStorage.removeItem('userId');
+                        this.clearUser();
+                    }
                 }
+            }
+        },
+        async fetchUser(userId: number) {
+            this.setLoading(true);
+            try {
+                const response = await fetch(`/api/users/${userId}`);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch user: ${response.status}`);
+                }
+                const data = await response.json();
+                this.setUser(data);
+                return data;
+            } catch (error) {
+                console.error('Failed to fetch user:', error);
+                throw error;
+            } finally {
+                this.setLoading(false);
             }
         }
     }

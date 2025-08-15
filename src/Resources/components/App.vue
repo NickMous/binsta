@@ -14,24 +14,22 @@ const userStore = useUserStore()
 const layout = computed(() => route.meta.layout || 'app')
 
 // Load persisted user data when app starts
-onMounted(() => {
-  userStore.loadPersistedUser()
-
-  const user = parseInt(props.user);
-  if (userStore.id !== user) {
-    if (user === 0) {
+onMounted(async () => {
+  const userId = parseInt(props.user);
+  
+  if (userId === 0) {
+    userStore.clearUser()
+  } else if (userStore.id !== userId) {
+    // Either load persisted user or fetch new user data
+    try {
+      await userStore.fetchUser(userId)
+    } catch (error) {
+      console.error('Failed to fetch user:', error)
       userStore.clearUser()
-    } else {
-      fetch(`/api/users/${props.user}`)
-          .then(response => response.json())
-          .then(data => {
-            userStore.setUser(data)
-          })
-          .catch(error => {
-            console.error('Failed to fetch user:', error)
-            userStore.clearUser()
-          })
     }
+  } else {
+    // User ID matches, but we might not have full data - try to load persisted data
+    await userStore.loadPersistedUser()
   }
 })
 </script>

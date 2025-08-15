@@ -21,7 +21,7 @@ interface SearchResult {
 
 const searchInput = ref('')
 const searchResults = ref<SearchResult[]>([])
-let debounceTimeout: NodeJS.Timeout | null = null
+let debounceTimeout: ReturnType<typeof setTimeout> | null = null
 
 // Watch for changes in search input and call API with debounce
 watch(searchInput, (newValue) => {
@@ -78,7 +78,6 @@ watch(searchInput, (newValue) => {
               >
                 <ComboboxItem
                     :value="result"
-                    class=""
                 >
                   <User />
                   {{ result.title || result.url }}
