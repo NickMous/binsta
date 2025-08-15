@@ -91,9 +91,10 @@ class ControllerService
     private function sortRoutes(): void
     {
         foreach ($this->routes as $method => $routes) {
-            uasort($routes, function ($a, $b) {
-                $aPath = $a->path;
-                $bPath = $b->path;
+            uasort($routes, function ($a, $b) use ($routes) {
+                // Get the actual path keys from the routes array
+                $aPath = array_search($a, $routes, true);
+                $bPath = array_search($b, $routes, true);
 
                 // Catch-all routes (containing .*) should be last
                 $aIsCatchAll = str_contains($aPath, '.*');
