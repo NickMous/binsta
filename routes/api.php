@@ -4,6 +4,7 @@ use NickMous\Binsta\Controllers\AuthController;
 use NickMous\Binsta\Controllers\ProfileController;
 use NickMous\Binsta\Controllers\SearchController;
 use NickMous\Binsta\Controllers\UserController;
+use NickMous\Binsta\Controllers\UserFollowController;
 use NickMous\Binsta\Internals\Response\JsonResponse;
 use NickMous\Binsta\Internals\Response\VueResponse;
 use NickMous\Binsta\Internals\Routes\Route;
@@ -31,6 +32,9 @@ return [
         ]),
         Route::group('/users', [
             Route::get('/{user:.*}', className: UserController::class, methodName: 'show'),
+            Route::get('/{userId:\d}/follow-status', className: UserFollowController::class, methodName: 'followStatus'),
+            Route::post('/{userId:\d}/follow', className: UserFollowController::class, methodName: 'follow'),
+            Route::post('/{userId:\d}/unfollow', className: UserFollowController::class, methodName: 'unfollow'),
         ]),
         Route::get('/search/{query}', className: SearchController::class, methodName: 'search'),
     ]),

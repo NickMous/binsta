@@ -4,10 +4,13 @@ namespace NickMous\Binsta\Entities;
 
 use DateTime;
 use NickMous\Binsta\Internals\Entities\Entity;
+use NickMous\Binsta\Internals\Traits\HasTimestamps;
 use NickMous\Binsta\Repositories\UserRepository;
 
 class User extends Entity
 {
+    use HasTimestamps;
+
     public string $name {
         get => $this->name ?? '';
         set => $this->name = $value;
@@ -48,15 +51,6 @@ class User extends Entity
         }
     }
 
-    public ?DateTime $createdAt = null {
-        get => $this->createdAt;
-        set => $this->createdAt = $value;
-    }
-
-    public ?DateTime $updatedAt = null {
-        get => $this->updatedAt;
-        set => $this->updatedAt = $value;
-    }
 
     public static function getTableName(): string
     {
@@ -114,13 +108,7 @@ class User extends Entity
         $this->biography = $this->bean->biography ?: null;
         $this->password = (string) $this->bean->password; // Set raw hash during hydration
 
-        if (!empty($this->bean->created_at)) {
-            $this->createdAt = new DateTime($this->bean->created_at);
-        }
-
-        if (!empty($this->bean->updated_at)) {
-            $this->updatedAt = new DateTime($this->bean->updated_at);
-        }
+        $this->hydrateTimestamps();
 
         $this->isHydrating = false;
     }
@@ -141,21 +129,7 @@ class User extends Entity
         $this->bean->biography = $this->biography ?? '';
         $this->bean->password = $this->password ?? '';
 
-        // Set timestamps
-        if ($this->createdAt !== null) {
-            $this->bean->created_at = $this->createdAt->format('Y-m-d H:i:s');
-        }
-
-        // Always update the updated_at timestamp
-        $this->updatedAt = new DateTime();
-        $this->bean->updated_at = $this->updatedAt->format('Y-m-d H:i:s');
-
-        // Set created_at if this is a new record
-        if (!$this->exists() && $this->createdAt === null) {
-            $this->createdAt = new DateTime();
-            // @phpstan-ignore-next-line method.nonObject (property hooks guarantee non-null)
-            $this->bean->created_at = $this->createdAt->format('Y-m-d H:i:s');
-        }
+        $this->prepareTimestamps();
     }
 
     /**
@@ -164,16 +138,14 @@ class User extends Entity
      */
     public function toArray(bool $includePassword = false): array
     {
-        $data = [
+        $data = array_merge([
             'id' => $this->getId(),
             'name' => $this->name,
             'username' => $this->username,
             'email' => $this->email,
             'profile_picture' => $this->profilePicture,
             'biography' => $this->biography,
-            'created_at' => $this->createdAt?->format('Y-m-d H:i:s'),
-            'updated_at' => $this->updatedAt?->format('Y-m-d H:i:s'),
-        ];
+        ], $this->getTimestampArray());
 
         if ($includePassword) {
             $data['password'] = $this->password;

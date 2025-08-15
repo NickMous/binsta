@@ -49,9 +49,9 @@ const breadcrumbStore = useBreadcrumbStore()
         </div>
       </header>
       <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <router-view v-slot="{ Component }">
+        <router-view v-slot="{ Component, route }">
           <transition name="page" mode="out-in">
-            <component :is="Component"/>
+            <component :is="Component" :key="route.fullPath"/>
           </transition>
         </router-view>
       </div>

@@ -119,6 +119,40 @@ export const useUserStore = defineStore('user', {
             } finally {
                 this.setLoading(false);
             }
+        },
+        async followUser(userId: number) {
+            this.setLoading(true);
+            try {
+                const response = await fetch(`/api/users/${userId}/follow`, {
+                    method: 'POST'
+                });
+                if (!response.ok) {
+                    throw new Error(`Failed to follow user: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Failed to follow user:', error);
+                throw error;
+            } finally {
+                this.setLoading(false);
+            }
+        },
+        async unfollowUser(userId: number) {
+            this.setLoading(true);
+            try {
+                const response = await fetch(`/api/users/${userId}/unfollow`, {
+                    method: 'POST'
+                });
+                if (!response.ok) {
+                    throw new Error(`Failed to unfollow user: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Failed to unfollow user:', error);
+                throw error;
+            } finally {
+                this.setLoading(false);
+            }
         }
     }
 });

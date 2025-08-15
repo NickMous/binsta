@@ -50,7 +50,7 @@
     "test": "XDEBUG_MODE=develop pest",
     "lint": [
       "phpcs",
-      "phpstan"
+      "php -d memory_limit=1024M vendor/bin/phpstan"
     ],
     "fix": [
       "phpcbf",
