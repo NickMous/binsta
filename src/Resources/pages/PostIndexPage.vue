@@ -173,7 +173,7 @@ onBeforeUnmount(() => {
           <div class="flex items-center gap-2 text-xs text-muted-foreground">
             <span>{{ post.code.length }} characters</span>
           </div>
-          <Button variant="ghost" size="sm" @click.stop="$router.push(`/posts/${post.id}`)" class="h-8 px-3">
+          <Button variant="ghost" size="sm" class="h-8 px-3" @click.stop="$router.push(`/posts/${post.id}`)">
             View →
           </Button>
         </CardFooter>

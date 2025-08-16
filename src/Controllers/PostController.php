@@ -7,6 +7,7 @@ use NickMous\Binsta\Internals\BaseController;
 use NickMous\Binsta\Internals\Response\JsonResponse;
 use NickMous\Binsta\Repositories\PostRepository;
 use NickMous\Binsta\Requests\Posts\CreatePostRequest;
+use NickMous\Binsta\Requests\Posts\UpdatePostRequest;
 
 class PostController extends BaseController
 {
@@ -83,7 +84,7 @@ class PostController extends BaseController
     /**
      * Update a post
      */
-    public function update(Post $post, CreatePostRequest $request): JsonResponse
+    public function update(Post $post, UpdatePostRequest $request): JsonResponse
     {
         $request->validate(true);
 

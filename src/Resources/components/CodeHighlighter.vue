@@ -81,7 +81,7 @@ watch(() => [props.code, props.language, props.theme], updateHighlight)
     
     <!-- Highlighted Code -->
     <div v-else class="code-container w-full min-w-0 overflow-x-auto">
-      <div v-html="highlightedHtml" class="min-w-0"></div>
+      <div class="min-w-0" v-html="highlightedHtml"></div>
     </div>
   </div>
 </template>

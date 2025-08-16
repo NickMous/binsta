@@ -11,13 +11,13 @@ class PostFactory extends Factory
     public function definition(): array
     {
         $programmingLanguages = [
-            'javascript', 'typescript', 'php', 'python', 'java', 'html', 'css', 
-            'json', 'bash', 'shell', 'c', 'cpp', 'csharp', 'go', 'rust', 
+            'javascript', 'typescript', 'php', 'python', 'java', 'html', 'css',
+            'json', 'bash', 'shell', 'c', 'cpp', 'csharp', 'go', 'rust',
             'ruby', 'kotlin', 'swift', 'sql', 'yaml', 'xml', 'vue', 'jsx', 'tsx'
         ];
 
         $language = $this->faker()->randomElement($programmingLanguages);
-        
+
         return [
             'title' => $this->generateTitle($language),
             'description' => $this->generateDescription($language),
@@ -48,11 +48,11 @@ class PostFactory extends Factory
 
         $actions = ['create', 'build', 'implement', 'generate', 'parse', 'validate', 'process', 'handle'];
         $concepts = ['function', 'class', 'component', 'service', 'helper', 'utility', 'module', 'handler'];
-        
+
         $pattern = $this->faker()->randomElement($patterns);
         $action = $this->faker()->randomElement($actions);
         $concept = $this->faker()->randomElement($concepts);
-        
+
         return str_replace(['{}', '{}'], [ucfirst($action) . ' ' . $concept, ucfirst($language)], $pattern);
     }
 
@@ -67,17 +67,17 @@ class PostFactory extends Factory
 
         $types = ['snippet', 'example', 'function', 'implementation', 'solution'];
         $actions = ['handle data', 'process arrays', 'manage state', 'validate input', 'format output'];
-        
+
         $template = $this->faker()->randomElement($templates);
         $type = $this->faker()->randomElement($types);
         $action = $this->faker()->randomElement($actions);
-        
+
         return str_replace(['{}', '{}', '{}'], [$type, $action, $language], $template);
     }
 
     private function generateCode(string $language): string
     {
-        return match($language) {
+        return match ($language) {
             'javascript', 'typescript' => $this->generateJavaScriptCode(),
             'php' => $this->generatePhpCode(),
             'python' => $this->generatePythonCode(),
@@ -95,11 +95,11 @@ class PostFactory extends Factory
     {
         $functionNames = ['calculateTotal', 'formatData', 'validateInput', 'processArray', 'handleEvent'];
         $varNames = ['data', 'items', 'result', 'value', 'config'];
-        
+
         $funcName = $this->faker()->randomElement($functionNames);
         $varName = $this->faker()->randomElement($varNames);
         $number = $this->faker()->numberBetween(1, 100);
-        
+
         return "function {$funcName}({$varName}) {\n" .
                "    const result = {$varName}.map(item => item * {$number});\n" .
                "    return result.filter(value => value > 0);\n" .
@@ -112,11 +112,11 @@ class PostFactory extends Factory
     {
         $classNames = ['DataProcessor', 'UserManager', 'ConfigHandler', 'ApiService'];
         $methodNames = ['process', 'validate', 'transform', 'calculate'];
-        
+
         $className = $this->faker()->randomElement($classNames);
         $methodName = $this->faker()->randomElement($methodNames);
         $varName = $this->faker()->randomElement(['data', 'input', 'value', 'config']);
-        
+
         return "<?php\n\n" .
                "class {$className} {\n" .
                "    public function {$methodName}(\${$varName}) {\n" .
@@ -134,10 +134,10 @@ class PostFactory extends Factory
     {
         $functionNames = ['process_data', 'calculate_sum', 'filter_items', 'format_output'];
         $varNames = ['data', 'items', 'numbers', 'values'];
-        
+
         $funcName = $this->faker()->randomElement($functionNames);
         $varName = $this->faker()->randomElement($varNames);
-        
+
         return "def {$funcName}({$varName}):\n" .
                "    if not {$varName}:\n" .
                "        return []\n" .
@@ -152,7 +152,7 @@ class PostFactory extends Factory
     {
         $classNames = ['DataProcessor', 'StringUtils', 'Calculator', 'ArrayHelper'];
         $className = $this->faker()->randomElement($classNames);
-        
+
         return "public class {$className} {\n" .
                "    public static void main(String[] args) {\n" .
                "        int[] numbers = {" . implode(', ', $this->faker()->randomElements(range(1, 50), 5)) . "};\n" .
@@ -168,11 +168,11 @@ class PostFactory extends Factory
     {
         $selectors = ['.card', '.button', '.container', '.header', '.nav'];
         $colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'];
-        
+
         $selector = $this->faker()->randomElement($selectors);
         $color = $this->faker()->randomElement($colors);
         $size = $this->faker()->numberBetween(12, 48);
-        
+
         return "{$selector} {\n" .
                "    background-color: {$color};\n" .
                "    padding: {$size}px;\n" .
@@ -189,7 +189,7 @@ class PostFactory extends Factory
     {
         $titles = $this->faker()->words(3, true);
         $content = $this->faker()->sentence();
-        
+
         return "<!DOCTYPE html>\n" .
                "<html lang=\"en\">\n" .
                "<head>\n" .
@@ -212,7 +212,7 @@ class PostFactory extends Factory
         $tables = ['users', 'posts', 'orders', 'products', 'categories'];
         $table = $this->faker()->randomElement($tables);
         $condition = $this->faker()->numberBetween(1, 100);
-        
+
         return "SELECT *\n" .
                "FROM {$table}\n" .
                "WHERE id > {$condition}\n" .
@@ -235,7 +235,7 @@ class PostFactory extends Factory
     {
         $commands = ['ls -la', 'grep -r "pattern"', 'find . -name "*.php"', 'chmod +x script.sh'];
         $command = $this->faker()->randomElement($commands);
-        
+
         return "#!/bin/bash\n\n" .
                "# Simple bash script\n" .
                "echo \"Starting script...\"\n\n" .

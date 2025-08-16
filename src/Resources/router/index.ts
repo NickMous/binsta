@@ -50,6 +50,12 @@ const routes = [
         meta: {layout: 'app', requiresAuth: false}
     },
     {
+        path: '/posts/:id/edit',
+        name: 'post-edit',
+        component: () => import('@/pages/PostEditPage.vue'),
+        meta: {layout: 'app', requiresAuth: true}
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'not-found',
         component: () => import('@/pages/NotFoundPage.vue'),
