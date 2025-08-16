@@ -6,6 +6,7 @@ interface UserStoreState extends IUser {
     biography?: string;
     isAuthenticated: boolean;
     isLoading: boolean;
+    isInitialized: boolean;
 }
 
 export const useUserStore = defineStore('user', {
@@ -19,7 +20,8 @@ export const useUserStore = defineStore('user', {
         createdAt: new Date(), 
         updatedAt: new Date(),
         isAuthenticated: false,
-        isLoading: false
+        isLoading: false,
+        isInitialized: false
     }),
     getters: {
         getId: (state) => state.id,
@@ -31,6 +33,7 @@ export const useUserStore = defineStore('user', {
         getUpdatedAt: (state) => state.updatedAt,
         getIsAuthenticated: (state) => state.isAuthenticated,
         getIsLoading: (state) => state.isLoading,
+        getIsInitialized: (state) => state.isInitialized,
         getUser: (state): IUser => ({
             id: state.id,
             name: state.name,
@@ -53,6 +56,7 @@ export const useUserStore = defineStore('user', {
             this.createdAt = user.createdAt;
             this.updatedAt = user.updatedAt;
             this.isAuthenticated = true;
+            this.isInitialized = true;
             this.persistUser();
         },
         setUserFromApiResponse(data: UserApiResponse) {
@@ -69,6 +73,7 @@ export const useUserStore = defineStore('user', {
             this.createdAt = new Date();
             this.updatedAt = new Date();
             this.isAuthenticated = false;
+            this.isInitialized = true; // Mark as initialized even when cleared
         },
         setLoading(loading: boolean) {
             this.isLoading = loading;
@@ -101,6 +106,26 @@ export const useUserStore = defineStore('user', {
                         this.clearUser();
                     }
                 }
+            } else {
+                this.isInitialized = true;
+            }
+        },
+        async initializeUser(userId?: number) {
+            if (this.isInitialized) return;
+            
+            this.setLoading(true);
+            try {
+                if (userId && userId > 0) {
+                    await this.fetchUser(userId);
+                } else {
+                    await this.loadPersistedUser();
+                }
+            } catch (error) {
+                console.error('Failed to initialize user:', error);
+                this.clearUser();
+            } finally {
+                this.setLoading(false);
+                this.isInitialized = true;
             }
         },
         async fetchUser(userId: number) {

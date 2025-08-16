@@ -1,6 +1,7 @@
 <?php
 
 use NickMous\Binsta\Controllers\AuthController;
+use NickMous\Binsta\Controllers\PostController;
 use NickMous\Binsta\Controllers\ProfileController;
 use NickMous\Binsta\Controllers\SearchController;
 use NickMous\Binsta\Controllers\UserController;
@@ -36,6 +37,15 @@ return [
             Route::get('/{userId:\d+}/follow-status', className: UserFollowController::class, methodName: 'followStatus'),
             Route::post('/{userId:\d+}/follow', className: UserFollowController::class, methodName: 'follow'),
             Route::post('/{userId:\d+}/unfollow', className: UserFollowController::class, methodName: 'unfollow'),
+        ]),
+        Route::group('/posts', [
+            Route::get('/', className: PostController::class, methodName: 'index'),
+            Route::post('/', className: PostController::class, methodName: 'store'),
+            Route::get('/{post:\d+}', className: PostController::class, methodName: 'show'),
+            Route::put('/{post:\d+}', className: PostController::class, methodName: 'update'),
+            Route::delete('/{post:\d+}', className: PostController::class, methodName: 'destroy'),
+            Route::get('/language/{language}', className: PostController::class, methodName: 'byLanguage'),
+            Route::get('/search/{query}', className: PostController::class, methodName: 'search'),
         ]),
         Route::get('/search/{query}', className: SearchController::class, methodName: 'search'),
     ]),

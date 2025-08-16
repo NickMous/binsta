@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useRoute} from "vue-router";
-import {ref, onMounted, watch, computed, onBeforeUnmount} from "vue";
+import {ref, watch, computed, onBeforeUnmount} from "vue";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar";
 import {User, type UserApiResponse} from "@/entities/User.ts";
 import {Skeleton} from "@/components/ui/skeleton";

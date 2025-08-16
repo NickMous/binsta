@@ -34,6 +34,15 @@ class Route
         return new Type\Put($path, $closure, $className, $methodName);
     }
 
+    public static function delete(
+        string $path,
+        ?Closure $closure = null,
+        ?string $className = null,
+        ?string $methodName = null,
+    ): Type\Delete {
+        return new Type\Delete($path, $closure, $className, $methodName);
+    }
+
     /**
      * @param string                     $path
      * @param array<AbstractRoute|Group> $routes

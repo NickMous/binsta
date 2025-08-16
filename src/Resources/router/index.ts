@@ -34,6 +34,12 @@ const routes = [
         meta: {layout: 'app', requiresAuth: false}
     },
     {
+        path: '/posts/create',
+        name: 'post-create',
+        component: () => import('@/pages/PostCreatePage.vue'),
+        meta: {layout: 'app', requiresAuth: true}
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'not-found',
         component: () => import('@/pages/NotFoundPage.vue'),
@@ -47,8 +53,27 @@ const router = createRouter({
 })
 
 // Route guards for authentication
-router.beforeEach((to, _, next) => {
+router.beforeEach(async (to, _, next) => {
     const userStore = useUserStore()
+
+    // Wait for user store to be initialized
+    if (!userStore.getIsInitialized) {
+        // Create a promise that resolves when initialization is complete
+        await new Promise<void>((resolve) => {
+            const unwatch = userStore.$subscribe(() => {
+                if (userStore.getIsInitialized) {
+                    unwatch()
+                    resolve()
+                }
+            })
+            
+            // Safety timeout - don't wait forever (5 seconds)
+            setTimeout(() => {
+                unwatch()
+                resolve()
+            }, 5000)
+        })
+    }
 
     // Check if route requires authentication
     const requiresAuth = to.meta.requiresAuth === true

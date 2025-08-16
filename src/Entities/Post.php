@@ -1,0 +1,87 @@
+<?php
+
+namespace NickMous\Binsta\Entities;
+
+use DateTime;
+use NickMous\Binsta\Internals\Entities\Entity;
+use NickMous\Binsta\Internals\Traits\HasTimestamps;
+use NickMous\Binsta\Repositories\PostRepository;
+
+class Post extends Entity
+{
+    use HasTimestamps;
+
+    public string $title = '';
+    public string $description = '';
+    public string $code = '';
+    public string $programmingLanguage = '';
+    public int $userId = 0;
+
+    public static function getTableName(): string
+    {
+        return 'post';
+    }
+
+    public static function create(string $title, string $description, string $code, string $programmingLanguage, int $userId): self
+    {
+        $post = new self();
+        $post->title = $title;
+        $post->description = $description;
+        $post->code = $code;
+        $post->programmingLanguage = $programmingLanguage;
+        $post->userId = $userId;
+        $post->createdAt = new DateTime();
+
+        return $post;
+    }
+
+    protected function hydrate(): void
+    {
+        if ($this->bean === null) {
+            return;
+        }
+
+        $this->title = (string) $this->bean->title;
+        $this->description = (string) $this->bean->description;
+        $this->code = (string) $this->bean->code;
+        $this->programmingLanguage = (string) $this->bean->programming_language;
+        $this->userId = (int) $this->bean->user_id;
+
+        $this->hydrateTimestamps();
+    }
+
+    protected function prepare(): void
+    {
+        if ($this->bean === null) {
+            return;
+        }
+
+        $this->bean->title = $this->title ?? '';
+        $this->bean->description = $this->description ?? '';
+        $this->bean->code = $this->code ?? '';
+        $this->bean->programming_language = $this->programmingLanguage ?? '';
+        $this->bean->user_id = $this->userId ?? 0;
+
+        $this->prepareTimestamps();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return array_merge([
+            'id' => $this->getId(),
+            'title' => $this->title,
+            'description' => $this->description,
+            'code' => $this->code,
+            'programming_language' => $this->programmingLanguage,
+            'user_id' => $this->userId,
+        ], $this->getTimestampArray());
+    }
+
+    public function getRepository(): string
+    {
+        return PostRepository::class;
+    }
+}
