@@ -195,4 +195,28 @@ class PostRepository extends BaseRepository
 
         return array_values(array_map(fn(OODBBean $bean) => new Post($bean), $beans));
     }
+
+    /**
+     * Get posts from users that the given user follows
+     * @return array<Post>
+     */
+    public function findFromFollowedUsers(int $userId, int $limit = 20): array
+    {
+        $postTable = Post::getTableName();
+        $followTable = 'userfollow';
+        
+        $beans = R::getAll(
+            "SELECT p.* FROM {$postTable} p 
+             INNER JOIN {$followTable} uf ON p.user_id = uf.following_id 
+             WHERE uf.follower_id = ? 
+             ORDER BY p.created_at DESC 
+             LIMIT ?",
+            [$userId, $limit]
+        );
+
+        return array_values(array_map(
+            fn(array $beanData) => new Post(R::convertToBean(Post::getTableName(), $beanData)),
+            $beans
+        ));
+    }
 }

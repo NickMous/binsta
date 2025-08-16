@@ -40,6 +40,7 @@ return [
         ]),
         Route::group('/posts', [
             Route::get('/', className: PostController::class, methodName: 'index'),
+            Route::get('/feed', className: PostController::class, methodName: 'personalFeed'),
             Route::post('/', className: PostController::class, methodName: 'store'),
             Route::get('/{post:\d+}', className: PostController::class, methodName: 'show'),
             Route::put('/{post:\d+}', className: PostController::class, methodName: 'update'),

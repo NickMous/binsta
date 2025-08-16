@@ -27,6 +27,12 @@ const routes = [
         meta: {layout: 'app', requiresAuth: true}
     },
     {
+        path: '/feed',
+        name: 'personal-feed',
+        component: () => import('@/pages/PersonalFeedPage.vue'),
+        meta: {layout: 'app', requiresAuth: true}
+    },
+    {
         path: '/users/:username',
         name: 'user-profile',
         component: () => import('@/pages/UserProfilePage.vue'),

@@ -189,4 +189,34 @@ class PostController extends BaseController
             ], 500);
         }
     }
+
+    /**
+     * Get personal feed (posts from followed users)
+     */
+    public function personalFeed(): JsonResponse
+    {
+        $userId = $_SESSION['user'];
+
+        if (!$userId) {
+            return new JsonResponse([
+                'message' => 'Authentication required'
+            ], 401);
+        }
+
+        try {
+            $posts = $this->postRepository->findFromFollowedUsers($userId, 20);
+
+            return new JsonResponse([
+                'posts' => array_map(fn(Post $post) => $post->toArray(), $posts),
+                'count' => count($posts)
+            ]);
+        } catch (\Exception $e) {
+            error_log('Personal feed fetch failed: ' . $e->getMessage());
+
+            return new JsonResponse([
+                'message' => 'Failed to fetch personal feed',
+                'error' => 'An unexpected error occurred'
+            ], 500);
+        }
+    }
 }
