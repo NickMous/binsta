@@ -80,8 +80,8 @@ watch(() => [props.code, props.language, props.theme], updateHighlight)
     </div>
     
     <!-- Highlighted Code -->
-    <div v-else class="code-container overflow-x-auto">
-      <div v-html="highlightedHtml"></div>
+    <div v-else class="code-container w-full min-w-0 overflow-x-auto">
+      <div v-html="highlightedHtml" class="min-w-0"></div>
     </div>
   </div>
 </template>
@@ -89,9 +89,14 @@ watch(() => [props.code, props.language, props.theme], updateHighlight)
 <style scoped>
 @reference '@/style.css';
 
+.code-container {
+  @apply w-full min-w-0;
+}
+
 .code-container :deep(pre) {
-  @apply rounded-lg overflow-x-auto;
+  @apply rounded-lg overflow-x-auto w-full min-w-0;
   margin: 0;
+  max-width: 100%;
 }
 
 .code-container :deep(code) {
@@ -99,10 +104,12 @@ watch(() => [props.code, props.language, props.theme], updateHighlight)
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 14px;
   line-height: 1.5;
+  max-width: 100%;
+  white-space: pre;
 }
 
 /* Ensure proper scrolling on mobile */
-.code-container {
+.code-container :deep(*) {
   max-width: 100%;
 }
 </style>

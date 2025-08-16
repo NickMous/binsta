@@ -1,12 +1,11 @@
 import {createRouter, createWebHistory} from 'vue-router'
-import HomePage from '@/pages/HomePage.vue'
 import {useUserStore} from '@/stores/UserStore'
 
 const routes = [
     {
         path: '/',
         name: 'home',
-        component: HomePage,
+        component: () => import('@/pages/PostIndexPage.vue'),
         meta: {layout: 'app', requiresAuth: false}
     },
     {
@@ -34,10 +33,21 @@ const routes = [
         meta: {layout: 'app', requiresAuth: false}
     },
     {
+        path: '/posts',
+        name: 'posts-redirect',
+        redirect: '/'
+    },
+    {
         path: '/posts/create',
         name: 'post-create',
         component: () => import('@/pages/PostCreatePage.vue'),
         meta: {layout: 'app', requiresAuth: true}
+    },
+    {
+        path: '/posts/:id',
+        name: 'post-show',
+        component: () => import('@/pages/PostShowPage.vue'),
+        meta: {layout: 'app', requiresAuth: false}
     },
     {
         path: '/:pathMatch(.*)*',
