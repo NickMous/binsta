@@ -36,25 +36,25 @@ const data = {
       url: '/posts/create',
       icon: Plus,
     },
-    {
-      title: 'Explore',
-      url: '/explore',
-      icon: Code2,
-      items: [
-        {
-          title: 'Recent Posts',
-          url: '/explore/recent',
-        },
-        {
-          title: 'By Language',
-          url: '/explore/languages',
-        },
-        {
-          title: 'Popular',
-          url: '/explore/popular',
-        },
-      ],
-    },
+    // {
+    //   title: 'Explore',
+    //   url: '/explore',
+    //   icon: Code2,
+    //   items: [
+    //     {
+    //       title: 'Recent Posts',
+    //       url: '/explore/recent',
+    //     },
+    //     {
+    //       title: 'By Language',
+    //       url: '/explore/languages',
+    //     },
+    //     {
+    //       title: 'Popular',
+    //       url: '/explore/popular',
+    //     },
+    //   ],
+    // },
   ],
 }
 </script>
