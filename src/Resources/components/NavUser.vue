@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogIn, LogOut, Sparkles} from 'lucide-vue-next'
+import {BadgeCheck, ChevronsUpDown, LogIn, LogOut, Sparkles, User} from 'lucide-vue-next'
 import {useRouter} from 'vue-router'
 
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
@@ -103,7 +103,7 @@ const handleLogout = async () => {
               <Avatar class="h-8 w-8 rounded-lg">
                 <AvatarImage :src="userStore.getProfilePicture ?? ''" :alt="userStore.getName"/>
                 <AvatarFallback class="rounded-lg">
-                  CN
+                  {{ userStore.getName.charAt(0).toUpperCase() }}
                 </AvatarFallback>
               </Avatar>
               <div class="grid flex-1 text-left text-sm leading-tight">
@@ -114,27 +114,18 @@ const handleLogout = async () => {
           </DropdownMenuLabel>
           <DropdownMenuSeparator/>
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <Sparkles/>
-              Upgrade to Pro
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator/>
-          <DropdownMenuGroup>
+            <RouterLink :to="`/users/${userStore.getUsername}`">
+              <DropdownMenuItem>
+                <User/>
+                View Profile
+              </DropdownMenuItem>
+            </RouterLink>
             <RouterLink to="/profile/edit">
               <DropdownMenuItem>
                 <BadgeCheck/>
                 Edit Profile
               </DropdownMenuItem>
             </RouterLink>
-            <DropdownMenuItem>
-              <CreditCard/>
-              Billing
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Bell/>
-              Notifications
-            </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator/>
           <DropdownMenuItem @click="handleLogout">

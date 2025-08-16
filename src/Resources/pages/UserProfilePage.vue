@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useRoute} from "vue-router";
-import {ref, onMounted} from "vue";
+import {ref, onMounted, watch, computed, onBeforeUnmount} from "vue";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar";
 import {User, type UserApiResponse} from "@/entities/User.ts";
 import {Skeleton} from "@/components/ui/skeleton";
@@ -11,18 +11,25 @@ import {useBreadcrumbStore} from "@/stores/BreadcrumbStore.ts";
 const route = useRoute()
 const breadcrumbStore = useBreadcrumbStore();
 const userStore = useUserStore();
-const username = route.params.username as string;
 
-breadcrumbStore.replaceBreadcrumbs([
-  {
-    name: 'Users',
-    path: '/users',
-  },
-  {
-    name: username,
-    path: '/users/' + username,
+// Make username reactive to route changes
+const username = computed(() => route.params.username as string);
+
+// Update breadcrumbs when username changes
+watch(username, (newUsername) => {
+  if (newUsername) {
+    breadcrumbStore.replaceBreadcrumbs([
+      {
+        name: 'Users',
+        path: '/users',
+      },
+      {
+        name: newUsername,
+        path: '/users/' + newUsername,
+      }
+    ])
   }
-])
+}, { immediate: true })
 
 const userData = ref<User | null>(null);
 const followsUser = ref(false);
@@ -30,15 +37,28 @@ const userStats = ref<{followers_count: number, following_count: number} | null>
 const isLoading = ref(true);
 const error = ref<string | null>(null);
 
+// Add abort controller for cleanup
+let abortController: AbortController | null = null;
+
 async function fetchUserData() {
   try {
+    // Cancel previous request if still pending
+    if (abortController) {
+      abortController.abort();
+    }
+    
+    // Create new abort controller for this request
+    abortController = new AbortController();
+    
     isLoading.value = true;
     error.value = null;
-    const response = await fetch(`/api/users/${username}`);
+    const response = await fetch(`/api/users/${username.value}`, {
+      signal: abortController.signal
+    });
     
     if (!response.ok) {
       if (response.status === 404) {
-        error.value = `User "${username}" not found`;
+        error.value = `User "${username.value}" not found`;
       } else {
         error.value = "Failed to load user profile";
       }
@@ -53,6 +73,10 @@ async function fetchUserData() {
       fetchUserStatistics()
     ]);
   } catch (err) {
+    // Don't show error if request was aborted (user navigated away)
+    if (err instanceof Error && err.name === 'AbortError') {
+      return;
+    }
     console.error("Error fetching user data:", err);
     error.value = "An unexpected error occurred while loading the user profile";
   } finally {
@@ -60,13 +84,26 @@ async function fetchUserData() {
   }
 }
 
-onMounted(() => {
-  fetchUserData();
+// Watch for username changes and refetch data
+watch(username, () => {
+  if (username.value) {
+    fetchUserData();
+  }
+}, { immediate: true });
+
+// Cleanup on component unmount
+onBeforeUnmount(() => {
+  if (abortController) {
+    abortController.abort();
+  }
+  breadcrumbStore.clearBreadcrumbs();
 });
 
 async function fetchUserFollowStatus() {
   try {
-    const response = await fetch(`/api/users/${userData.value?.id}/follow-status`);
+    const response = await fetch(`/api/users/${userData.value?.id}/follow-status`, {
+      signal: abortController?.signal
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch follow status");
@@ -75,13 +112,19 @@ async function fetchUserFollowStatus() {
     const data = await response.json();
     followsUser.value = data.isFollowing;
   } catch (error) {
+    // Don't log error if request was aborted
+    if (error instanceof Error && error.name === 'AbortError') {
+      return;
+    }
     console.error("Error fetching follow status:", error);
   }
 }
 
 async function fetchUserStatistics() {
   try {
-    const response = await fetch(`/api/users/${username}/statistics`);
+    const response = await fetch(`/api/users/${username.value}/statistics`, {
+      signal: abortController?.signal
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch user statistics");
@@ -90,6 +133,10 @@ async function fetchUserStatistics() {
     const data = await response.json();
     userStats.value = data;
   } catch (error) {
+    // Don't log error if request was aborted
+    if (error instanceof Error && error.name === 'AbortError') {
+      return;
+    }
     console.error("Error fetching user statistics:", error);
   }
 }
