@@ -10,6 +10,8 @@ export interface PostApiResponse {
     user_name?: string;
     user_username?: string;
     user_profile_picture?: string;
+    like_count?: number;
+    user_liked?: boolean;
     created_at?: string;
     createdAt?: string | Date;
     updated_at?: string;
@@ -37,6 +39,8 @@ export interface IPost {
     userName?: string;
     userUsername?: string;
     userProfilePicture?: string;
+    likeCount: number;
+    userLiked: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -51,6 +55,8 @@ export class Post implements IPost {
     public userName?: string;
     public userUsername?: string;
     public userProfilePicture?: string;
+    public likeCount: number;
+    public userLiked: boolean;
     public createdAt: Date;
     public updatedAt: Date;
 
@@ -64,6 +70,8 @@ export class Post implements IPost {
         this.userName = data.userName;
         this.userUsername = data.userUsername;
         this.userProfilePicture = data.userProfilePicture;
+        this.likeCount = data.likeCount ?? 0;
+        this.userLiked = data.userLiked ?? false;
         this.createdAt = data.createdAt ?? new Date();
         this.updatedAt = data.updatedAt ?? new Date();
     }
@@ -79,6 +87,8 @@ export class Post implements IPost {
             userName: data.user_name,
             userUsername: data.user_username,
             userProfilePicture: data.user_profile_picture,
+            likeCount: data.like_count ?? 0,
+            userLiked: data.user_liked ?? false,
             createdAt: new Date(data.created_at || data.createdAt || new Date()),
             updatedAt: new Date(data.updated_at || data.updatedAt || new Date())
         });
@@ -159,6 +169,11 @@ export class Post implements IPost {
             code: this.code,
             programmingLanguage: this.programmingLanguage,
             userId: this.userId,
+            userName: this.userName,
+            userUsername: this.userUsername,
+            userProfilePicture: this.userProfilePicture,
+            likeCount: this.likeCount,
+            userLiked: this.userLiked,
             createdAt: new Date(this.createdAt),
             updatedAt: new Date(this.updatedAt)
         });
@@ -206,5 +221,35 @@ export class Post implements IPost {
         } else {
             return this.createdAt.toLocaleDateString();
         }
+    }
+
+    getLikeCountText(): string {
+        if (this.likeCount === 0) {
+            return '0 likes';
+        } else if (this.likeCount === 1) {
+            return '1 like';
+        } else {
+            return `${this.likeCount} likes`;
+        }
+    }
+
+    toggleLike(): Post {
+        const updated = this.clone();
+        updated.userLiked = !updated.userLiked;
+        updated.likeCount += updated.userLiked ? 1 : -1;
+        
+        // Ensure like count doesn't go below 0
+        if (updated.likeCount < 0) {
+            updated.likeCount = 0;
+        }
+        
+        return updated;
+    }
+
+    updateLikeStatus(userLiked: boolean, likeCount: number): Post {
+        const updated = this.clone();
+        updated.userLiked = userLiked;
+        updated.likeCount = likeCount;
+        return updated;
     }
 }

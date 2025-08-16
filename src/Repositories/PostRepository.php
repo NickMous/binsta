@@ -6,11 +6,16 @@ use NickMous\Binsta\Entities\Post;
 use NickMous\Binsta\Internals\Exceptions\EntityNotFoundException;
 use NickMous\Binsta\Internals\Entities\Entity;
 use NickMous\Binsta\Internals\Repositories\BaseRepository;
+use NickMous\Binsta\Repositories\LikeRepository;
 use RedBeanPHP\OODBBean;
 use RedBeanPHP\R;
 
 class PostRepository extends BaseRepository
 {
+    public function __construct(
+        private readonly LikeRepository $likeRepository,
+    ) {
+    }
     public function findById(int $id): ?Post
     {
         $bean = R::load(Post::getTableName(), $id);
@@ -26,7 +31,7 @@ class PostRepository extends BaseRepository
      * Find a post by ID with user information
      * @return array<string, mixed>|null
      */
-    public function findByIdWithUser(int $id): ?array
+    public function findByIdWithUser(int $id, ?int $currentUserId = null): ?array
     {
         $postTable = Post::getTableName();
         $userTable = 'user';
@@ -38,6 +43,10 @@ class PostRepository extends BaseRepository
              WHERE p.id = ?",
             [$id]
         );
+
+        if ($result) {
+            $result = $this->addLikeInformation([$result], $currentUserId)[0];
+        }
 
         return $result ?: null;
     }
@@ -56,7 +65,7 @@ class PostRepository extends BaseRepository
      * Get posts by user ID with user information
      * @return array<array<string, mixed>>
      */
-    public function findByUserIdWithUser(int $userId, int $limit = 20): array
+    public function findByUserIdWithUser(int $userId, int $limit = 20, ?int $currentUserId = null): array
     {
         $postTable = Post::getTableName();
         $userTable = 'user';
@@ -71,7 +80,7 @@ class PostRepository extends BaseRepository
             [$userId, $limit]
         );
 
-        return array_values($results);
+        return $this->addLikeInformation($results, $currentUserId);
     }
 
     /**
@@ -115,7 +124,7 @@ class PostRepository extends BaseRepository
     /**
      * @return array<array<string, mixed>>
      */
-    public function findRecent(int $limit = 10): array
+    public function findRecent(int $limit = 10, ?int $currentUserId = null): array
     {
         $postTable = Post::getTableName();
         $userTable = 'user';
@@ -129,7 +138,7 @@ class PostRepository extends BaseRepository
             [$limit]
         );
 
-        return array_values($results);
+        return $this->addLikeInformation($results, $currentUserId);
     }
 
     public function count(): int
@@ -269,6 +278,38 @@ class PostRepository extends BaseRepository
             [$userId, $limit]
         );
 
-        return array_values($results);
+        return $this->addLikeInformation($results, $userId);
+    }
+
+    /**
+     * Add like information to an array of posts
+     * @param array<array<string, mixed>> $posts
+     * @return array<array<string, mixed>>
+     */
+    private function addLikeInformation(array $posts, ?int $currentUserId = null): array
+    {
+        if (empty($posts)) {
+            return $posts;
+        }
+
+        // Extract post IDs
+        $postIds = array_map(fn($post) => (int)$post['id'], $posts);
+
+        // Get like counts for all posts
+        $likeCounts = $this->likeRepository->getLikeCountsForPosts($postIds);
+
+        // Get user liked posts if user is logged in
+        $userLikedPosts = $currentUserId
+            ? $this->likeRepository->getUserLikedPosts($currentUserId, $postIds)
+            : [];
+
+        // Add like information to each post
+        foreach ($posts as &$post) {
+            $postId = (int)$post['id'];
+            $post['like_count'] = $likeCounts[$postId] ?? 0;
+            $post['user_liked'] = in_array($postId, $userLikedPosts);
+        }
+
+        return $posts;
     }
 }

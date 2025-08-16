@@ -1,6 +1,7 @@
 <?php
 
 use NickMous\Binsta\Controllers\AuthController;
+use NickMous\Binsta\Controllers\LikeController;
 use NickMous\Binsta\Controllers\PostController;
 use NickMous\Binsta\Controllers\ProfileController;
 use NickMous\Binsta\Controllers\SearchController;
@@ -46,6 +47,9 @@ return [
             Route::get('/{post:\d+}', className: PostController::class, methodName: 'show'),
             Route::put('/{post:\d+}', className: PostController::class, methodName: 'update'),
             Route::delete('/{post:\d+}', className: PostController::class, methodName: 'destroy'),
+            Route::get('/{post:\d+}/like-status', className: LikeController::class, methodName: 'status'),
+            Route::post('/{post:\d+}/like', className: LikeController::class, methodName: 'like'),
+            Route::post('/{post:\d+}/unlike', className: LikeController::class, methodName: 'unlike'),
             Route::get('/language/{language}', className: PostController::class, methodName: 'byLanguage'),
             Route::get('/search/{query}', className: PostController::class, methodName: 'search'),
         ]),

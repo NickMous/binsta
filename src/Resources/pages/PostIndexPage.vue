@@ -71,6 +71,14 @@ onMounted(() => {
   fetchPosts()
 })
 
+// Handle like updates
+function handlePostLikeUpdated(post: Post, liked: boolean, likeCount: number) {
+  const postIndex = posts.value.findIndex(p => p.id === post.id)
+  if (postIndex !== -1) {
+    posts.value[postIndex] = post.updateLikeStatus(liked, likeCount)
+  }
+}
+
 // Cleanup on component unmount
 onBeforeUnmount(() => {
   if (abortController) {
@@ -117,6 +125,7 @@ onBeforeUnmount(() => {
         actionTo: userStore.getIsAuthenticated ? '/posts/create' : '/login'
       }"
       :on-retry="fetchPosts"
+      @post-like-updated="handlePostLikeUpdated"
     />
   </div>
 </template>

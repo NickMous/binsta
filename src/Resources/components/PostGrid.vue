@@ -32,10 +32,18 @@ withDefaults(defineProps<Props>(), {
   })
 })
 
+const emit = defineEmits<{
+  postLikeUpdated: [post: Post, liked: boolean, likeCount: number]
+}>()
+
 const router = useRouter()
 
 function handleCardClick(post: Post) {
   router.push(`/posts/${post.id}`)
+}
+
+function handleLikeUpdated(post: Post, liked: boolean, likeCount: number) {
+  emit('postLikeUpdated', post, liked, likeCount)
 }
 </script>
 
@@ -79,6 +87,7 @@ function handleCardClick(post: Post) {
       :key="post.id" 
       :post="post"
       @card-click="handleCardClick"
+      @like-updated="handleLikeUpdated"
     />
   </div>
 

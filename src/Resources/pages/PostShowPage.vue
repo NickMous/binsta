@@ -9,6 +9,7 @@ import {Skeleton} from '@/components/ui/skeleton'
 import {Badge} from '@/components/ui/badge'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import CodeHighlighter from '@/components/CodeHighlighter.vue'
+import LikeButton from '@/components/LikeButton.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -120,6 +121,13 @@ async function deletePost() {
 const canEditPost = computed(() => {
   return post.value && userStore.getId === post.value.userId
 })
+
+// Handle like updates
+function handleLikeUpdated(liked: boolean, likeCount: number) {
+  if (post.value) {
+    post.value = post.value.updateLikeStatus(liked, likeCount)
+  }
+}
 </script>
 
 <template>
@@ -236,8 +244,29 @@ const canEditPost = computed(() => {
       </div>
     </div>
 
+    <!-- Like and Engagement Section -->
+    <div class="flex items-center justify-between py-4 border-y border-gray-200 dark:border-gray-700">
+      <div class="flex items-center gap-4">
+        <LikeButton
+          :post-id="post.id"
+          :liked="post.userLiked"
+          :like-count="post.likeCount"
+          size="default"
+          @updated="handleLikeUpdated"
+        />
+        <div class="text-sm text-muted-foreground">
+          {{ post.getLikeCountText() }}
+        </div>
+      </div>
+      
+      <div class="text-sm text-muted-foreground">
+        <span>{{ post.code.length }} characters</span>
+        <span> • {{ post.getLineCount() }} lines</span>
+      </div>
+    </div>
+
     <!-- Post Footer -->
-    <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+    <div class="pt-6">
       <div class="flex items-center justify-between">
         <div class="text-sm text-muted-foreground">
           <span>Posted {{ post.getRelativeTime() }}</span>

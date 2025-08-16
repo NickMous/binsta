@@ -54,7 +54,8 @@ class PostController extends BaseController
     public function show(Post $post): JsonResponse
     {
         try {
-            $postWithUser = $this->postRepository->findByIdWithUser($post->getId());
+            $currentUserId = $_SESSION['user'] ?? null;
+            $postWithUser = $this->postRepository->findByIdWithUser($post->getId(), $currentUserId);
 
             if (!$postWithUser) {
                 return new JsonResponse([
@@ -80,22 +81,14 @@ class PostController extends BaseController
      */
     public function index(): JsonResponse
     {
-        try {
-            // Get recent posts with user information
-            $posts = $this->postRepository->findRecent(20);
+        $currentUserId = $_SESSION['user'] ?? null;
+        // Get recent posts with user information
+        $posts = $this->postRepository->findRecent(20, $currentUserId);
 
-            return new JsonResponse([
-                'posts' => $posts,
-                'count' => count($posts)
-            ]);
-        } catch (\Exception $e) {
-            error_log('Failed to fetch posts: ' . $e->getMessage());
-
-            return new JsonResponse([
-                'message' => 'Failed to fetch posts',
-                'error' => 'An unexpected error occurred'
-            ], 500);
-        }
+        return new JsonResponse([
+            'posts' => $posts,
+            'count' => count($posts)
+        ]);
     }
 
     /**
@@ -243,7 +236,8 @@ class PostController extends BaseController
     public function byUser(int $userId): JsonResponse
     {
         try {
-            $posts = $this->postRepository->findByUserIdWithUser($userId, 20);
+            $currentUserId = $_SESSION['user'] ?? null;
+            $posts = $this->postRepository->findByUserIdWithUser($userId, 20, $currentUserId);
 
             return new JsonResponse([
                 'posts' => $posts,

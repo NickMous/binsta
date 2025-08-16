@@ -5,6 +5,7 @@ import {Card, CardContent, CardFooter, CardHeader} from '@/components/ui/card'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
+import LikeButton from '@/components/LikeButton.vue'
 
 interface Props {
   post: Post
@@ -17,12 +18,17 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   cardClick: [post: Post]
+  likeUpdated: [post: Post, liked: boolean, likeCount: number]
 }>()
 
 function handleCardClick() {
   if (props.clickable) {
     emit('cardClick', props.post)
   }
+}
+
+function handleLikeUpdated(liked: boolean, likeCount: number) {
+  emit('likeUpdated', props.post, liked, likeCount)
 }
 </script>
 
@@ -86,8 +92,16 @@ function handleCardClick() {
     </CardContent>
     
     <CardFooter class="flex items-center justify-between pt-4">
-      <div class="flex items-center gap-2 text-xs text-muted-foreground">
-        <span>{{ post.code.length }} characters</span>
+      <div class="flex items-center gap-3">
+        <LikeButton
+          :post-id="post.id"
+          :liked="post.userLiked"
+          :like-count="post.likeCount"
+          @updated="handleLikeUpdated"
+        />
+        <div class="text-xs text-muted-foreground">
+          {{ post.code.length }} chars
+        </div>
       </div>
       <Button 
         variant="ghost" 
