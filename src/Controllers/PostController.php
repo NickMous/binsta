@@ -53,9 +53,26 @@ class PostController extends BaseController
      */
     public function show(Post $post): JsonResponse
     {
-        return new JsonResponse([
-            'post' => $post->toArray()
-        ]);
+        try {
+            $postWithUser = $this->postRepository->findByIdWithUser($post->getId());
+
+            if (!$postWithUser) {
+                return new JsonResponse([
+                    'message' => 'Post not found'
+                ], 404);
+            }
+
+            return new JsonResponse([
+                'post' => $postWithUser
+            ]);
+        } catch (\Exception $e) {
+            error_log('Failed to fetch post with user: ' . $e->getMessage());
+
+            return new JsonResponse([
+                'message' => 'Failed to fetch post',
+                'error' => 'An unexpected error occurred'
+            ], 500);
+        }
     }
 
     /**
@@ -64,11 +81,11 @@ class PostController extends BaseController
     public function index(): JsonResponse
     {
         try {
-            // Get recent posts (you can add pagination later)
+            // Get recent posts with user information
             $posts = $this->postRepository->findRecent(20);
 
             return new JsonResponse([
-                'posts' => array_map(fn(Post $post) => $post->toArray(), $posts),
+                'posts' => $posts,
                 'count' => count($posts)
             ]);
         } catch (\Exception $e) {
@@ -207,7 +224,7 @@ class PostController extends BaseController
             $posts = $this->postRepository->findFromFollowedUsers($userId, 20);
 
             return new JsonResponse([
-                'posts' => array_map(fn(Post $post) => $post->toArray(), $posts),
+                'posts' => $posts,
                 'count' => count($posts)
             ]);
         } catch (\Exception $e) {
@@ -215,6 +232,28 @@ class PostController extends BaseController
 
             return new JsonResponse([
                 'message' => 'Failed to fetch personal feed',
+                'error' => 'An unexpected error occurred'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get posts by user ID
+     */
+    public function byUser(int $userId): JsonResponse
+    {
+        try {
+            $posts = $this->postRepository->findByUserIdWithUser($userId, 20);
+
+            return new JsonResponse([
+                'posts' => $posts,
+                'count' => count($posts)
+            ]);
+        } catch (\Exception $e) {
+            error_log('Failed to fetch posts by user: ' . $e->getMessage());
+
+            return new JsonResponse([
+                'message' => 'Failed to fetch user posts',
                 'error' => 'An unexpected error occurred'
             ], 500);
         }

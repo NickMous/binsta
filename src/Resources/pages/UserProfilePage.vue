@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import {useRoute} from "vue-router";
 import {ref, watch, computed, onBeforeUnmount} from "vue";
-import {Avatar, AvatarFallback} from "@/components/ui/avatar";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {User, type UserApiResponse} from "@/entities/User.ts";
+import {Post, type PostApiResponse} from "@/entities/Post.ts";
 import {Skeleton} from "@/components/ui/skeleton";
 import {Button} from "@/components/ui/button";
 import {useUserStore} from "@/stores/UserStore.ts";
 import {useBreadcrumbStore} from "@/stores/BreadcrumbStore.ts";
+import PostGrid from "@/components/PostGrid.vue";
 
 const route = useRoute()
 const breadcrumbStore = useBreadcrumbStore();
@@ -34,8 +36,11 @@ watch(username, (newUsername) => {
 const userData = ref<User | null>(null);
 const followsUser = ref(false);
 const userStats = ref<{followers_count: number, following_count: number} | null>(null);
+const userPosts = ref<Post[]>([]);
 const isLoading = ref(true);
+const isLoadingPosts = ref(true);
 const error = ref<string | null>(null);
+const postsError = ref<string | null>(null);
 
 // Add abort controller for cleanup
 let abortController: AbortController | null = null;
@@ -70,7 +75,8 @@ async function fetchUserData() {
     
     await Promise.all([
       fetchUserFollowStatus(),
-      fetchUserStatistics()
+      fetchUserStatistics(),
+      fetchUserPosts()
     ]);
   } catch (err) {
     // Don't show error if request was aborted (user navigated away)
@@ -166,6 +172,43 @@ async function unfollowUser() {
         });
   }
 }
+
+async function fetchUserPosts() {
+  if (!userData.value) return;
+  
+  try {
+    isLoadingPosts.value = true;
+    postsError.value = null;
+    
+    const response = await fetch(`/api/users/${userData.value.id}/posts`, {
+      signal: abortController?.signal
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch user posts");
+    }
+
+    const data = await response.json();
+    if (data.posts && Array.isArray(data.posts)) {
+      userPosts.value = data.posts.map((postData: PostApiResponse) => Post.fromApiResponse(postData));
+    } else {
+      userPosts.value = [];
+    }
+  } catch (error) {
+    // Don't log error if request was aborted
+    if (error instanceof Error && error.name === 'AbortError') {
+      return;
+    }
+    console.error("Error fetching user posts:", error);
+    postsError.value = "Failed to load user posts";
+  } finally {
+    isLoadingPosts.value = false;
+  }
+}
+
+async function retryFetchPosts() {
+  await fetchUserPosts();
+}
 </script>
 
 <template>
@@ -193,6 +236,7 @@ async function unfollowUser() {
     <div class="flex justify-end items-center w-full">
       <Skeleton v-if="userData === null" class="relative flex shrink-0 overflow-hidden rounded-full size-20"/>
       <Avatar v-else-if="userData" class="size-20">
+        <AvatarImage v-if="userData.profilePicture" :src="userData.profilePicture" :alt="userData.getDisplayName()" />
         <AvatarFallback class="text-4xl">{{ userData.name.charAt(0).toUpperCase() }}</AvatarFallback>
       </Avatar>
     </div>
@@ -296,6 +340,27 @@ async function unfollowUser() {
           - Unfollow
         </Button>
       </transition>
+    </div>
+    
+    <!-- User Posts Section -->
+    <div class="col-span-3 mt-8">
+      <div class="border-t border-gray-200 dark:border-gray-700 pt-8">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+          Posts by {{ userData?.getDisplayName() || username }}
+        </h2>
+        
+        <PostGrid
+          :posts="userPosts"
+          :is-loading="isLoadingPosts"
+          :error="postsError"
+          :empty-state-config="{
+            icon: '📝',
+            title: `${userData?.getDisplayName() || username} hasn't posted yet`,
+            description: 'When they share their first post, it will appear here.',
+          }"
+          :on-retry="retryFetchPosts"
+        />
+      </div>
     </div>
   </div>
 </template>

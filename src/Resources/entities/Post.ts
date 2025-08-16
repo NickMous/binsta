@@ -7,6 +7,9 @@ export interface PostApiResponse {
     programmingLanguage?: string;
     user_id: string | number;
     userId?: string | number;
+    user_name?: string;
+    user_username?: string;
+    user_profile_picture?: string;
     created_at?: string;
     createdAt?: string | Date;
     updated_at?: string;
@@ -31,6 +34,9 @@ export interface IPost {
     code: string;
     programmingLanguage: string;
     userId: number;
+    userName?: string;
+    userUsername?: string;
+    userProfilePicture?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -42,6 +48,9 @@ export class Post implements IPost {
     public code: string;
     public programmingLanguage: string;
     public userId: number;
+    public userName?: string;
+    public userUsername?: string;
+    public userProfilePicture?: string;
     public createdAt: Date;
     public updatedAt: Date;
 
@@ -52,6 +61,9 @@ export class Post implements IPost {
         this.code = data.code ?? '';
         this.programmingLanguage = data.programmingLanguage ?? '';
         this.userId = data.userId ?? 0;
+        this.userName = data.userName;
+        this.userUsername = data.userUsername;
+        this.userProfilePicture = data.userProfilePicture;
         this.createdAt = data.createdAt ?? new Date();
         this.updatedAt = data.updatedAt ?? new Date();
     }
@@ -64,6 +76,9 @@ export class Post implements IPost {
             code: data.code,
             programmingLanguage: data.programming_language || data.programmingLanguage || '',
             userId: Number(data.user_id || data.userId),
+            userName: data.user_name,
+            userUsername: data.user_username,
+            userProfilePicture: data.user_profile_picture,
             createdAt: new Date(data.created_at || data.createdAt || new Date()),
             updatedAt: new Date(data.updated_at || data.updatedAt || new Date())
         });
@@ -163,6 +178,14 @@ export class Post implements IPost {
                this.code === other.code &&
                this.programmingLanguage === other.programmingLanguage &&
                this.userId === other.userId;
+    }
+
+    getUserDisplayName(): string {
+        return this.userName || this.userUsername || `User ${this.userId}`;
+    }
+
+    getUserUsername(): string {
+        return this.userUsername || '';
     }
 
     getRelativeTime(): string {

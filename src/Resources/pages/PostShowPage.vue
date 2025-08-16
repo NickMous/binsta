@@ -7,6 +7,7 @@ import {useUserStore} from '@/stores/UserStore'
 import {Button} from '@/components/ui/button'
 import {Skeleton} from '@/components/ui/skeleton'
 import {Badge} from '@/components/ui/badge'
+import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import CodeHighlighter from '@/components/CodeHighlighter.vue'
 
 const route = useRoute()
@@ -167,6 +168,26 @@ const canEditPost = computed(() => {
           <Badge variant="secondary">
             {{ post.getLanguageDisplayName() }}
           </Badge>
+        </div>
+        <!-- User information -->
+        <div v-if="post.userName || post.userUsername" class="flex items-center gap-3">
+          <Avatar class="h-8 w-8">
+            <AvatarImage v-if="post.userProfilePicture" :src="post.userProfilePicture" :alt="post.getUserDisplayName()" />
+            <AvatarFallback class="text-sm">
+              {{ post.getUserDisplayName().charAt(0).toUpperCase() }}
+            </AvatarFallback>
+          </Avatar>
+          <div class="flex flex-col">
+            <RouterLink 
+              :to="`/users/${post.getUserUsername()}`"
+              class="text-base font-medium text-gray-900 dark:text-gray-100 hover:underline"
+            >
+              {{ post.getUserDisplayName() }}
+            </RouterLink>
+            <span v-if="post.getUserUsername()" class="text-sm text-muted-foreground">
+              @{{ post.getUserUsername() }}
+            </span>
+          </div>
         </div>
       </div>
       

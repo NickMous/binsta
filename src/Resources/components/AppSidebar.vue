@@ -8,7 +8,7 @@ import {
   SidebarRail
 } from '@/components/ui/sidebar'
 
-import {Home, Users, Plus, Code2} from 'lucide-vue-next'
+import {Home, Plus, Users} from 'lucide-vue-next'
 import NavMain from '@/components/NavMain.vue'
 import NavUser from '@/components/NavUser.vue'
 import TeamSwitcher from '@/components/TeamSwitcher.vue'

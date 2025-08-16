@@ -23,6 +23,26 @@ class PostRepository extends BaseRepository
     }
 
     /**
+     * Find a post by ID with user information
+     * @return array<string, mixed>|null
+     */
+    public function findByIdWithUser(int $id): ?array
+    {
+        $postTable = Post::getTableName();
+        $userTable = 'user';
+
+        $result = R::getRow(
+            "SELECT p.*, u.name as user_name, u.username as user_username, u.profile_picture as user_profile_picture 
+             FROM {$postTable} p 
+             INNER JOIN {$userTable} u ON p.user_id = u.id 
+             WHERE p.id = ?",
+            [$id]
+        );
+
+        return $result ?: null;
+    }
+
+    /**
      * @return array<Post>
      */
     public function findByUserId(int $userId): array
@@ -30,6 +50,28 @@ class PostRepository extends BaseRepository
         $beans = R::find(Post::getTableName(), 'user_id = ? ORDER BY created_at DESC', [$userId]);
 
         return array_values(array_map(fn(OODBBean $bean) => new Post($bean), $beans));
+    }
+
+    /**
+     * Get posts by user ID with user information
+     * @return array<array<string, mixed>>
+     */
+    public function findByUserIdWithUser(int $userId, int $limit = 20): array
+    {
+        $postTable = Post::getTableName();
+        $userTable = 'user';
+
+        $results = R::getAll(
+            "SELECT p.*, u.name as user_name, u.username as user_username, u.profile_picture as user_profile_picture 
+             FROM {$postTable} p 
+             INNER JOIN {$userTable} u ON p.user_id = u.id 
+             WHERE p.user_id = ? 
+             ORDER BY p.created_at DESC 
+             LIMIT ?",
+            [$userId, $limit]
+        );
+
+        return array_values($results);
     }
 
     /**
@@ -71,13 +113,23 @@ class PostRepository extends BaseRepository
     }
 
     /**
-     * @return array<Post>
+     * @return array<array<string, mixed>>
      */
     public function findRecent(int $limit = 10): array
     {
-        $beans = R::find(Post::getTableName(), 'ORDER BY created_at DESC LIMIT ?', [$limit]);
+        $postTable = Post::getTableName();
+        $userTable = 'user';
 
-        return array_values(array_map(fn(OODBBean $bean) => new Post($bean), $beans));
+        $results = R::getAll(
+            "SELECT p.*, u.name as user_name, u.username as user_username, u.profile_picture as user_profile_picture 
+             FROM {$postTable} p 
+             INNER JOIN {$userTable} u ON p.user_id = u.id 
+             ORDER BY p.created_at DESC 
+             LIMIT ?",
+            [$limit]
+        );
+
+        return array_values($results);
     }
 
     public function count(): int
@@ -198,25 +250,25 @@ class PostRepository extends BaseRepository
 
     /**
      * Get posts from users that the given user follows
-     * @return array<Post>
+     * @return array<array<string, mixed>>
      */
     public function findFromFollowedUsers(int $userId, int $limit = 20): array
     {
         $postTable = Post::getTableName();
         $followTable = 'userfollow';
-        
-        $beans = R::getAll(
-            "SELECT p.* FROM {$postTable} p 
+        $userTable = 'user';
+
+        $results = R::getAll(
+            "SELECT p.*, u.name as user_name, u.username as user_username, u.profile_picture as user_profile_picture 
+             FROM {$postTable} p 
              INNER JOIN {$followTable} uf ON p.user_id = uf.following_id 
+             INNER JOIN {$userTable} u ON p.user_id = u.id 
              WHERE uf.follower_id = ? 
              ORDER BY p.created_at DESC 
              LIMIT ?",
             [$userId, $limit]
         );
 
-        return array_values(array_map(
-            fn(array $beanData) => new Post(R::convertToBean(Post::getTableName(), $beanData)),
-            $beans
-        ));
+        return array_values($results);
     }
 }

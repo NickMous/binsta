@@ -34,6 +34,7 @@ return [
         Route::group('/users', [
             Route::get('/{user:.*}/statistics', className: UserController::class, methodName: 'statistics'),
             Route::get('/{user:.*}', className: UserController::class, methodName: 'show'),
+            Route::get('/{userId:\d+}/posts', className: PostController::class, methodName: 'byUser'),
             Route::get('/{userId:\d+}/follow-status', className: UserFollowController::class, methodName: 'followStatus'),
             Route::post('/{userId:\d+}/follow', className: UserFollowController::class, methodName: 'follow'),
             Route::post('/{userId:\d+}/unfollow', className: UserFollowController::class, methodName: 'unfollow'),
