@@ -78,9 +78,19 @@ export const useUserStore = defineStore('user', {
         setLoading(loading: boolean) {
             this.isLoading = loading;
         },
-        logout() {
+        async logout() {
+            try {
+                // Call backend logout to clear server session
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                });
+            } catch (error) {
+                console.error('Failed to logout on server:', error);
+                // Continue with frontend logout even if server logout fails
+            }
+            
+            // Clear frontend state and stored session data
             this.clearUser();
-            // Remove any stored session data
             localStorage.removeItem('userId');
             localStorage.removeItem('user'); // Clean up old format
             sessionStorage.removeItem('user');

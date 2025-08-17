@@ -10,6 +10,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             UserFollowSeeder::class,
             PostSeeder::class,
+            LikeSeeder::class,
         ]);
     }
 }

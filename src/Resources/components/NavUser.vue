@@ -20,8 +20,14 @@ const userStore = useUserStore()
 const router = useRouter()
 
 const handleLogout = async () => {
-  userStore.logout()
-  await router.push('/login')
+  try {
+    await userStore.logout()
+    await router.push('/login')
+  } catch (error) {
+    console.error('Logout failed:', error)
+    // Still redirect to login even if logout fails
+    await router.push('/login')
+  }
 }
 </script>
 

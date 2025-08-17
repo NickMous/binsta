@@ -88,7 +88,13 @@ abstract class Factory
     private function makeOne(array $attributes = []): object
     {
         $instance = $this->createInstance($attributes);
-        $instance->save();
+
+        try {
+            $instance->save();
+        } catch (\Exception) {
+            echo "Error saving instance.\n";
+        }
+
         return $instance;
     }
 

@@ -65,4 +65,17 @@ class AuthController extends BaseController
             'user' => $user->toArray()
         ], 201);
     }
+
+    public function logout(): Response
+    {
+        // Clear the user session
+        unset($_SESSION['user']);
+
+        // Optionally regenerate session ID for security
+        session_regenerate_id(true);
+
+        return new JsonResponse([
+            'message' => 'Logged out successfully'
+        ]);
+    }
 }

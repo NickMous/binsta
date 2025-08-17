@@ -22,6 +22,7 @@ return [
         Route::group('/auth', [
             Route::post('/login', className: AuthController::class, methodName: 'login'),
             Route::post('/register', className: AuthController::class, methodName: 'register'),
+            Route::post('/logout', className: AuthController::class, methodName: 'logout'),
             Route::get('/register', function () {
                 return new VueResponse('auth/register');
             }),
