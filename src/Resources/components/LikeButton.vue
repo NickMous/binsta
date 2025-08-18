@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { LikeService } from '@/services/LikeService'
 import { useUserStore } from '@/stores/UserStore'
@@ -10,11 +11,13 @@ interface Props {
   likeCount: number
   size?: 'sm' | 'default' | 'lg'
   variant?: 'default' | 'outline' | 'ghost'
+  showCount?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   size: 'sm',
-  variant: 'ghost'
+  variant: 'ghost',
+  showCount: true
 })
 
 const emit = defineEmits<{
@@ -22,6 +25,7 @@ const emit = defineEmits<{
 }>()
 
 const userStore = useUserStore()
+const router = useRouter()
 const isLoading = ref(false)
 const localLiked = ref(props.liked)
 const localLikeCount = ref(props.likeCount)
@@ -34,7 +38,8 @@ watchEffect(() => {
 
 async function handleLikeToggle() {
   if (!userStore.getIsAuthenticated) {
-    // Redirect to login or show auth modal
+    // Redirect to login page
+    router.push('/login')
     return
   }
 
@@ -95,7 +100,7 @@ function formatLikeCount(count: number): string {
     >
       {{ localLiked ? '❤️' : '🤍' }}
     </span>
-    <span class="text-xs">{{ formatLikeCount(localLikeCount) }}</span>
+    <span v-if="showCount" class="text-xs">{{ formatLikeCount(localLikeCount) }}</span>
   </Button>
 </template>
 

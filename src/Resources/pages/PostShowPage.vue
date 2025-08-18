@@ -10,6 +10,7 @@ import {Badge} from '@/components/ui/badge'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import CodeHighlighter from '@/components/CodeHighlighter.vue'
 import LikeButton from '@/components/LikeButton.vue'
+import CommentSection from '@/components/CommentSection.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -252,6 +253,7 @@ function handleLikeUpdated(liked: boolean, likeCount: number) {
           :liked="post.userLiked"
           :like-count="post.likeCount"
           size="default"
+          :show-count="false"
           @updated="handleLikeUpdated"
         />
         <div class="text-sm text-muted-foreground">
@@ -284,5 +286,8 @@ function handleLikeUpdated(liked: boolean, likeCount: number) {
         </div>
       </div>
     </div>
+
+    <!-- Comments Section -->
+    <CommentSection :post-id="post.id" />
   </div>
 </template>

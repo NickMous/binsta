@@ -1,6 +1,7 @@
 <?php
 
 use NickMous\Binsta\Controllers\AuthController;
+use NickMous\Binsta\Controllers\CommentController;
 use NickMous\Binsta\Controllers\LikeController;
 use NickMous\Binsta\Controllers\PostController;
 use NickMous\Binsta\Controllers\ProfileController;
@@ -51,8 +52,13 @@ return [
             Route::get('/{post:\d+}/like-status', className: LikeController::class, methodName: 'status'),
             Route::post('/{post:\d+}/like', className: LikeController::class, methodName: 'like'),
             Route::post('/{post:\d+}/unlike', className: LikeController::class, methodName: 'unlike'),
+            Route::get('/{postId:\d+}/comments', className: CommentController::class, methodName: 'byPost'),
+            Route::post('/{postId:\d+}/comments', className: CommentController::class, methodName: 'store'),
             Route::get('/language/{language}', className: PostController::class, methodName: 'byLanguage'),
             Route::get('/search/{query}', className: PostController::class, methodName: 'search'),
+        ]),
+        Route::group('/comments', [
+            Route::delete('/{comment:\d+}', className: CommentController::class, methodName: 'destroy'),
         ]),
         Route::get('/search/{query}', className: SearchController::class, methodName: 'search'),
     ]),
