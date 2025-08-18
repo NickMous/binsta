@@ -28,6 +28,18 @@ class PostSeeder extends Seeder
                 ->create();
         }
 
+        // Create some posts specifically to showcase different themes
+        $themes = [
+            'github-dark', 'github-light', 'nord', 'one-dark-pro',
+            'dracula', 'monokai', 'tokyo-night', 'catppuccin-frappe'
+        ];
+        foreach ($themes as $theme) {
+            PostFactory::new()
+                ->withTheme($theme)
+                ->withLanguage('javascript') // Use JavaScript for consistency
+                ->create();
+        }
+
         // Create some forked posts to demonstrate fork functionality
         // Get some existing posts to fork from
         $posts = \RedBeanPHP\R::findAll('post', 'ORDER BY RAND() LIMIT 10');
@@ -47,6 +59,6 @@ class PostSeeder extends Seeder
             }
         }
 
-        echo "Created posts with factory system (including forked posts)\n";
+        echo "Created posts with factory system (including forked posts and theme showcase)\n";
     }
 }

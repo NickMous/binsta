@@ -5,6 +5,7 @@ export interface PostApiResponse {
     code: string;
     programming_language: string;
     programmingLanguage?: string;
+    code_theme?: string;
     user_id: string | number;
     userId?: string | number;
     user_name?: string;
@@ -29,6 +30,7 @@ export interface PostApiPayload {
     description: string;
     code: string;
     programming_language: string;
+    code_theme?: string;
     user_id: number;
     original_post_id?: number | null;
     created_at: string;
@@ -41,6 +43,7 @@ export interface IPost {
     description: string;
     code: string;
     programmingLanguage: string;
+    codeTheme: string;
     userId: number;
     userName?: string;
     userUsername?: string;
@@ -61,6 +64,7 @@ export class Post implements IPost {
     public description: string;
     public code: string;
     public programmingLanguage: string;
+    public codeTheme: string;
     public userId: number;
     public userName?: string;
     public userUsername?: string;
@@ -80,6 +84,7 @@ export class Post implements IPost {
         this.description = data.description ?? '';
         this.code = data.code ?? '';
         this.programmingLanguage = data.programmingLanguage ?? '';
+        this.codeTheme = data.codeTheme ?? 'github-dark';
         this.userId = data.userId ?? 0;
         this.userName = data.userName;
         this.userUsername = data.userUsername;
@@ -101,6 +106,7 @@ export class Post implements IPost {
             description: data.description,
             code: data.code,
             programmingLanguage: data.programming_language || data.programmingLanguage || '',
+            codeTheme: data.code_theme || 'github-dark',
             userId: Number(data.user_id || data.userId),
             userName: data.user_name,
             userUsername: data.user_username,
@@ -123,6 +129,7 @@ export class Post implements IPost {
             description: this.description,
             code: this.code,
             programming_language: this.programmingLanguage,
+            code_theme: this.codeTheme,
             user_id: this.userId,
             original_post_id: this.originalPostId,
             created_at: this.createdAt.toISOString(),
@@ -191,6 +198,7 @@ export class Post implements IPost {
             description: this.description,
             code: this.code,
             programmingLanguage: this.programmingLanguage,
+            codeTheme: this.codeTheme,
             userId: this.userId,
             userName: this.userName,
             userUsername: this.userUsername,

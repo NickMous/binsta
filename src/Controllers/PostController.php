@@ -30,7 +30,9 @@ class PostController extends BaseController
                 description: $request->get('description'),
                 code: $request->get('code'),
                 programmingLanguage: $request->get('programming_language'),
-                userId: $request->get('user_id')
+                userId: $request->get('user_id'),
+                originalPostId: null,
+                codeTheme: $request->get('code_theme') ?? 'github-dark'
             );
 
             return new JsonResponse([
@@ -104,7 +106,8 @@ class PostController extends BaseController
                 'title' => $request->get('title'),
                 'description' => $request->get('description'),
                 'code' => $request->get('code'),
-                'programming_language' => $request->get('programming_language')
+                'programming_language' => $request->get('programming_language'),
+                'code_theme' => $request->get('code_theme') ?? $post->codeTheme
             ]);
 
             if (!$updatedPost) {

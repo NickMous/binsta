@@ -16,13 +16,20 @@ class PostFactory extends Factory
             'ruby', 'kotlin', 'swift', 'sql', 'yaml', 'xml', 'vue', 'jsx', 'tsx'
         ];
 
+        $codeThemes = [
+            'github-dark', 'github-light', 'nord', 'one-dark-pro', 'dracula',
+            'monokai', 'tokyo-night', 'catppuccin-frappe'
+        ];
+
         $language = $this->faker()->randomElement($programmingLanguages);
+        $theme = $this->faker()->randomElement($codeThemes);
 
         return [
             'title' => $this->generateTitle($language),
             'description' => $this->generateDescription($language),
             'code' => $this->generateCode($language),
             'programmingLanguage' => $language,
+            'codeTheme' => $theme,
             'userId' => $this->faker()->numberBetween(1, 15), // Assuming 15 users from UserSeeder
             'originalPostId' => null, // Default to null (not a fork)
             'createdAt' => $this->faker()->dateTimeBetween('-3 months', 'now'),
@@ -276,6 +283,13 @@ class PostFactory extends Factory
     {
         return $this->state([
             'originalPostId' => $originalPostId,
+        ]);
+    }
+
+    public function withTheme(string $theme): static
+    {
+        return $this->state([
+            'codeTheme' => $theme,
         ]);
     }
 }

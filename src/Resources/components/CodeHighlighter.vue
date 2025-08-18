@@ -2,10 +2,12 @@
 import { ref, onMounted, watch } from 'vue'
 import { createHighlighter, type Highlighter } from 'shiki'
 
+import type { CodeTheme } from '@/constants/codeThemes'
+
 interface Props {
   code: string
   language: string
-  theme?: 'github-dark' | 'github-light'
+  theme?: CodeTheme
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -21,7 +23,7 @@ let highlighter: Highlighter | null = null
 onMounted(async () => {
   try {
     highlighter = await createHighlighter({
-      themes: ['github-dark', 'github-light'],
+      themes: ['github-dark', 'github-light', 'nord', 'one-dark-pro', 'dracula', 'monokai', 'tokyo-night', 'catppuccin-frappe'],
       langs: [
         'javascript', 'typescript', 'php', 'python', 'java', 'html', 'css', 'json',
         'bash', 'shell', 'c', 'cpp', 'csharp', 'go', 'rust', 'ruby', 'kotlin',

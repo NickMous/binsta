@@ -15,6 +15,7 @@ class Post extends Entity
     public string $description = '';
     public string $code = '';
     public string $programmingLanguage = '';
+    public string $codeTheme = 'github-dark';
     public int $userId = 0;
     public ?int $originalPostId = null;
 
@@ -23,13 +24,14 @@ class Post extends Entity
         return 'post';
     }
 
-    public static function create(string $title, string $description, string $code, string $programmingLanguage, int $userId, ?int $originalPostId = null): self
+    public static function create(string $title, string $description, string $code, string $programmingLanguage, int $userId, ?int $originalPostId = null, string $codeTheme = 'github-dark'): self
     {
         $post = new self();
         $post->title = $title;
         $post->description = $description;
         $post->code = $code;
         $post->programmingLanguage = $programmingLanguage;
+        $post->codeTheme = $codeTheme;
         $post->userId = $userId;
         $post->originalPostId = $originalPostId;
         $post->createdAt = new DateTime();
@@ -47,6 +49,7 @@ class Post extends Entity
         $this->description = (string) $this->bean->description;
         $this->code = (string) $this->bean->code;
         $this->programmingLanguage = (string) $this->bean->programming_language;
+        $this->codeTheme = (string) ($this->bean->code_theme ?: 'github-dark');
         $this->userId = (int) $this->bean->user_id;
         $this->originalPostId = $this->bean->original_post_id ? (int) $this->bean->original_post_id : null;
 
@@ -63,6 +66,7 @@ class Post extends Entity
         $this->bean->description = $this->description ?? '';
         $this->bean->code = $this->code ?? '';
         $this->bean->programming_language = $this->programmingLanguage ?? '';
+        $this->bean->code_theme = $this->codeTheme ?? 'github-dark';
         $this->bean->user_id = $this->userId ?? 0;
         $this->bean->original_post_id = $this->originalPostId;
 
@@ -80,6 +84,7 @@ class Post extends Entity
             'description' => $this->description,
             'code' => $this->code,
             'programming_language' => $this->programmingLanguage,
+            'code_theme' => $this->codeTheme,
             'user_id' => $this->userId,
             'original_post_id' => $this->originalPostId,
         ], $this->getTimestampArray());

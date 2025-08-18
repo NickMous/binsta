@@ -12,6 +12,7 @@ import CodeHighlighter from '@/components/CodeHighlighter.vue'
 import LikeButton from '@/components/LikeButton.vue'
 import ForkButton from '@/components/ForkButton.vue'
 import CommentSection from '@/components/CommentSection.vue'
+import { getThemeByValue, type CodeTheme } from '@/constants/codeThemes'
 
 const route = useRoute()
 const router = useRouter()
@@ -137,6 +138,11 @@ function handleForkUpdated(forked: boolean, forkCount: number) {
     post.value = post.value.updateForkStatus(forked, forkCount)
   }
 }
+
+function getThemeDisplayName(themeValue: string): string {
+  const theme = getThemeByValue(themeValue)
+  return theme ? theme.label : 'Unknown Theme'
+}
 </script>
 
 <template>
@@ -203,7 +209,8 @@ function handleForkUpdated(forked: boolean, forkCount: number) {
         <!-- User information -->
         <div v-if="post.userName || post.userUsername" class="flex items-center gap-3">
           <Avatar class="h-8 w-8">
-            <AvatarImage v-if="post.userProfilePicture" :src="post.userProfilePicture"
+            <AvatarImage
+v-if="post.userProfilePicture" :src="post.userProfilePicture"
                          :alt="post.getUserDisplayName()"/>
             <AvatarFallback class="text-sm">
               {{ post.getUserDisplayName().charAt(0).toUpperCase() }}
@@ -253,6 +260,9 @@ function handleForkUpdated(forked: boolean, forkCount: number) {
           <Badge variant="outline">
             {{ post.getLanguageDisplayName() }}
           </Badge>
+          <Badge variant="secondary">
+            {{ getThemeDisplayName(post.codeTheme) }}
+          </Badge>
           <span class="text-sm text-muted-foreground">
             {{ post.getCodePreview().length }} characters
           </span>
@@ -263,7 +273,7 @@ function handleForkUpdated(forked: boolean, forkCount: number) {
         <CodeHighlighter
             :code="post.code"
             :language="post.programmingLanguage"
-            theme="github-dark"
+            :theme="(post.codeTheme || 'github-dark') as CodeTheme"
         />
       </div>
     </div>

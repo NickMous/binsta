@@ -109,9 +109,9 @@ class PostRepository extends BaseRepository
         return array_values(array_map(fn(OODBBean $bean) => new Post($bean), $beans));
     }
 
-    public function create(string $title, string $description, string $code, string $programmingLanguage, int $userId, ?int $originalPostId = null): Post
+    public function create(string $title, string $description, string $code, string $programmingLanguage, int $userId, ?int $originalPostId = null, string $codeTheme = 'github-dark'): Post
     {
-        $post = Post::create($title, $description, $code, $programmingLanguage, $userId, $originalPostId);
+        $post = Post::create($title, $description, $code, $programmingLanguage, $userId, $originalPostId, $codeTheme);
         $post->save();
 
         return $post;
@@ -303,7 +303,8 @@ class PostRepository extends BaseRepository
             code: $originalPost->code,
             programmingLanguage: $originalPost->programmingLanguage,
             userId: $userId,
-            originalPostId: $originalPost->getId()
+            originalPostId: $originalPost->getId(),
+            codeTheme: $originalPost->codeTheme
         );
     }
 

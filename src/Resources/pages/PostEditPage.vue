@@ -19,6 +19,7 @@ import {
   ComboboxList
 } from '@/components/ui/combobox'
 import CodeHighlighter from '@/components/CodeHighlighter.vue'
+import { CODE_THEMES, type CodeTheme } from '@/constants/codeThemes'
 
 const route = useRoute()
 const router = useRouter()
@@ -70,16 +71,24 @@ interface ProgrammingLanguage {
   label: string
 }
 
+interface CodeThemeOption {
+  value: CodeTheme
+  label: string
+  description: string
+}
+
 const postForm = reactive<{
   title: string
   description: string
   code: string
   programming_language: string | ProgrammingLanguage
+  code_theme: string | CodeThemeOption
 }>({
   title: '',
   description: '',
   code: '',
-  programming_language: ''
+  programming_language: '',
+  code_theme: 'github-dark'
 })
 
 const errors = ref<Record<string, string>>({})
@@ -87,6 +96,8 @@ const successMessage = ref<string>('')
 
 // Filter languages for combobox
 const languageSearchQuery = ref('')
+const themeSearchQuery = ref('')
+
 const filteredLanguages = computed(() => {
   if (!languageSearchQuery.value) return programmingLanguages
 
@@ -96,12 +107,30 @@ const filteredLanguages = computed(() => {
   )
 })
 
+const filteredThemes = computed(() => {
+  if (!themeSearchQuery.value) return CODE_THEMES
+
+  return CODE_THEMES.filter(theme =>
+      theme.label.toLowerCase().includes(themeSearchQuery.value.toLowerCase()) ||
+      theme.value.toLowerCase().includes(themeSearchQuery.value.toLowerCase()) ||
+      theme.description.toLowerCase().includes(themeSearchQuery.value.toLowerCase())
+  )
+})
+
 const selectedLanguage = computed(() => {
   // Handle both object and string values for programming_language
   if (typeof postForm.programming_language === 'object' && postForm.programming_language?.value) {
     return postForm.programming_language
   }
   return programmingLanguages.find(lang => lang.value === postForm.programming_language)
+})
+
+const selectedTheme = computed(() => {
+  // Handle both object and string values for code_theme
+  if (typeof postForm.code_theme === 'object' && postForm.code_theme?.value) {
+    return postForm.code_theme
+  }
+  return CODE_THEMES.find(theme => theme.value === postForm.code_theme)
 })
 
 async function fetchPost() {
@@ -145,6 +174,7 @@ async function fetchPost() {
     postForm.description = post.value.description
     postForm.code = post.value.code
     postForm.programming_language = post.value.programmingLanguage
+    postForm.code_theme = post.value.codeTheme
 
     // Update breadcrumbs
     breadcrumbStore.replaceBreadcrumbs([
@@ -196,10 +226,14 @@ const updatePost = async () => {
   successMessage.value = ''
 
   try {
-    // Prepare form data, extracting language value if it's an object
+    // Prepare form data, extracting values if they're objects
     const languageValue = typeof postForm.programming_language === 'object'
         ? postForm.programming_language.value
         : postForm.programming_language
+
+    const themeValue = typeof postForm.code_theme === 'object'
+        ? postForm.code_theme.value
+        : postForm.code_theme
 
     const response = await fetch(`/api/posts/${post.value.id}`, {
       method: 'PUT',
@@ -210,7 +244,8 @@ const updatePost = async () => {
         title: postForm.title,
         description: postForm.description,
         code: postForm.code,
-        programming_language: languageValue
+        programming_language: languageValue,
+        code_theme: themeValue
       })
     })
 
@@ -334,7 +369,8 @@ const cancelEdit = () => {
           <p class="text-sm text-muted-foreground">
             Explain what your code does and provide context for other developers.
           </p>
-          <p v-if="errors.description" id="description-error" class="text-red-500 text-sm" role="alert"
+          <p
+v-if="errors.description" id="description-error" class="text-red-500 text-sm" role="alert"
              aria-live="polite">
             {{ errors.description }}
           </p>
@@ -374,6 +410,43 @@ const cancelEdit = () => {
           </p>
         </div>
 
+        <!-- Code Theme Field -->
+        <div class="grid gap-2">
+          <Label for="theme">Code Theme *</Label>
+          <Combobox v-model="postForm.code_theme" by="value">
+            <ComboboxAnchor>
+              <ComboboxInput
+                  v-model="themeSearchQuery"
+                  :display-value="(val) => val?.label ?? ''"
+                  :placeholder="selectedTheme?.label || 'Select a code theme...'"
+                  class="w-full"
+                  :class="{ 'border-red-500': errors.code_theme }"
+              />
+            </ComboboxAnchor>
+            <ComboboxList>
+              <ComboboxEmpty>No themes found.</ComboboxEmpty>
+              <ComboboxGroup>
+                <ComboboxItem
+                    v-for="theme in filteredThemes"
+                    :key="theme.value"
+                    :value="theme"
+                >
+                  <div class="flex flex-col">
+                    <span class="font-medium">{{ theme.label }}</span>
+                    <span class="text-xs text-muted-foreground">{{ theme.description }}</span>
+                  </div>
+                </ComboboxItem>
+              </ComboboxGroup>
+            </ComboboxList>
+          </Combobox>
+          <p class="text-sm text-muted-foreground">
+            Choose the color theme for code syntax highlighting.
+          </p>
+          <p v-if="errors.code_theme" class="text-red-500 text-sm" role="alert" aria-live="polite">
+            {{ errors.code_theme }}
+          </p>
+        </div>
+
         <!-- Code Field -->
         <div class="grid gap-2">
           <Label for="code">Code *</Label>
@@ -397,12 +470,15 @@ const cancelEdit = () => {
         </div>
 
         <!-- Code Preview -->
-        <div v-if="postForm.code && selectedLanguage" class="grid gap-2">
+        <div v-if="postForm.code && selectedLanguage && selectedTheme" class="grid gap-2">
           <div class="flex items-center justify-between">
             <Label class="text-base font-medium">Code Preview</Label>
             <div class="flex items-center gap-2 text-sm text-muted-foreground">
             <span class="px-2 py-1 bg-muted rounded text-xs font-mono">
               {{ selectedLanguage.label }}
+            </span>
+            <span class="px-2 py-1 bg-muted rounded text-xs font-mono">
+              {{ selectedTheme.label }}
             </span>
             </div>
           </div>
@@ -410,7 +486,7 @@ const cancelEdit = () => {
             <CodeHighlighter
                 :code="postForm.code"
                 :language="selectedLanguage.value"
-                theme="github-dark"
+                :theme="(selectedTheme?.value || 'github-dark') as CodeTheme"
             />
           </div>
           <p class="text-xs text-muted-foreground">
@@ -440,7 +516,7 @@ const cancelEdit = () => {
               </p>
             </div>
             <Button
-                :disabled="isUpdating || !postForm.title || !postForm.description || !postForm.code || !selectedLanguage"
+                :disabled="isUpdating || !postForm.title || !postForm.description || !postForm.code || !selectedLanguage || !selectedTheme"
                 @click="updatePost"
             >
               <span v-if="isUpdating">Updating Post...</span>
