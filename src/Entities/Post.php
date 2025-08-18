@@ -16,13 +16,14 @@ class Post extends Entity
     public string $code = '';
     public string $programmingLanguage = '';
     public int $userId = 0;
+    public ?int $originalPostId = null;
 
     public static function getTableName(): string
     {
         return 'post';
     }
 
-    public static function create(string $title, string $description, string $code, string $programmingLanguage, int $userId): self
+    public static function create(string $title, string $description, string $code, string $programmingLanguage, int $userId, ?int $originalPostId = null): self
     {
         $post = new self();
         $post->title = $title;
@@ -30,6 +31,7 @@ class Post extends Entity
         $post->code = $code;
         $post->programmingLanguage = $programmingLanguage;
         $post->userId = $userId;
+        $post->originalPostId = $originalPostId;
         $post->createdAt = new DateTime();
 
         return $post;
@@ -46,6 +48,7 @@ class Post extends Entity
         $this->code = (string) $this->bean->code;
         $this->programmingLanguage = (string) $this->bean->programming_language;
         $this->userId = (int) $this->bean->user_id;
+        $this->originalPostId = $this->bean->original_post_id ? (int) $this->bean->original_post_id : null;
 
         $this->hydrateTimestamps();
     }
@@ -61,6 +64,7 @@ class Post extends Entity
         $this->bean->code = $this->code ?? '';
         $this->bean->programming_language = $this->programmingLanguage ?? '';
         $this->bean->user_id = $this->userId ?? 0;
+        $this->bean->original_post_id = $this->originalPostId;
 
         $this->prepareTimestamps();
     }
@@ -77,6 +81,7 @@ class Post extends Entity
             'code' => $this->code,
             'programming_language' => $this->programmingLanguage,
             'user_id' => $this->userId,
+            'original_post_id' => $this->originalPostId,
         ], $this->getTimestampArray());
     }
 

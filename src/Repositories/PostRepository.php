@@ -37,15 +37,18 @@ class PostRepository extends BaseRepository
         $userTable = 'user';
 
         $result = R::getRow(
-            "SELECT p.*, u.name as user_name, u.username as user_username, u.profile_picture as user_profile_picture 
+            "SELECT p.*, u.name as user_name, u.username as user_username, u.profile_picture as user_profile_picture,
+                    op.id as original_post_id_ref, op.title as original_post_title
              FROM {$postTable} p 
              INNER JOIN {$userTable} u ON p.user_id = u.id 
+             LEFT JOIN {$postTable} op ON p.original_post_id = op.id
              WHERE p.id = ?",
             [$id]
         );
 
         if ($result) {
             $result = $this->addLikeInformation([$result], $currentUserId)[0];
+            $result = $this->addForkInformation([$result], $currentUserId)[0];
         }
 
         return $result ?: null;
@@ -71,16 +74,19 @@ class PostRepository extends BaseRepository
         $userTable = 'user';
 
         $results = R::getAll(
-            "SELECT p.*, u.name as user_name, u.username as user_username, u.profile_picture as user_profile_picture 
+            "SELECT p.*, u.name as user_name, u.username as user_username, u.profile_picture as user_profile_picture,
+                    op.id as original_post_id_ref, op.title as original_post_title
              FROM {$postTable} p 
              INNER JOIN {$userTable} u ON p.user_id = u.id 
+             LEFT JOIN {$postTable} op ON p.original_post_id = op.id
              WHERE p.user_id = ? 
              ORDER BY p.created_at DESC 
              LIMIT ?",
             [$userId, $limit]
         );
 
-        return $this->addLikeInformation($results, $currentUserId);
+        $results = $this->addLikeInformation($results, $currentUserId);
+        return $this->addForkInformation($results, $currentUserId);
     }
 
     /**
@@ -103,9 +109,9 @@ class PostRepository extends BaseRepository
         return array_values(array_map(fn(OODBBean $bean) => new Post($bean), $beans));
     }
 
-    public function create(string $title, string $description, string $code, string $programmingLanguage, int $userId): Post
+    public function create(string $title, string $description, string $code, string $programmingLanguage, int $userId, ?int $originalPostId = null): Post
     {
-        $post = Post::create($title, $description, $code, $programmingLanguage, $userId);
+        $post = Post::create($title, $description, $code, $programmingLanguage, $userId, $originalPostId);
         $post->save();
 
         return $post;
@@ -130,15 +136,18 @@ class PostRepository extends BaseRepository
         $userTable = 'user';
 
         $results = R::getAll(
-            "SELECT p.*, u.name as user_name, u.username as user_username, u.profile_picture as user_profile_picture 
+            "SELECT p.*, u.name as user_name, u.username as user_username, u.profile_picture as user_profile_picture,
+                    op.id as original_post_id_ref, op.title as original_post_title
              FROM {$postTable} p 
              INNER JOIN {$userTable} u ON p.user_id = u.id 
+             LEFT JOIN {$postTable} op ON p.original_post_id = op.id
              ORDER BY p.created_at DESC 
              LIMIT ?",
             [$limit]
         );
 
-        return $this->addLikeInformation($results, $currentUserId);
+        $results = $this->addLikeInformation($results, $currentUserId);
+        return $this->addForkInformation($results, $currentUserId);
     }
 
     public function count(): int
@@ -268,10 +277,12 @@ class PostRepository extends BaseRepository
         $userTable = 'user';
 
         $results = R::getAll(
-            "SELECT p.*, u.name as user_name, u.username as user_username, u.profile_picture as user_profile_picture 
+            "SELECT p.*, u.name as user_name, u.username as user_username, u.profile_picture as user_profile_picture,
+                    op.id as original_post_id_ref, op.title as original_post_title
              FROM {$postTable} p 
              INNER JOIN {$followTable} uf ON p.user_id = uf.following_id 
              INNER JOIN {$userTable} u ON p.user_id = u.id 
+             LEFT JOIN {$postTable} op ON p.original_post_id = op.id
              WHERE uf.follower_id = ? 
              ORDER BY p.created_at DESC 
              LIMIT ?",
@@ -279,6 +290,69 @@ class PostRepository extends BaseRepository
         );
 
         return $this->addLikeInformation($results, $userId);
+    }
+
+    /**
+     * Fork a post by creating a copy with a reference to the original
+     */
+    public function fork(Post $originalPost, int $userId): Post
+    {
+        return $this->create(
+            title: $originalPost->title,
+            description: $originalPost->description,
+            code: $originalPost->code,
+            programmingLanguage: $originalPost->programmingLanguage,
+            userId: $userId,
+            originalPostId: $originalPost->getId()
+        );
+    }
+
+    /**
+     * Check if a user has already forked a specific post
+     */
+    public function hasUserForkedPost(int $userId, int $originalPostId): bool
+    {
+        $count = R::count(
+            Post::getTableName(),
+            'user_id = ? AND original_post_id = ?',
+            [$userId, $originalPostId]
+        );
+
+        return $count > 0;
+    }
+
+    /**
+     * Get the number of times a post has been forked
+     */
+    public function getForkCount(int $postId): int
+    {
+        return R::count(
+            Post::getTableName(),
+            'original_post_id = ?',
+            [$postId]
+        );
+    }
+
+    /**
+     * Get forks of a specific post
+     * @return array<array<string, mixed>>
+     */
+    public function getForks(int $postId, ?int $currentUserId = null): array
+    {
+        $postTable = Post::getTableName();
+        $userTable = 'user';
+
+        $results = R::getAll(
+            "SELECT p.*, u.name as user_name, u.username as user_username, u.profile_picture as user_profile_picture 
+             FROM {$postTable} p 
+             INNER JOIN {$userTable} u ON p.user_id = u.id 
+             WHERE p.original_post_id = ? 
+             ORDER BY p.created_at DESC",
+            [$postId]
+        );
+
+        $results = $this->addLikeInformation($results, $currentUserId);
+        return $this->addForkInformation($results, $currentUserId);
     }
 
     /**
@@ -308,6 +382,46 @@ class PostRepository extends BaseRepository
             $postId = (int)$post['id'];
             $post['like_count'] = $likeCounts[$postId] ?? 0;
             $post['user_liked'] = in_array($postId, $userLikedPosts);
+        }
+
+        return $posts;
+    }
+
+    /**
+     * Add fork information to an array of posts
+     * @param array<array<string, mixed>> $posts
+     * @return array<array<string, mixed>>
+     */
+    private function addForkInformation(array $posts, ?int $currentUserId = null): array
+    {
+        if (empty($posts)) {
+            return $posts;
+        }
+
+        // Extract post IDs
+        $postIds = array_map(fn($post) => (int)$post['id'], $posts);
+
+        // Get fork counts for all posts
+        $forkCounts = [];
+        foreach ($postIds as $postId) {
+            $forkCounts[$postId] = $this->getForkCount($postId);
+        }
+
+        // Get user forked posts if user is logged in
+        $userForkedPosts = [];
+        if ($currentUserId) {
+            foreach ($postIds as $postId) {
+                if ($this->hasUserForkedPost($currentUserId, $postId)) {
+                    $userForkedPosts[] = $postId;
+                }
+            }
+        }
+
+        // Add fork information to each post
+        foreach ($posts as &$post) {
+            $postId = (int)$post['id'];
+            $post['fork_count'] = $forkCounts[$postId] ?? 0;
+            $post['user_forked'] = in_array($postId, $userForkedPosts);
         }
 
         return $posts;

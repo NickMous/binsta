@@ -34,6 +34,7 @@ withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   postLikeUpdated: [post: Post, liked: boolean, likeCount: number]
+  postForkUpdated: [post: Post, forked: boolean, forkCount: number]
 }>()
 
 const router = useRouter()
@@ -44,6 +45,10 @@ function handleCardClick(post: Post) {
 
 function handleLikeUpdated(post: Post, liked: boolean, likeCount: number) {
   emit('postLikeUpdated', post, liked, likeCount)
+}
+
+function handleForkUpdated(post: Post, forked: boolean, forkCount: number) {
+  emit('postForkUpdated', post, forked, forkCount)
 }
 </script>
 
@@ -88,6 +93,7 @@ function handleLikeUpdated(post: Post, liked: boolean, likeCount: number) {
       :post="post"
       @card-click="handleCardClick"
       @like-updated="handleLikeUpdated"
+      @fork-updated="handleForkUpdated"
     />
   </div>
 

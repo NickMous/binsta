@@ -10,8 +10,13 @@ export interface PostApiResponse {
     user_name?: string;
     user_username?: string;
     user_profile_picture?: string;
+    original_post_id?: number | null;
+    original_post_id_ref?: number | null;
+    original_post_title?: string;
     like_count?: number;
     user_liked?: boolean;
+    fork_count?: number;
+    user_forked?: boolean;
     created_at?: string;
     createdAt?: string | Date;
     updated_at?: string;
@@ -25,6 +30,7 @@ export interface PostApiPayload {
     code: string;
     programming_language: string;
     user_id: number;
+    original_post_id?: number | null;
     created_at: string;
     updated_at: string;
 }
@@ -39,8 +45,12 @@ export interface IPost {
     userName?: string;
     userUsername?: string;
     userProfilePicture?: string;
+    originalPostId?: number | null;
+    originalPostTitle?: string;
     likeCount: number;
     userLiked: boolean;
+    forkCount: number;
+    userForked: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -55,8 +65,12 @@ export class Post implements IPost {
     public userName?: string;
     public userUsername?: string;
     public userProfilePicture?: string;
+    public originalPostId?: number | null;
+    public originalPostTitle?: string;
     public likeCount: number;
     public userLiked: boolean;
+    public forkCount: number;
+    public userForked: boolean;
     public createdAt: Date;
     public updatedAt: Date;
 
@@ -70,8 +84,12 @@ export class Post implements IPost {
         this.userName = data.userName;
         this.userUsername = data.userUsername;
         this.userProfilePicture = data.userProfilePicture;
+        this.originalPostId = data.originalPostId ?? null;
+        this.originalPostTitle = data.originalPostTitle;
         this.likeCount = data.likeCount ?? 0;
         this.userLiked = data.userLiked ?? false;
+        this.forkCount = data.forkCount ?? 0;
+        this.userForked = data.userForked ?? false;
         this.createdAt = data.createdAt ?? new Date();
         this.updatedAt = data.updatedAt ?? new Date();
     }
@@ -87,8 +105,12 @@ export class Post implements IPost {
             userName: data.user_name,
             userUsername: data.user_username,
             userProfilePicture: data.user_profile_picture,
+            originalPostId: data.original_post_id ?? null,
+            originalPostTitle: data.original_post_title,
             likeCount: data.like_count ?? 0,
             userLiked: data.user_liked ?? false,
+            forkCount: data.fork_count ?? 0,
+            userForked: data.user_forked ?? false,
             createdAt: new Date(data.created_at || data.createdAt || new Date()),
             updatedAt: new Date(data.updated_at || data.updatedAt || new Date())
         });
@@ -102,6 +124,7 @@ export class Post implements IPost {
             code: this.code,
             programming_language: this.programmingLanguage,
             user_id: this.userId,
+            original_post_id: this.originalPostId,
             created_at: this.createdAt.toISOString(),
             updated_at: this.updatedAt.toISOString()
         };
@@ -172,8 +195,12 @@ export class Post implements IPost {
             userName: this.userName,
             userUsername: this.userUsername,
             userProfilePicture: this.userProfilePicture,
+            originalPostId: this.originalPostId,
+            originalPostTitle: this.originalPostTitle,
             likeCount: this.likeCount,
             userLiked: this.userLiked,
+            forkCount: this.forkCount,
+            userForked: this.userForked,
             createdAt: new Date(this.createdAt),
             updatedAt: new Date(this.updatedAt)
         });
@@ -251,5 +278,31 @@ export class Post implements IPost {
         updated.userLiked = userLiked;
         updated.likeCount = likeCount;
         return updated;
+    }
+
+    getForkCountText(): string {
+        if (this.forkCount === 0) {
+            return '0 forks';
+        } else if (this.forkCount === 1) {
+            return '1 fork';
+        } else {
+            return `${this.forkCount} forks`;
+        }
+    }
+
+    updateForkStatus(userForked: boolean, forkCount: number): Post {
+        const updated = this.clone();
+        updated.userForked = userForked;
+        updated.forkCount = forkCount;
+        return updated;
+    }
+
+    isForked(): boolean {
+        return this.originalPostId !== null && this.originalPostId !== undefined;
+    }
+
+    canFork(currentUserId?: number): boolean {
+        return !!currentUserId;
+
     }
 }

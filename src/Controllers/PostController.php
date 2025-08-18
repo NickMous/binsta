@@ -252,4 +252,89 @@ class PostController extends BaseController
             ], 500);
         }
     }
+
+    /**
+     * Fork a post
+     */
+    public function fork(Post $post): JsonResponse
+    {
+        $userId = $_SESSION['user'];
+
+        if (!$userId) {
+            return new JsonResponse([
+                'message' => 'Authentication required'
+            ], 401);
+        }
+
+        try {
+            $forkedPost = $this->postRepository->fork($post, $userId);
+
+            return new JsonResponse([
+                'message' => 'Post forked successfully',
+                'forked_post' => $forkedPost->toArray()
+            ], 201);
+        } catch (\Exception $e) {
+            error_log('Post forking failed: ' . $e->getMessage());
+
+            return new JsonResponse([
+                'message' => 'Failed to fork post',
+                'error' => 'An unexpected error occurred'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get fork status for a post
+     */
+    public function forkStatus(Post $post): JsonResponse
+    {
+        $userId = $_SESSION['user'];
+
+        if (!$userId) {
+            return new JsonResponse([
+                'user_forked' => false,
+                'fork_count' => $this->postRepository->getForkCount($post->getId())
+            ]);
+        }
+
+        try {
+            $userForked = $this->postRepository->hasUserForkedPost($userId, $post->getId());
+            $forkCount = $this->postRepository->getForkCount($post->getId());
+
+            return new JsonResponse([
+                'user_forked' => $userForked,
+                'fork_count' => $forkCount
+            ]);
+        } catch (\Exception $e) {
+            error_log('Failed to get fork status: ' . $e->getMessage());
+
+            return new JsonResponse([
+                'message' => 'Failed to get fork status',
+                'error' => 'An unexpected error occurred'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get forks of a post
+     */
+    public function forks(Post $post): JsonResponse
+    {
+        try {
+            $currentUserId = $_SESSION['user'] ?? null;
+            $forks = $this->postRepository->getForks($post->getId(), $currentUserId);
+
+            return new JsonResponse([
+                'forks' => $forks,
+                'count' => count($forks)
+            ]);
+        } catch (\Exception $e) {
+            error_log('Failed to fetch forks: ' . $e->getMessage());
+
+            return new JsonResponse([
+                'message' => 'Failed to fetch forks',
+                'error' => 'An unexpected error occurred'
+            ], 500);
+        }
+    }
 }

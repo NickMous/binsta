@@ -10,6 +10,7 @@ import {Badge} from '@/components/ui/badge'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import CodeHighlighter from '@/components/CodeHighlighter.vue'
 import LikeButton from '@/components/LikeButton.vue'
+import ForkButton from '@/components/ForkButton.vue'
 import CommentSection from '@/components/CommentSection.vue'
 
 const route = useRoute()
@@ -33,17 +34,17 @@ async function fetchPost() {
     if (abortController) {
       abortController.abort()
     }
-    
+
     // Create new abort controller for this request
     abortController = new AbortController()
-    
+
     isLoading.value = true
     error.value = null
-    
+
     const response = await fetch(`/api/posts/${postId.value}`, {
       signal: abortController.signal
     })
-    
+
     if (!response.ok) {
       if (response.status === 404) {
         error.value = `Post not found`
@@ -53,10 +54,10 @@ async function fetchPost() {
         return
       }
     }
-    
+
     const data = await response.json()
     post.value = Post.fromApiResponse(data.post as PostApiResponse)
-    
+
     // Update breadcrumbs with post title
     if (post.value) {
       breadcrumbStore.replaceBreadcrumbs([
@@ -87,7 +88,7 @@ watch(postId, () => {
   if (postId.value) {
     fetchPost()
   }
-}, { immediate: true })
+}, {immediate: true})
 
 // Cleanup on component unmount
 onBeforeUnmount(() => {
@@ -101,12 +102,12 @@ async function deletePost() {
   if (!post.value || !confirm('Are you sure you want to delete this post?')) {
     return
   }
-  
+
   try {
     const response = await fetch(`/api/posts/${post.value.id}`, {
       method: 'DELETE',
     })
-    
+
     if (response.ok) {
       // Redirect to posts list after successful deletion
       router.push('/posts')
@@ -127,6 +128,13 @@ const canEditPost = computed(() => {
 function handleLikeUpdated(liked: boolean, likeCount: number) {
   if (post.value) {
     post.value = post.value.updateLikeStatus(liked, likeCount)
+  }
+}
+
+// Handle fork updates
+function handleForkUpdated(forked: boolean, forkCount: number) {
+  if (post.value) {
+    post.value = post.value.updateForkStatus(forked, forkCount)
   }
 }
 </script>
@@ -155,13 +163,13 @@ function handleLikeUpdated(liked: boolean, likeCount: number) {
   <div v-else-if="isLoading" class="space-y-6">
     <div class="flex justify-between items-start">
       <div class="space-y-2">
-        <Skeleton class="h-8 w-2/3" />
-        <Skeleton class="h-4 w-1/3" />
+        <Skeleton class="h-8 w-2/3"/>
+        <Skeleton class="h-4 w-1/3"/>
       </div>
-      <Skeleton class="h-10 w-24" />
+      <Skeleton class="h-10 w-24"/>
     </div>
-    <Skeleton class="h-20 w-full" />
-    <Skeleton class="h-64 w-full" />
+    <Skeleton class="h-20 w-full"/>
+    <Skeleton class="h-64 w-full"/>
   </div>
 
   <!-- Post Content -->
@@ -169,6 +177,20 @@ function handleLikeUpdated(liked: boolean, likeCount: number) {
     <!-- Post Header -->
     <div class="flex justify-between items-start">
       <div class="space-y-2">
+        <!-- Fork indicator -->
+        <div v-if="post.isForked()" class="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>🍴</span>
+          <span>Forked from 
+            <RouterLink 
+              v-if="post.originalPostId" 
+              :to="`/posts/${post.originalPostId}`"
+              class="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+            >
+              {{ post.originalPostTitle || 'another post' }}
+            </RouterLink>
+            <span v-else class="font-medium">another post</span>
+          </span>
+        </div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
           {{ post.title }}
         </h1>
@@ -181,15 +203,16 @@ function handleLikeUpdated(liked: boolean, likeCount: number) {
         <!-- User information -->
         <div v-if="post.userName || post.userUsername" class="flex items-center gap-3">
           <Avatar class="h-8 w-8">
-            <AvatarImage v-if="post.userProfilePicture" :src="post.userProfilePicture" :alt="post.getUserDisplayName()" />
+            <AvatarImage v-if="post.userProfilePicture" :src="post.userProfilePicture"
+                         :alt="post.getUserDisplayName()"/>
             <AvatarFallback class="text-sm">
               {{ post.getUserDisplayName().charAt(0).toUpperCase() }}
             </AvatarFallback>
           </Avatar>
           <div class="flex flex-col">
-            <RouterLink 
-              :to="`/users/${post.getUserUsername()}`"
-              class="text-base font-medium text-gray-900 dark:text-gray-100 hover:underline"
+            <RouterLink
+                :to="`/users/${post.getUserUsername()}`"
+                class="text-base font-medium text-gray-900 dark:text-gray-100 hover:underline"
             >
               {{ post.getUserDisplayName() }}
             </RouterLink>
@@ -199,7 +222,7 @@ function handleLikeUpdated(liked: boolean, likeCount: number) {
           </div>
         </div>
       </div>
-      
+
       <!-- Actions for post owner -->
       <div v-if="canEditPost" class="flex gap-2">
         <Button variant="outline" size="sm" as-child>
@@ -235,32 +258,47 @@ function handleLikeUpdated(liked: boolean, likeCount: number) {
           </span>
         </div>
       </div>
-      
+
       <div class="border rounded-lg overflow-hidden bg-gray-950">
         <CodeHighlighter
-          :code="post.code"
-          :language="post.programmingLanguage"
-          theme="github-dark"
+            :code="post.code"
+            :language="post.programmingLanguage"
+            theme="github-dark"
         />
       </div>
     </div>
 
     <!-- Like and Engagement Section -->
     <div class="flex items-center justify-between py-4 border-y border-gray-200 dark:border-gray-700">
-      <div class="flex items-center gap-4">
-        <LikeButton
-          :post-id="post.id"
-          :liked="post.userLiked"
-          :like-count="post.likeCount"
-          size="default"
-          :show-count="false"
-          @updated="handleLikeUpdated"
-        />
-        <div class="text-sm text-muted-foreground">
-          {{ post.getLikeCountText() }}
+      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-2">
+          <LikeButton
+              :post-id="post.id"
+              :liked="post.userLiked"
+              :like-count="post.likeCount"
+              size="default"
+              :show-count="false"
+              @updated="handleLikeUpdated"
+          />
+          <div class="text-sm text-muted-foreground">
+            {{ post.getLikeCountText() }}
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <ForkButton
+              :post-id="post.id"
+              :forked="post.userForked"
+              :fork-count="post.forkCount"
+              size="default"
+              :show-count="false"
+              @updated="handleForkUpdated"
+          />
+          <div class="text-sm text-muted-foreground">
+            {{ post.getForkCountText() }}
+          </div>
         </div>
       </div>
-      
+
       <div class="text-sm text-muted-foreground">
         <span>{{ post.code.length }} characters</span>
         <span> • {{ post.getLineCount() }} lines</span>
@@ -276,7 +314,7 @@ function handleLikeUpdated(liked: boolean, likeCount: number) {
             • Updated {{ new Date(post.updatedAt).toLocaleDateString() }}
           </span>
         </div>
-        
+
         <div class="flex gap-2">
           <Button variant="outline" size="sm" as-child>
             <RouterLink to="/posts">
@@ -288,6 +326,6 @@ function handleLikeUpdated(liked: boolean, likeCount: number) {
     </div>
 
     <!-- Comments Section -->
-    <CommentSection :post-id="post.id" />
+    <CommentSection :post-id="post.id"/>
   </div>
 </template>

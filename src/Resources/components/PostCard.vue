@@ -6,6 +6,7 @@ import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import LikeButton from '@/components/LikeButton.vue'
+import ForkButton from '@/components/ForkButton.vue'
 
 interface Props {
   post: Post
@@ -19,6 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   cardClick: [post: Post]
   likeUpdated: [post: Post, liked: boolean, likeCount: number]
+  forkUpdated: [post: Post, forked: boolean, forkCount: number]
 }>()
 
 function handleCardClick() {
@@ -29,6 +31,10 @@ function handleCardClick() {
 
 function handleLikeUpdated(liked: boolean, likeCount: number) {
   emit('likeUpdated', props.post, liked, likeCount)
+}
+
+function handleForkUpdated(forked: boolean, forkCount: number) {
+  emit('forkUpdated', props.post, forked, forkCount)
 }
 </script>
 
@@ -43,6 +49,21 @@ function handleLikeUpdated(liked: boolean, likeCount: number) {
     <CardHeader>
       <div class="flex items-start justify-between">
         <div class="space-y-1 flex-1">
+          <!-- Fork indicator -->
+          <div v-if="post.isForked()" class="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+            <span>🍴</span>
+            <span>Forked from 
+              <RouterLink 
+                v-if="post.originalPostId" 
+                :to="`/posts/${post.originalPostId}`"
+                class="text-blue-600 dark:text-blue-400 hover:underline"
+                @click.stop
+              >
+                {{ post.originalPostTitle || 'another post' }}
+              </RouterLink>
+              <span v-else>another post</span>
+            </span>
+          </div>
           <h3 class="font-semibold text-lg leading-tight line-clamp-2">
             {{ post.getDisplayTitle() }}
           </h3>
@@ -98,6 +119,12 @@ function handleLikeUpdated(liked: boolean, likeCount: number) {
           :liked="post.userLiked"
           :like-count="post.likeCount"
           @updated="handleLikeUpdated"
+        />
+        <ForkButton
+          :post-id="post.id"
+          :forked="post.userForked"
+          :fork-count="post.forkCount"
+          @updated="handleForkUpdated"
         />
         <div class="text-xs text-muted-foreground">
           {{ post.code.length }} chars

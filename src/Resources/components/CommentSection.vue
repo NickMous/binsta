@@ -135,9 +135,9 @@ function canDeleteComment(comment: Comment): boolean {
         <div class="space-y-4">
           <div class="flex items-start gap-3">
             <Avatar class="h-8 w-8 flex-shrink-0">
-              <AvatarImage v-if="userStore.user?.profilePicture" :src="userStore.user.profilePicture" :alt="userStore.user.name" />
+              <AvatarImage v-if="userStore.getProfilePicture" :src="userStore.getProfilePicture" :alt="userStore.getName" />
               <AvatarFallback class="text-sm">
-                {{ userStore.user?.name?.charAt(0).toUpperCase() || 'U' }}
+                {{ userStore.getName?.charAt(0).toUpperCase() || 'U' }}
               </AvatarFallback>
             </Avatar>
             <div class="flex-1">
