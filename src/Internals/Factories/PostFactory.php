@@ -24,6 +24,7 @@ class PostFactory extends Factory
             'code' => $this->generateCode($language),
             'programmingLanguage' => $language,
             'userId' => $this->faker()->numberBetween(1, 15), // Assuming 15 users from UserSeeder
+            'originalPostId' => null, // Default to null (not a fork)
             'createdAt' => $this->faker()->dateTimeBetween('-3 months', 'now'),
             'updatedAt' => new DateTime(),
         ];
@@ -268,6 +269,13 @@ class PostFactory extends Factory
     {
         return $this->state([
             'createdAt' => $this->faker()->dateTimeBetween('-1 week', 'now'),
+        ]);
+    }
+
+    public function forkedFrom(int $originalPostId): static
+    {
+        return $this->state([
+            'originalPostId' => $originalPostId,
         ]);
     }
 }

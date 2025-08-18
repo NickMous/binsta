@@ -28,6 +28,25 @@ class PostSeeder extends Seeder
                 ->create();
         }
 
-        echo "Created posts with factory system\n";
+        // Create some forked posts to demonstrate fork functionality
+        // Get some existing posts to fork from
+        $posts = \RedBeanPHP\R::findAll('post', 'ORDER BY RAND() LIMIT 10');
+        $postIds = array_keys($posts);
+
+        if (!empty($postIds)) {
+            // Create 5-8 forks from random existing posts
+            $forkCount = rand(5, 8);
+            for ($i = 0; $i < $forkCount; $i++) {
+                $originalPostId = $postIds[array_rand($postIds)];
+                $userId = rand(1, 15); // Different users forking posts
+
+                PostFactory::new()
+                    ->forkedFrom((int)$originalPostId)
+                    ->withUser($userId)
+                    ->create();
+            }
+        }
+
+        echo "Created posts with factory system (including forked posts)\n";
     }
 }
