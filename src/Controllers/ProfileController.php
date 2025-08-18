@@ -14,7 +14,10 @@ use NickMous\Binsta\Requests\Profile\UploadProfilePictureRequest;
 
 class ProfileController extends BaseController
 {
-    private const string UPLOAD_DIR = 'uploads/profiles/';
+    /**
+     * @var string
+     */
+    private const UPLOAD_DIR = 'uploads/profiles/';
 
     public function __construct(
         private readonly UserRepository $userRepository

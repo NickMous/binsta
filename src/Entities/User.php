@@ -11,35 +11,19 @@ class User extends Entity
 {
     use HasTimestamps;
 
-    public string $name {
-        get => $this->name ?? '';
-        set => $this->name = $value;
-    }
+    public string $name = '';
 
-    public string $username {
-        get => $this->username ?? '';
-        set => $this->username = $value;
-    }
+    public string $username = '';
 
-    public string $email {
-        get => $this->email ?? '';
-        set => $this->email = $value;
-    }
+    public string $email = '';
 
-    public ?string $profilePicture = null {
-        get => $this->profilePicture;
-        set => $this->profilePicture = $value;
-    }
+    public ?string $profilePicture = null;
 
-    public ?string $biography = null {
-        get => $this->biography;
-        set => $this->biography = $value;
-    }
+    public ?string $biography = null;
 
     private bool $isHydrating = false;
 
-    public string $password {
-        get => $this->password ?? '';
+    public string $password = '' {
         set {
     if ($this->isHydrating) {
         // During hydration, set raw hash without re-hashing
